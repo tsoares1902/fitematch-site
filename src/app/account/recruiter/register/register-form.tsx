@@ -1,7 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
+
+import { createUser } from "@/api/user";
 
 type RecruiterRegisterFormData = {
   firstName: string;
@@ -17,6 +21,11 @@ const inputClassName =
   "border-stroke text-body-color focus:border-primary w-full rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base outline-hidden transition-all duration-300";
 
 const inputErrorClassName = "border-red-500 focus:border-red-500";
+
+type SubmitFeedback = {
+  type: "success" | "fail";
+  message: string;
+} | null;
 
 function validateBirthday(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -43,14 +52,17 @@ function validateBirthday(value: string) {
 }
 
 export function RecruiterRegisterForm() {
+  const router = useRouter();
   const {
     control,
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<RecruiterRegisterFormData>({
     mode: "onBlur",
   });
+  const [feedback, setFeedback] = useState<SubmitFeedback>(null);
 
   const acceptTermsOfUse = useWatch({
     control,
@@ -64,8 +76,46 @@ export function RecruiterRegisterForm() {
   });
   const canSubmit = acceptTermsOfUse && acceptPrivacyPolicy && !isSubmitting;
 
+  useEffect(() => {
+    if (!feedback) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setFeedback(null);
+
+      if (feedback.type === "success") {
+        router.push("/account/signin");
+      }
+    }, 5000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [feedback, router]);
+
   const onSubmit = async (data: RecruiterRegisterFormData) => {
-    void data;
+    try {
+      await createUser({
+        role: "recruiter",
+        username: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+        birthday: data.birthday,
+        status: "active",
+      });
+
+      reset();
+      setFeedback({
+        type: "success",
+        message: "Success",
+      });
+    } catch {
+      setFeedback({
+        type: "fail",
+        message: "Fail",
+      });
+    }
   };
 
   return (
@@ -123,6 +173,15 @@ export function RecruiterRegisterForm() {
                 </p>
                 <span className="bg-body-color/50 hidden h-[1px] w-full max-w-[60px] sm:block"></span>
               </div>
+              {feedback ? (
+                <div
+                  className={`mb-6 w-full rounded-sm px-6 py-3 text-center text-sm font-medium text-white ${
+                    feedback.type === "success" ? "bg-green-900" : "bg-red-900"
+                  }`}
+                >
+                  {feedback.message}
+                </div>
+              ) : null}
               <form onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div className="mb-8">
                   <label

@@ -1,7 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
+
+import { createUser } from "@/api/user";
 
 type CandidateRegisterFormData = {
   firstName: string;
@@ -18,6 +22,11 @@ const inputClassName =
 
 const inputErrorClassName =
   "border-red-500 focus:border-red-500";
+
+type SubmitFeedback = {
+  type: "success" | "fail";
+  message: string;
+} | null;
 
 function validateBirthday(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -44,14 +53,17 @@ function validateBirthday(value: string) {
 }
 
 export function CandidateRegisterForm() {
+  const router = useRouter();
   const {
     control,
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<CandidateRegisterFormData>({
     mode: "onBlur",
   });
+  const [feedback, setFeedback] = useState<SubmitFeedback>(null);
 
   const acceptTermsOfUse = useWatch({
     control,
@@ -65,8 +77,46 @@ export function CandidateRegisterForm() {
   });
   const canSubmit = acceptTermsOfUse && acceptPrivacyPolicy && !isSubmitting;
 
+  useEffect(() => {
+    if (!feedback) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setFeedback(null);
+
+      if (feedback.type === "success") {
+        router.push("/account/signin");
+      }
+    }, 5000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [feedback, router]);
+
   const onSubmit = async (data: CandidateRegisterFormData) => {
-    void data;
+    try {
+      await createUser({
+        role: "candidate",
+        username: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+        birthday: data.birthday,
+        status: "active",
+      });
+
+      reset();
+      setFeedback({
+        type: "success",
+        message: "Success",
+      });
+    } catch {
+      setFeedback({
+        type: "fail",
+        message: "Fail",
+      });
+    }
   };
 
   return (
@@ -124,6 +174,15 @@ export function CandidateRegisterForm() {
                 </p>
                 <span className="bg-body-color/50 hidden h-[1px] w-full max-w-[60px] sm:block"></span>
               </div>
+              {feedback ? (
+                <div
+                  className={`mb-6 w-full rounded-sm px-6 py-3 text-center text-sm font-medium text-white ${
+                    feedback.type === "success" ? "bg-green-900" : "bg-red-900"
+                  }`}
+                >
+                  {feedback.message}
+                </div>
+              ) : null}
               <form onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div className="mb-8">
                   <label
