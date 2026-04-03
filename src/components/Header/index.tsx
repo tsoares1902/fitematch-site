@@ -60,16 +60,18 @@ const Header = () => {
     }
 
     try {
-      await logout({
+      const success = await logout({
         access_token: accessToken,
       });
-    } catch (error) {
-      console.error("Logout failed", error);
-    } finally {
-      signOut();
-      setNavbarOpen(false);
-      router.replace("/");
-      router.refresh();
+
+      if (success) {
+        signOut();
+        setNavbarOpen(false);
+        router.replace("/");
+        router.refresh();
+      }
+    } catch {
+      return;
     }
   };
 

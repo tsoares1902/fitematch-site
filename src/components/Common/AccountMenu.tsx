@@ -47,15 +47,17 @@ export default function AccountMenu() {
     }
 
     try {
-      await logout({
+      const success = await logout({
         access_token: accessToken,
       });
-    } catch (error) {
-      console.error("Logout failed", error);
-    } finally {
-      signOut();
-      router.replace("/");
-      router.refresh();
+
+      if (success) {
+        signOut();
+        router.replace("/");
+        router.refresh();
+      }
+    } catch {
+      return;
     }
   };
 

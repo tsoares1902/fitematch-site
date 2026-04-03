@@ -60,6 +60,11 @@ export async function logout(
   const response = await axios.post<LogoutResponseInterface>(
     `${AUTH_API_URL}logout`,
     payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
+      },
+    },
   );
 
   return response.data.success;

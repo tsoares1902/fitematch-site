@@ -12,18 +12,25 @@ export default function LogoutPage() {
 
   useEffect(() => {
     const handleLogout = async () => {
-      try {
-        if (accessToken) {
-          await logout({
-            access_token: accessToken,
-          });
-        }
-      } catch (error) {
-        console.error("Logout failed", error);
-      } finally {
+      if (!accessToken) {
         signOut();
         router.replace("/");
         router.refresh();
+        return;
+      }
+
+      try {
+        const success = await logout({
+          access_token: accessToken,
+        });
+
+        if (success) {
+          signOut();
+          router.replace("/");
+          router.refresh();
+        }
+      } catch {
+        return;
       }
     };
 
