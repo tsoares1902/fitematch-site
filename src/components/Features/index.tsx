@@ -9,7 +9,7 @@ const Features = () => {
         <div className="container">
           <SectionTitle
             title="Funcionalidades"
-            paragraph="..."
+            paragraph="Faça o seu cadastro e aproveite nossa ferramenta de busca de vagas."
             center
           />
           <div className="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
