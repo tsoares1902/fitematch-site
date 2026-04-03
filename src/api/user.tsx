@@ -3,17 +3,17 @@
 import axios from 'axios';
 
 import { User } from '@/interfaces/user.interface';
-import { CreateUserRequest } from '@/interfaces/create-user.interface';
-import { ListUsersResponse } from '@/interfaces/list-user.interface';
-import { UpdateUserRequest } from '@/interfaces/update-user.interface';
+import { CreateUserRequestInterface } from '@/interfaces/create-user-request.interface';
+import { ListUsersResponseInterface } from '@/interfaces/list-user-request.interface';
+import { UpdateUserRequestInterface } from '@/interfaces/update-user-request.interface';
 
 const USER_API_URL = 'http://localhost:3001/user';
 
 /**
  * List all users with API.
  */
-export async function getAllUsers(): Promise<ListUsersResponse> {
-  const { data } = await axios.get<ListUsersResponse>(
+export async function getAllUsers(): Promise<ListUsersResponseInterface> {
+  const { data } = await axios.get<ListUsersResponseInterface>(
     USER_API_URL,
   );
 
@@ -24,17 +24,16 @@ export async function getAllUsers(): Promise<ListUsersResponse> {
  * Create a new user with API.
  */
 export async function createUser(
-  data: CreateUserRequest,
+  data: CreateUserRequestInterface,
 ): Promise<User> {
-  const payload: CreateUserRequest = {
+  const payload: CreateUserRequestInterface = {
     role: data.role,
     username: data.username,
     firstName: data.firstName,
     lastName: data.lastName,
     email: data.email,
     password: data.password,
-    birthday: data.birthday,
-    status: data.status,
+    birthday: data.birthday
   };
 
   const response = await axios.post<User>(`${USER_API_URL}/`, payload);
@@ -56,9 +55,9 @@ export async function getUser(userId: string): Promise<User> {
  */
 export async function updateUser(
   userId: string,
-  data: UpdateUserRequest,
+  data: UpdateUserRequestInterface,
 ): Promise<User> {
-  const payload: UpdateUserRequest = {
+  const payload: UpdateUserRequestInterface = {
     role: data.role,
     username: data.username,
     firstName: data.firstName,

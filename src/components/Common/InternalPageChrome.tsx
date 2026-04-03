@@ -30,11 +30,19 @@ const Star = ({
 );
 
 const getBreadcrumbContent = (pathname: string) => {
-  if (pathname === "/account/signin") {
+  if (pathname === "/account/login") {
     return {
       pageName: "Login",
       description:
         "Acesse sua conta para acompanhar vagas, candidaturas, alertas e comunicações da plataforma.",
+    };
+  }
+
+  if (pathname === "/account/logout") {
+    return {
+      pageName: "Logout",
+      description:
+        "Encerrando sua sessao e limpando o acesso autenticado da plataforma.",
     };
   }
 
@@ -46,11 +54,19 @@ const getBreadcrumbContent = (pathname: string) => {
     };
   }
 
+  if (pathname === "/account") {
+    return {
+      pageName: "Minha Conta",
+      description:
+        "Acesse a area principal da sua conta e navegue pelos recursos disponiveis para usuarios autenticados.",
+    };
+  }
+
   if (pathname === "/account/candidate") {
     return {
       pageName: "Candidato",
       description:
-        "Inicie seu fluxo de cadastro para criar perfil, acompanhar candidaturas e receber alertas.",
+        "Cadastro para criar perfil, acompanhar candidaturas e receber alertas.",
     };
   }
 
@@ -58,7 +74,7 @@ const getBreadcrumbContent = (pathname: string) => {
     return {
       pageName: "Cadastro de Candidato",
       description:
-        "Crie sua conta de candidato para acessar vagas, alertas e candidaturas.",
+        "Crie sua conta para buscar e se aplicar a vagas.",
     };
   }
 
@@ -66,7 +82,7 @@ const getBreadcrumbContent = (pathname: string) => {
     return {
       pageName: "Recrutador",
       description:
-        "Inicie seu fluxo de cadastro para publicar vagas e acompanhar candidatos.",
+        "Cadastro para criar vagas e acompanhar candidatos.",
     };
   }
 
@@ -74,7 +90,39 @@ const getBreadcrumbContent = (pathname: string) => {
     return {
       pageName: "Cadastro de Recrutador",
       description:
-        "Crie sua conta de recrutador para publicar vagas e organizar o processo seletivo.",
+        "Crie sua conta e públique vagas e acompanhe as aplicações.",
+    };
+  }
+
+  if (pathname === "/account/profile") {
+    return {
+      pageName: "Perfil",
+      description:
+        "Consulte as informacoes da sua conta.",
+    };
+  }
+
+  if (pathname === "/account/advertisement") {
+    return {
+      pageName: "Anúncios",
+      description:
+        "Crie e acompanhe anuncios de vagas.",
+    };
+  }
+
+  if (pathname === "/account/membership") {
+    return {
+      pageName: "Assinatura",
+      description:
+        "Consulte beneficios e recursos disponiveis para a sua conta.",
+    };
+  }
+
+  if (pathname === "/account/security") {
+    return {
+      pageName: "Segurança",
+      description:
+        "Verifique seus acessos e gerencie dispositivos conectados.",
     };
   }
 

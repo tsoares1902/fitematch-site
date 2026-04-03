@@ -1,10 +1,18 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { IoMdExit } from "react-icons/io";
+import { MdLogin } from "react-icons/md";
+import { TbUserSquareRounded } from "react-icons/tb";
+import { FaUserPlus } from "react-icons/fa";
+import { logout } from "@/api/auth";
+import { useAuth } from "@/contexts/auth-context";
 import menuData from "./menuData";
 
 const Header = () => {
+  const { accessToken, isAuthenticated, signOut } = useAuth();
+  const router = useRouter();
   const languageMenuItem = menuData.find((item) => item.title === "Línguas");
   const navigationMenuItems = menuData.filter((item) => item.title !== "Línguas");
   const availableLanguages = languageMenuItem?.submenu || [];
@@ -39,6 +47,29 @@ const Header = () => {
       setOpenIndex(-1);
     } else {
       setOpenIndex(index);
+    }
+  };
+
+  const handleSignOut = async () => {
+    if (!accessToken) {
+      signOut();
+      setNavbarOpen(false);
+      router.replace("/");
+      router.refresh();
+      return;
+    }
+
+    try {
+      await logout({
+        access_token: accessToken,
+      });
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      signOut();
+      setNavbarOpen(false);
+      router.replace("/");
+      router.refresh();
     }
   };
 
@@ -140,20 +171,45 @@ const Header = () => {
                     )}
                     <li className="border-body-color/20 mb-2 border-b pb-3 lg:hidden">
                       <div className="flex flex-col gap-3 pt-1">
-                        <Link
-                          href="/account/signin"
-                          onClick={() => setNavbarOpen(false)}
-                          className="ease-in-up shadow-btn hover:shadow-btn-hover rounded-xs bg-blue-900 px-5 py-3 text-center text-base font-medium text-white transition duration-300 hover:bg-blue-600"
-                        >
-                          Login
-                        </Link>
-                        <Link
-                          href="/account/signup"
-                          onClick={() => setNavbarOpen(false)}
-                          className="ease-in-up shadow-btn hover:shadow-btn-hover rounded-xs bg-green-900 px-5 py-3 text-center text-base font-medium text-white transition duration-300 hover:bg-green-600"
-                        >
-                          Cadastro
-                        </Link>
+                        {isAuthenticated ? (
+                          <>
+                            <Link
+                              href="/account/profile"
+                              onClick={() => setNavbarOpen(false)}
+                              className="ease-in-up shadow-btn hover:shadow-btn-hover flex items-center justify-center gap-2 rounded-xs bg-blue-900 px-5 py-3 text-center text-base font-medium text-white transition duration-300 hover:bg-blue-600"
+                            >
+                              <TbUserSquareRounded className="h-5 w-5 shrink-0" />
+                              Profile
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={handleSignOut}
+                              className="ease-in-up shadow-btn hover:shadow-btn-hover flex cursor-pointer items-center justify-center gap-2 rounded-xs bg-green-900 px-5 py-3 text-center text-base font-medium text-white transition duration-300 hover:bg-green-600"
+                            >
+                              <IoMdExit className="h-5 w-5 shrink-0" />
+                              Signout
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href="/account/login"
+                              onClick={() => setNavbarOpen(false)}
+                              className="ease-in-up shadow-btn hover:shadow-btn-hover flex items-center justify-center gap-2 rounded-xs bg-blue-900 px-5 py-3 text-center text-base font-medium text-white transition duration-300 hover:bg-blue-600"
+                            >
+                              <MdLogin className="h-5 w-5 shrink-0" />
+                              Entrar
+                            </Link>
+                            <Link
+                              href="/account/signup"
+                              onClick={() => setNavbarOpen(false)}
+                              className="ease-in-up shadow-btn hover:shadow-btn-hover flex items-center justify-center gap-2 rounded-xs bg-green-900 px-5 py-3 text-center text-base font-medium text-white transition duration-300 hover:bg-green-600"
+                            >
+                              <FaUserPlus className="h-5 w-5 shrink-0" />
+                              Cadastro
+                            </Link>
+                          </>
+                        )}
                       </div>
                     </li>
                     {navigationMenuItems.map((menuItem, index) => (
@@ -169,7 +225,8 @@ const Header = () => {
                           </Link>
                         ) : (
                           <>
-                            <p
+                            <button
+                              type="button"
                               onClick={() => handleSubmenu(index)}
                               className="text-dark group-hover:text-primary flex cursor-pointer items-center justify-between py-2 text-base lg:mr-0 lg:inline-flex lg:px-0 lg:py-6"
                             >
@@ -184,7 +241,7 @@ const Header = () => {
                                   />
                                 </svg>
                               </span>
-                            </p>
+                            </button>
                             <div
                               className={`submenu relative top-full left-0 rounded-sm bg-white transition-[top] duration-300 group-hover:opacity-100 lg:invisible lg:absolute lg:top-[110%] lg:block lg:w-[250px] lg:p-4 lg:opacity-0 lg:shadow-lg lg:group-hover:visible lg:group-hover:top-full ${
                                 openIndex === index ? "block" : "hidden"
@@ -210,7 +267,8 @@ const Header = () => {
               <div className="ml-auto flex items-center justify-end gap-3 pr-16 lg:pr-0">
                 {languageMenuItem && (
                   <div className="group relative hidden lg:block">
-                    <p
+                    <button
+                      type="button"
                       onClick={() => handleSubmenu(languageMenuItem.id)}
                       className="text-dark group-hover:text-primary flex cursor-pointer items-center justify-between px-7 py-3 text-base font-semibold"
                     >
@@ -225,7 +283,7 @@ const Header = () => {
                           />
                         </svg>
                       </span>
-                    </p>
+                    </button>
                     <div
                       className={`submenu absolute top-[110%] right-0 rounded-sm bg-white transition-[top] duration-300 lg:block lg:w-[250px] lg:p-4 lg:opacity-0 lg:shadow-lg lg:group-hover:visible lg:group-hover:top-full lg:group-hover:opacity-100 ${
                         openIndex === languageMenuItem.id
@@ -251,18 +309,47 @@ const Header = () => {
                     </div>
                   </div>
                 )}
-                <Link
-                  href="/account/signin"
-                  className="ease-in-up shadow-btn hover:shadow-btn-hover hidden rounded-xs bg-blue-900 px-8 py-3 text-base font-medium text-white transition duration-300 hover:bg-blue-600 md:block md:px-9 lg:px-6 xl:px-9"
+                <div
+                  className={`logged-header items-center gap-3 ${
+                    isAuthenticated ? "flex" : "hidden"
+                  }`}
                 >
-                  Login
-                </Link>
-                <Link
-                  href="/account/signup"
-                  className="ease-in-up shadow-btn hover:shadow-btn-hover hidden rounded-xs bg-green-900 px-8 py-3 text-base font-medium text-white transition duration-300 hover:bg-green-600 md:block md:px-9 lg:px-6 xl:px-9"
+                  <Link
+                    href="/account/profile"
+                    className="ease-in-up shadow-btn hover:shadow-btn-hover hidden items-center justify-center gap-2 rounded-xs bg-green-900 px-8 py-3 text-base font-medium text-white transition duration-300 hover:bg-green-700 md:flex md:px-9 lg:px-6 xl:px-9"
+                  >
+                    <TbUserSquareRounded className="h-5 w-5 shrink-0" />
+                    Profile
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="ease-in-up shadow-btn hover:shadow-btn-hover hidden cursor-pointer items-center justify-center gap-2 rounded-xs bg-red-900 px-8 py-3 text-base font-medium text-white transition duration-300 hover:bg-red-700 md:flex md:px-9 lg:px-6 xl:px-9"
+                  >
+                    <IoMdExit className="h-5 w-5 shrink-0" />
+                    Signout
+                  </button>
+                </div>
+                <div
+                  className={`default-header items-center gap-3 ${
+                    isAuthenticated ? "hidden" : "flex"
+                  }`}
                 >
-                  Cadastro
-                </Link>
+                  <Link
+                    href="/account/login"
+                    className="ease-in-up shadow-btn hover:shadow-btn-hover hidden items-center justify-center gap-2 rounded-xs bg-blue-900 px-8 py-3 text-base font-medium text-white transition duration-300 hover:bg-blue-600 md:flex md:px-9 lg:px-6 xl:px-9"
+                  >
+                    <MdLogin className="h-5 w-5 shrink-0" />
+                    Entrar
+                  </Link>
+                  <Link
+                    href="/account/signup"
+                    className="ease-in-up shadow-btn hover:shadow-btn-hover hidden items-center justify-center gap-2 rounded-xs bg-green-900 px-8 py-3 text-base font-medium text-white transition duration-300 hover:bg-green-600 md:flex md:px-9 lg:px-6 xl:px-9"
+                  >
+                    <FaUserPlus className="h-5 w-5 shrink-0" />
+                    Cadastro
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

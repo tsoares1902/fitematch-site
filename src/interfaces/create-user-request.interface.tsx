@@ -1,4 +1,4 @@
-export interface UpdateUserRequest {
+export interface CreateUserRequestInterface {
   role: string;
   username: string;
   firstName: string;
@@ -6,5 +6,4 @@ export interface UpdateUserRequest {
   email: string;
   password: string;
   birthday: string;
-  status: string;
 }

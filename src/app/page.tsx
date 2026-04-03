@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import ScrollUp from "@/components/Common/ScrollUp";
 import Features from "@/components/Features";
-import Hero from "@/components/Hero";
+import HeroSwitch from "@/components/HeroSwitch";
 import Jobs from "@/components/Jobs";
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <>
       <ScrollUp />
-      <Hero />
+      <HeroSwitch />
       <Features />
       <Jobs />
     </>
