@@ -1,8 +1,11 @@
+import { getAllJobs } from "@/api/job";
+
 import SectionTitle from "../Common/SectionTitle";
 import JobCardDetails from "./JobCardDetails";
-import jobData from "./jobData";
 
-const Jobs = () => {
+const Jobs = async () => {
+  const jobs = await getAllJobs();
+
   return (
     <section
       id="jobs"
@@ -16,7 +19,7 @@ const Jobs = () => {
         />
 
         <div className="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2 md:gap-x-6 lg:gap-x-8 xl:grid-cols-3">
-          {jobData.map((job) => (
+          {jobs.map((job) => (
             <div key={job.id} className="w-full">
               <JobCardDetails job={job} />
             </div>
