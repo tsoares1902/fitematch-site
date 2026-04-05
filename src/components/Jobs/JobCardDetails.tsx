@@ -1,4 +1,5 @@
 import { Job } from "@/interfaces/job.interface";
+import { CiCirclePlus } from "react-icons/ci";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -6,12 +7,11 @@ const JobCardDetails = ({ job }: { job: Job }) => {
   const {
     id,
     title,
-    logo,
     logoAlt,
     role,
     slots,
-    slug,
     createdAt,
+    isPaidAdvertising,
     company,
   } = job;
 
@@ -27,29 +27,40 @@ const JobCardDetails = ({ job }: { job: Job }) => {
     company?.cover?.trim() || "/images/jobs/default_company_cover.png";
   const companyLogo =
     company?.logo?.trim() || "/images/jobs/default_company_logo.png";
-  const companyName = company?.name?.trim() || "";
-  const companySlug = company?.role?.trim() || slug;
+  const detailsHref = `/job/${id}/details`;
+  const formattedRole =
+    role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+  const showFeaturedBadge =
+    isPaidAdvertising === true ||
+    isPaidAdvertising === "true" ||
+    isPaidAdvertising === 1 ||
+    isPaidAdvertising === "1";
 
   return (
     <div className="group shadow-one hover:shadow-two relative overflow-hidden rounded-xs bg-white duration-300">
         <Link
-          href={`/job/${id}/details`}
+          href={detailsHref}
           className="relative block aspect-37/22 w-full"
         >
-          <span className="bg-primary absolute top-6 right-6 z-20 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white capitalize">
-            {role}
-          </span>
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute top-6 right-6 z-20 flex flex-wrap justify-end gap-2">
+            {showFeaturedBadge ? (
+              <span className="bg-orange-900 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white">
+                Destaque
+              </span>
+            ) : null}
+            <span className="bg-primary inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white">
+              {formattedRole}
+            </span>
+          </div>
+          <div className="absolute right-6 bottom-6 left-6 z-20">
+            <h3 className="text-xl font-bold text-white sm:text-2xl">
+              {title}
+            </h3>
+          </div>
           <Image src={coverImage} alt={logoAlt || title} fill className="object-cover" />
         </Link>
         <div className="p-6 sm:p-8 md:px-6 md:py-8 lg:p-8 xl:px-5 xl:py-8 2xl:p-8">
-          <h3>
-            <Link
-              href={`/job/${id}/details`}
-              className="hover:text-primary mb-4 block text-xl font-bold text-black sm:text-2xl"
-            >
-              {title}
-            </Link>
-          </h3>
           <p className="border-body-color/10 text-body-color mb-6 border-b pb-6 text-base font-medium">
             {slotsLabel} disponiveis para esta vaga.
           </p>
@@ -67,17 +78,18 @@ const JobCardDetails = ({ job }: { job: Job }) => {
               </div>
               <div className="w-full">
                 <h4 className="text-dark mb-1 text-sm font-medium">
-                  {companyName}
+                  Publicado
                 </h4>
-                <p className="text-body-color text-xs">{companySlug}</p>
+                <p className="text-body-color text-xs">{publishDate}</p>
               </div>
             </div>
-            <div className="inline-block">
-              <h4 className="text-dark mb-1 text-sm font-medium">
-                Publicado
-              </h4>
-              <p className="text-body-color text-xs">{publishDate}</p>
-            </div>
+            <Link
+              href={detailsHref}
+              className="inline-flex items-center gap-2 rounded-md bg-green-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
+            >
+              <CiCirclePlus className="text-lg" />
+              Detalhes da vaga
+            </Link>
           </div>
         </div>
       </div>

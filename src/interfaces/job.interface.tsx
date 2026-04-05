@@ -5,6 +5,7 @@ export interface Job {
   title: string;
   slots: number;
   role: string;
+  isPaidAdvertising?: boolean | string | number;
   logo: string;
   logoAlt: string;
   status: string;
