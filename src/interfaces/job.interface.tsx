@@ -1,20 +1,17 @@
+import { Company } from "@/interfaces/company.interface";
+import { JobBenefits } from "@/interfaces/job-benefits.interface";
+
 export interface Job {
-  id: string;
+  id?: string;
   companyId: string;
   slug: string;
   title: string;
   slots: number;
-  role: string;
-  isPaidAdvertising?: boolean | string | number;
-  logo: string;
-  logoAlt: string;
+  benefits: JobBenefits;
+  isPaidAdvertising?: boolean;
+  role: "intern" | "freelance" | "contract";
   status: string;
-  createdAt: Date;
-  updatedAt: Date;
-  company?: {
-    name?: string;
-    role?: string;
-    logo?: string;
-    cover?: string;
-  };
+  company: Company;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

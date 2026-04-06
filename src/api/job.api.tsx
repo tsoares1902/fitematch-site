@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Job } from '@/interfaces/job.interface';
 import { CreateJobRequestInterface } from '@/interfaces/request/create-job-request.interface';
 import { ListJobResponseInterface } from '@/interfaces/responses/list-job-response.interface';
+import { ReadJobResponseInterface } from '@/interfaces/responses/read-job-response.interface';
 
 const JOB_API_URL = 'http://localhost:3002/job';
 
@@ -26,17 +27,20 @@ export async function createNewJob(
   data: CreateJobRequestInterface,
 ): Promise<Job> {
   const payload: CreateJobRequestInterface = {
-    companyId: data.companyId,
-    slug: data.slug,
-    title: data.title,
-    slots: data.slots,
-    role: data.role,
-    logo: data.logo,
-    logoAlt: data.logoAlt,
-    status: data.status,
+    ...data,
   };
 
   const response = await axios.post<Job>(JOB_API_URL, payload);
 
   return response.data;
+}
+
+
+/**
+ * Get job from API.
+ */
+export async function getJob(jobId: string): Promise<ReadJobResponseInterface> {
+  const { data } = await axios.get<ReadJobResponseInterface>(`${JOB_API_URL}/${jobId}`);
+
+  return data;
 }

@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 
-import jobData from "@/components/Jobs/jobData";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 
 const Star = ({
@@ -166,14 +165,11 @@ const getBreadcrumbContent = (pathname: string) => {
     };
   }
 
-  const jobMatch = pathname.match(/^\/job\/(\d+)\/details$/);
+  const jobMatch = pathname.match(/^\/job\/([^/]+)\/details$/);
   if (jobMatch) {
-    const job = jobData.find((item) => item.id === Number(jobMatch[1]));
-
     return {
-      pageName: job?.title || "Detalhes da Vaga",
+      pageName: "Detalhes da Vaga",
       description:
-        job?.paragraph ||
         "Confira os detalhes da vaga e avance para a candidatura.",
     };
   }
@@ -184,7 +180,7 @@ const getBreadcrumbContent = (pathname: string) => {
 export default function InternalPageChrome() {
   const pathname = usePathname();
 
-  if (pathname === "/") {
+  if (pathname === "/" || /^\/job\/[^/]+\/details$/.test(pathname)) {
     return null;
   }
 

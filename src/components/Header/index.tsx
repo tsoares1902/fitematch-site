@@ -6,7 +6,7 @@ import { IoMdExit } from "react-icons/io";
 import { MdLogin } from "react-icons/md";
 import { TbUserSquareRounded } from "react-icons/tb";
 import { FaUserPlus } from "react-icons/fa";
-import { logout } from "@/api/auth";
+import { logout } from "@/api/auth.api";
 import { useAuth } from "@/contexts/auth-context";
 import menuData from "./menuData";
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { getSessionsByUser } from "@/api/auth";
+import { getSessionsByUser } from "@/api/auth.api";
 import AccountMenu from "@/components/Common/AccountMenu";
 import { useAuth } from "@/contexts/auth-context";
 import { AuthAccessItemInterface } from "@/interfaces/auth-access-item.interface";

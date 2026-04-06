@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { FaUserPlus } from "react-icons/fa";
 
-import { createUser } from "@/api/user";
+import { createUser } from "@/api/user.api";
 
 type CandidateRegisterFormData = {
   firstName: string;

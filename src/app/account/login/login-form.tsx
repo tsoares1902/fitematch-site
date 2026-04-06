@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { MdLogin } from "react-icons/md";
 
-import { login } from "@/api/auth";
+import { login } from "@/api/auth.api";
 import { useAuth } from "@/contexts/auth-context";
 import {
   buildAuthClientContext,

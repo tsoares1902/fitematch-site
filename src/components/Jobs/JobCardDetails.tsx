@@ -7,7 +7,6 @@ const JobCardDetails = ({ job }: { job: Job }) => {
   const {
     id,
     title,
-    logoAlt,
     role,
     slots,
     createdAt,
@@ -18,23 +17,20 @@ const JobCardDetails = ({ job }: { job: Job }) => {
   const publishDate = new Date(createdAt).toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+    year: "2-digit",
   });
   const slotsLabel = `${slots} ${slots === 1 ? "vaga" : "vagas"}`;
   const coverImage =
-    company?.cover?.trim() || "/images/jobs/default_company_cover.png";
+    company.cover?.trim() || "/images/jobs/default_company_cover.png";
   const companyLogo =
-    company?.logo?.trim() || "/images/jobs/default_company_logo.png";
-  const detailsHref = `/job/${id}/details`;
+    company.logo?.trim() || "/images/jobs/default_company_logo.png";
+  const detailsHref = `/job/${id || ""}/details`;
   const formattedRole =
     role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
-  const showFeaturedBadge =
-    isPaidAdvertising === true ||
-    isPaidAdvertising === "true" ||
-    isPaidAdvertising === 1 ||
-    isPaidAdvertising === "1";
+  const locationCity = company.address?.city?.trim();
+  const locationState = company.address?.state?.trim();
+  const locationLabel = [locationCity, locationState].filter(Boolean).join(" - ");
+  const showFeaturedBadge = isPaidAdvertising === true;
 
   return (
     <div className="group shadow-one hover:shadow-two relative overflow-hidden rounded-xs bg-white duration-300">
@@ -57,20 +53,25 @@ const JobCardDetails = ({ job }: { job: Job }) => {
             <h3 className="text-xl font-bold text-white sm:text-2xl">
               {title}
             </h3>
+            {locationLabel ? (
+              <p className="mt-2 text-sm font-medium text-white/90 sm:text-base">
+                {locationLabel}
+              </p>
+            ) : null}
           </div>
-          <Image src={coverImage} alt={logoAlt || title} fill className="object-cover" />
+          <Image src={coverImage} alt={title} fill className="object-cover" />
         </Link>
         <div className="p-6 sm:p-8 md:px-6 md:py-8 lg:p-8 xl:px-5 xl:py-8 2xl:p-8">
           <p className="border-body-color/10 text-body-color mb-6 border-b pb-6 text-base font-medium">
             {slotsLabel} disponiveis para esta vaga.
           </p>
-          <div className="flex items-center">
-            <div className="border-body-color/10 mr-5 flex items-center border-r pr-5 xl:mr-3 xl:pr-3 2xl:mr-5 2xl:pr-5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="border-body-color/10 flex flex-1 items-center border-r pr-5">
               <div className="mr-4">
                 <div className="relative h-10 w-10 overflow-hidden rounded-full">
                   <Image
                     src={companyLogo}
-                    alt={logoAlt || title}
+                    alt={title}
                     fill
                     className="object-cover"
                   />
@@ -78,9 +79,9 @@ const JobCardDetails = ({ job }: { job: Job }) => {
               </div>
               <div className="w-full">
                 <h4 className="text-dark mb-1 text-sm font-medium">
-                  Publicado
+                  {company.name || "Empresa"}
                 </h4>
-                <p className="text-body-color text-xs">{publishDate}</p>
+                <p className="text-body-color text-xs">Publicado: {publishDate}</p>
               </div>
             </div>
             <Link
@@ -88,7 +89,7 @@ const JobCardDetails = ({ job }: { job: Job }) => {
               className="inline-flex items-center gap-2 rounded-md bg-green-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
             >
               <CiCirclePlus className="text-lg" />
-              Detalhes da vaga
+              Detalhes
             </Link>
           </div>
         </div>

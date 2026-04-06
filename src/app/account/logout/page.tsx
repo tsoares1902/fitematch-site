@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { logout } from "@/api/auth";
+import { logout } from "@/api/auth.api";
 import { useAuth } from "@/contexts/auth-context";
 
 export default function LogoutPage() {

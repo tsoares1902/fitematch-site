@@ -1,14 +1,18 @@
-import { getAllJobs } from "@/api/job";
+import { getAllJobs } from "@/api/job.api";
 
 import SectionTitle from "../Common/SectionTitle";
 import JobCardDetails from "./JobCardDetails";
 
 const Jobs = async () => {
   const jobs = await getAllJobs();
-  const isFeaturedJob = (value: boolean | string | number | undefined) =>
-    value === true || value === "true" || value === 1 || value === "1";
-  const featuredJobs = jobs.filter((job) => isFeaturedJob(job.isPaidAdvertising));
-  const regularJobs = jobs.filter((job) => !isFeaturedJob(job.isPaidAdvertising));
+  const activeJobs = jobs.filter((job) => job.status === "active");
+  const isFeaturedJob = (value: boolean | undefined) => value === true;
+  const featuredJobs = activeJobs.filter((job) =>
+    isFeaturedJob(job.isPaidAdvertising),
+  );
+  const regularJobs = activeJobs.filter((job) =>
+    !isFeaturedJob(job.isPaidAdvertising),
+  );
 
   return (
     <section

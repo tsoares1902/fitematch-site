@@ -7,7 +7,7 @@ import { GrNotes } from "react-icons/gr";
 import { TbUserSquareRounded } from "react-icons/tb";
 import { FaCreditCard } from "react-icons/fa";
 import { MdOutlineSecurity } from "react-icons/md";
-import { logout } from "@/api/auth";
+import { logout } from "@/api/auth.api";
 import { useAuth } from "@/contexts/auth-context";
 
 const accountMenuItems = [
