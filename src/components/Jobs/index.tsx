@@ -16,10 +16,7 @@ const Jobs = async ({
   showRegularJobs?: boolean;
 }) => {
   const locale = await getCurrentLocale();
-  const { jobs, pagination } = await getAllJobs({
-    page: currentPage,
-    limit: 6,
-  });
+  const { jobs } = await getAllJobs({ limit: 1000 });
   const applies = await getAllApplies();
   const appliedJobIds = Array.from(new Set(
     applies
@@ -34,11 +31,15 @@ const Jobs = async ({
   const regularJobs = activeJobs.filter((job) =>
     !isFeaturedJob(job.isPaidAdvertising),
   );
-  const previousPage = pagination.currentPage > 1 ? pagination.currentPage - 1 : null;
-  const nextPage =
-    pagination.currentPage < pagination.totalPages
-      ? pagination.currentPage + 1
-      : null;
+  const jobsPerPage = 6;
+  const totalPages = Math.max(1, Math.ceil(regularJobs.length / jobsPerPage));
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
+  const paginatedRegularJobs = regularJobs.slice(
+    (safeCurrentPage - 1) * jobsPerPage,
+    safeCurrentPage * jobsPerPage,
+  );
+  const previousPage = safeCurrentPage > 1 ? safeCurrentPage - 1 : null;
+  const nextPage = safeCurrentPage < totalPages ? safeCurrentPage + 1 : null;
   const jobsPath = localizePath("/jobs", locale);
 
   return (
@@ -52,11 +53,11 @@ const Jobs = async ({
         {showRegularJobs && regularJobs.length > 0 ? (
           <>
             <div className="border-body-color/15 my-10 border-t" />
-            <JobsSearchForm jobs={regularJobs} appliedJobIds={appliedJobIds} />
-            {pagination.totalPages > 1 ? (
+            <JobsSearchForm jobs={paginatedRegularJobs} appliedJobIds={appliedJobIds} />
+            {totalPages > 1 ? (
               <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-xs border border-gray-200 bg-white px-6 py-4 text-sm text-body-color shadow-one md:flex-row">
                 <p>
-                  Página {pagination.currentPage} de {pagination.totalPages}
+                  Página {safeCurrentPage} de {totalPages}
                 </p>
                 <div className="flex items-center gap-3">
                   {previousPage ? (

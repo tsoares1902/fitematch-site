@@ -72,23 +72,33 @@ export async function getAllJobs(
     limit?: number;
   },
 ): Promise<JobListResult> {
-  const page = options?.page ?? 1;
-  const limit = options?.limit ?? 6;
+  const page = options?.page;
+  const limit = options?.limit;
   const { data } = await axios.get<ListJobResponseInterface>(
     JOB_API_URL,
     {
-      params: {
-        page,
-        limit,
-      },
+      params:
+        page || limit
+          ? {
+              ...(page ? { page } : {}),
+              ...(limit ? { limit } : {}),
+            }
+          : undefined,
     },
   );
 
   const jobs = Array.isArray(data.data) ? data.data : [];
+  const fallbackPage = page ?? 1;
+  const fallbackLimit = limit ?? Math.max(jobs.length, 1);
 
   return {
     jobs,
-    pagination: normalizePagination(data.metadata?.pagination, jobs.length, page, limit),
+    pagination: normalizePagination(
+      data.metadata?.pagination,
+      jobs.length,
+      fallbackPage,
+      fallbackLimit,
+    ),
   };
 }
 
