@@ -1,41 +1,12 @@
-"use client";
+import type { Metadata } from "next";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import LogoutPageClient from "./logout-page-client";
 
-import { logout } from "@/api/auth.api";
-import { useAuth } from "@/contexts/auth-context";
+export const metadata: Metadata = {
+  title: "fitematch | Sair da Conta",
+  description: "Encerre sua sessao com seguranca na fitematch.",
+};
 
 export default function LogoutPage() {
-  const { accessToken, signOut } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    const handleLogout = async () => {
-      if (!accessToken) {
-        signOut();
-        router.replace("/");
-        router.refresh();
-        return;
-      }
-
-      try {
-        const success = await logout({
-          access_token: accessToken,
-        });
-
-        if (success) {
-          signOut();
-          router.replace("/");
-          router.refresh();
-        }
-      } catch {
-        return;
-      }
-    };
-
-    void handleLogout();
-  }, [accessToken, router, signOut]);
-
-  return null;
+  return <LogoutPageClient />;
 }

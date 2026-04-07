@@ -258,9 +258,7 @@ export default function AdvertisementFormModal({
             <>
               {feedback ? (
                 <div
-                  className={`mb-6 w-full rounded-sm px-6 py-3 text-center text-sm font-medium text-white ${
-                    feedback.type === "success" ? "bg-green-900" : "bg-red-900"
-                  }`}
+                  className="mb-6 w-full rounded-sm bg-red-900 px-6 py-3 text-center text-sm font-medium text-white"
                 >
                   {feedback.message}
                 </div>

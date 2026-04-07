@@ -21,11 +21,13 @@ const JobCardDetails = ({
     company,
   } = job;
 
-  const publishDate = new Date(createdAt).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-  });
+  const publishDate = createdAt
+    ? new Date(createdAt).toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      })
+    : "Nao informado";
   const slotsLabel = `${slots} ${slots === 1 ? "vaga disponível" : "vagas disponíveis"}`;
   const coverImage =
     company.cover?.trim() || "/images/jobs/default_company_cover.png";

@@ -9,113 +9,6 @@ import { UpdateUserRequestInterface } from '@/interfaces/update-user-request.int
 
 const USER_API_URL = 'http://localhost:3001/user';
 
-type UserMutationPayload = {
-  birthday: string;
-  documents: {
-    identityDocument?: string;
-    socialDocument?: string;
-  };
-  firstName: string;
-  lastName: string;
-  details: {
-    city?: string;
-    complement?: string;
-    isTelegram?: boolean;
-    isWhatsapp?: boolean;
-    neighborhood?: string;
-    number?: string | number;
-    phone?: string;
-    state?: string;
-    street?: string;
-    zipCode?: string;
-  };
-  email: string;
-  password: string;
-  role: string;
-  social: {
-    facebook?: string;
-    instagram?: string;
-    linkedin?: string;
-    x?: string;
-  };
-  status: string;
-  username: string;
-};
-
-type UserApiResponse = User & {
-  details?: {
-    city?: string;
-    complement?: string;
-    isTelegram?: boolean;
-    isWhatsApp?: boolean;
-    isWhatsapp?: boolean;
-    neighborhood?: string;
-    number?: string | number;
-    phone?: string;
-    state?: string;
-    street?: string;
-    zipCode?: string;
-    zipcode?: string;
-  };
-  documents?: {
-    identityDocument?: string;
-    socialDocument?: string;
-  };
-};
-
-function buildUserMutationPayload(data: UpdateUserRequestInterface | CreateUserRequestInterface): UserMutationPayload {
-  return {
-    birthday: data.birthday,
-    documents: {
-      identityDocument: data.identityDocument,
-      socialDocument: data.socialDocument,
-    },
-    firstName: data.firstName,
-    lastName: data.lastName,
-    details: {
-      city: data.city,
-      complement: data.complement,
-      isTelegram: data.isTelegram,
-      isWhatsapp: data.isWhatsApp,
-      neighborhood: data.neighborhood,
-      number: data.number,
-      phone: data.phone,
-      state: data.state,
-      street: data.street,
-      zipCode: data.zipCode,
-    },
-    email: data.email,
-    password: data.password,
-    role: data.role,
-    social: {
-      facebook: data.social?.facebook,
-      instagram: data.social?.instagram,
-      linkedin: data.social?.linkedin,
-      x: data.social?.x ?? data.social?.twitter,
-    },
-    status: data.status,
-    username: data.username,
-  };
-}
-
-function normalizeUserResponse(data: UserApiResponse): User {
-  return {
-    ...data,
-    city: data.city ?? data.details?.city,
-    complement: data.complement ?? data.details?.complement,
-    identityDocument: data.identityDocument ?? data.documents?.identityDocument,
-    isTelegram: data.isTelegram ?? data.details?.isTelegram,
-    isWhatsApp: data.isWhatsApp ?? data.details?.isWhatsApp ?? data.details?.isWhatsapp,
-    neighborhood: data.neighborhood ?? data.details?.neighborhood,
-    number: data.number ?? data.details?.number,
-    phone: data.phone ?? data.details?.phone,
-    socialDocument: data.socialDocument ?? data.documents?.socialDocument,
-    state: data.state ?? data.details?.state,
-    street: data.street ?? data.details?.street,
-    zipCode: data.zipCode ?? data.details?.zipCode ?? data.details?.zipcode,
-  };
-}
-
 /**
  * List all users with API.
  */
@@ -133,20 +26,49 @@ export async function getAllUsers(): Promise<ListUsersResponseInterface> {
 export async function createUser(
   data: CreateUserRequestInterface,
 ): Promise<User> {
-  const payload = buildUserMutationPayload(data);
+  const response = await axios.post<{ data: User }>(USER_API_URL, {
+    isPaidMembership: data.isPaidMembership,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    password: data.password,
+    birthday: data.birthday,
+    role: data.role,
+    status: data.status,
+    documents: {
+      identityDocument: data.identityDocument,
+      socialDocument: data.socialDocument,
+    },
+    details: {
+      phone: data.phone,
+      isWhatsapp: data.isWhatsApp,
+      isTelegram: data.isTelegram,
+      street: data.street,
+      number: typeof data.number === 'number' ? String(data.number) : data.number,
+      complement: data.complement,
+      neighborhood: data.neighborhood,
+      city: data.city,
+      state: data.state,
+      zipCode: data.zipCode,
+    },
+    social: {
+      facebook: data.social?.facebook,
+      x: data.social?.x ?? data.social?.twitter,
+      instagram: data.social?.instagram,
+      linkedin: data.social?.linkedin,
+    },
+  });
 
-  const response = await axios.post<UserApiResponse>(`${USER_API_URL}/`, payload);
-
-  return normalizeUserResponse(response.data);
+  return response.data.data;
 }
 
 /**
  * Get user from API.
  */
 export async function getUser(userId: string): Promise<User> {
-  const { data } = await axios.get<UserApiResponse>(`${USER_API_URL}/${userId}`);
+  const { data } = await axios.get<{ data: User }>(`${USER_API_URL}/${userId}`);
 
-  return normalizeUserResponse(data);
+  return data.data;
 }
 
 /**
@@ -156,14 +78,43 @@ export async function updateUser(
   userId: string,
   data: UpdateUserRequestInterface,
 ): Promise<User> {
-  const payload = buildUserMutationPayload(data);
-
-  const response = await axios.patch<UserApiResponse>(
+  const response = await axios.patch<{ data: User }>(
     `${USER_API_URL}/${userId}`,
-    payload,
+    {
+      isPaidMembership: data.isPaidMembership,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      birthday: data.birthday,
+      role: data.role,
+      status: data.status,
+      documents: {
+        identityDocument: data.identityDocument,
+        socialDocument: data.socialDocument,
+      },
+      details: {
+        phone: data.phone,
+        isWhatsapp: data.isWhatsApp,
+        isTelegram: data.isTelegram,
+        street: data.street,
+        number: typeof data.number === 'number' ? String(data.number) : data.number,
+        complement: data.complement,
+        neighborhood: data.neighborhood,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode,
+      },
+      social: {
+        facebook: data.social?.facebook,
+        x: data.social?.x ?? data.social?.twitter,
+        instagram: data.social?.instagram,
+        linkedin: data.social?.linkedin,
+      },
+    },
   );
 
-  return normalizeUserResponse(response.data);
+  return response.data.data;
 }
 
 /**

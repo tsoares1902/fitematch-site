@@ -3,18 +3,20 @@ export interface CreateCompanyRequestInterface {
   name: string;
   address: {
     street: string;
-    number: number;
+    number: string;
     neighborhood: string;
     city: string;
     state: string;
     country: string;
   };
   social: {
-    website: string;
-    facebook: string;
-    instagram: string;
-    twitter: string;
+    facebook?: string;
+    instagram?: string;
+    linkedin?: string;
+    twitter?: string;
   };
-  role: string;
-  status: string;
+  role?: string;
+  logo?: string | null;
+  cover?: string | null;
+  status?: string;
 }

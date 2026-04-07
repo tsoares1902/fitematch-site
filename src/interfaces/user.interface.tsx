@@ -2,6 +2,7 @@ export interface User {
   id: string;
   role: string;
   username: string;
+  isPaidMembership?: boolean;
   firstName: string;
   lastName: string;
   email: string;

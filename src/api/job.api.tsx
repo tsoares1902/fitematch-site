@@ -9,6 +9,8 @@ import { ReadJobResponseInterface } from '@/interfaces/responses/read-job-respon
 
 const JOB_API_URL = 'http://localhost:3002/job';
 
+export type UpdateJobRequestInterface = Partial<CreateJobRequestInterface>;
+
 /**
  * List all jobs with API.
  */
@@ -26,14 +28,12 @@ export async function getAllJobs(): Promise<ListJobResponseInterface> {
 export async function createNewJob(
   data: CreateJobRequestInterface,
 ): Promise<Job> {
-  const payload: CreateJobRequestInterface = {
-    ...data,
-  };
-
-  const response = await axios.post<Job>(JOB_API_URL, payload);
+  const response = await axios.post<Job>(JOB_API_URL, data);
 
   return response.data;
 }
+
+export const createJob = createNewJob;
 
 
 /**
@@ -43,4 +43,23 @@ export async function getJob(jobId: string): Promise<ReadJobResponseInterface> {
   const { data } = await axios.get<ReadJobResponseInterface>(`${JOB_API_URL}/${jobId}`);
 
   return data;
+}
+
+/**
+ * Update job with API.
+ */
+export async function updateJob(
+  jobId: string,
+  data: UpdateJobRequestInterface,
+): Promise<Job> {
+  const response = await axios.patch<Job>(`${JOB_API_URL}/${jobId}`, data);
+
+  return response.data;
+}
+
+/**
+ * Delete job with API.
+ */
+export async function deleteJob(jobId: string): Promise<void> {
+  await axios.delete(`${JOB_API_URL}/${jobId}`);
 }

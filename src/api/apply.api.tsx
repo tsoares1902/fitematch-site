@@ -4,9 +4,10 @@ import axios from 'axios';
 
 import { Apply } from '@/interfaces/apply.interface';
 import { CreateJobApplyRequestInterface } from '@/interfaces/request/create-apply-request.interface';
-import { ReadJobResponseInterface } from '@/interfaces/responses/read-job-response.interface';
 
 const APPLY_API_URL = 'http://localhost:3002/apply';
+
+export type UpdateApplyRequestInterface = Partial<CreateJobApplyRequestInterface>;
 
 /**
  * List all applies with API.
@@ -27,11 +28,8 @@ export const getAllApplies = getApplies;
 export async function createNewJobApply(
   data: CreateJobApplyRequestInterface,
 ): Promise<Apply> {
-  const payload: CreateJobApplyRequestInterface = {
-    ...data,
-  };
   try {
-    const response = await axios.post<Apply>(APPLY_API_URL, payload);
+    const response = await axios.post<Apply>(APPLY_API_URL, data);
 
     return response.data;
   } catch (error) {
@@ -50,12 +48,33 @@ export async function createNewJobApply(
   }
 }
 
+export const createApply = createNewJobApply;
+
 
 /**
  * Get apply from API.
  */
-export async function getJob(jobId: string): Promise<ReadJobResponseInterface> {
-  const { data } = await axios.get<ReadJobResponseInterface>(`${APPLY_API_URL}/${jobId}`);
+export async function getApply(applyId: string): Promise<Apply> {
+  const { data } = await axios.get<Apply>(`${APPLY_API_URL}/${applyId}`);
 
   return data;
+}
+
+/**
+ * Update apply with API.
+ */
+export async function updateApply(
+  applyId: string,
+  data: UpdateApplyRequestInterface,
+): Promise<Apply> {
+  const response = await axios.patch<Apply>(`${APPLY_API_URL}/${applyId}`, data);
+
+  return response.data;
+}
+
+/**
+ * Delete apply with API.
+ */
+export async function deleteApply(applyId: string): Promise<void> {
+  await axios.delete(`${APPLY_API_URL}/${applyId}`);
 }

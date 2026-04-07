@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { getAllApplies } from "@/api/apply.api";
 import { getJob } from "@/api/job.api";
 import { ApplyStatus } from "@/interfaces/apply.interface";
 import Link from "next/link";
 import { MdEditNote } from "react-icons/md";
+
+export const metadata: Metadata = {
+  title: "fitematch | Minhas Candidaturas",
+  description: "Acompanhe o andamento das suas candidaturas e processos seletivos na fitematch.",
+};
 
 function formatDate(date?: Date) {
   if (!date) {
