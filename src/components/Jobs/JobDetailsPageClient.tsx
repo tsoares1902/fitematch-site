@@ -17,6 +17,25 @@ import { Job } from "@/interfaces/job.interface";
 
 import JobApplicationFormModal from "./JobApplicationFormModal";
 
+function getCompanyInitials(name?: string) {
+  const normalizedName = name?.trim();
+
+  if (!normalizedName) {
+    return "EM";
+  }
+
+  const words = normalizedName.split(/\s+/).filter(Boolean);
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  return words
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
+}
+
 function formatRole(role: string) {
   switch (role.toLowerCase()) {
     case "intern":
@@ -70,8 +89,7 @@ export default function JobDetailsPageClient({
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const coverImage =
     job.company.cover?.trim() || "/images/jobs/default_company_cover.png";
-  const companyLogo =
-    job.company.logo?.trim() || "/images/jobs/default_company_logo.png";
+  const companyInitials = getCompanyInitials(job.company.name);
   const formattedRole = formatRole(job.role);
   const publishDate = formatPublishDate(job.createdAt);
   const locationLabel = [
@@ -206,13 +224,8 @@ export default function JobDetailsPageClient({
                 <div className="flex flex-col gap-6 rounded-xs bg-gray-100 p-6 md:flex-row md:items-end md:justify-between">
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                      <div className="relative h-14 w-14 overflow-hidden rounded-full bg-white">
-                        <Image
-                          src={companyLogo}
-                          alt={job.title}
-                          fill
-                          className="object-cover"
-                        />
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black text-lg font-bold uppercase text-white">
+                        {companyInitials}
                       </div>
                       <div>
                         <p className="text-black text-base font-semibold">

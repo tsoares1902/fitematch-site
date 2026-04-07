@@ -4,6 +4,25 @@ import { FaMedal } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
+function getCompanyInitials(name?: string) {
+  const normalizedName = name?.trim();
+
+  if (!normalizedName) {
+    return "EM";
+  }
+
+  const words = normalizedName.split(/\s+/).filter(Boolean);
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  return words
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
+}
+
 const JobCardDetails = ({
   job,
   hasApplied = false,
@@ -31,8 +50,7 @@ const JobCardDetails = ({
   const slotsLabel = `${slots} ${slots === 1 ? "vaga disponível" : "vagas disponíveis"}`;
   const coverImage =
     company.cover?.trim() || "/images/jobs/default_company_cover.png";
-  const companyLogo =
-    company.logo?.trim() || "/images/jobs/default_company_logo.png";
+  const companyInitials = getCompanyInitials(company.name);
   const detailsHref = hasApplied
     ? "/jobs/applications"
     : `/job/${id || ""}/details`;
@@ -83,13 +101,8 @@ const JobCardDetails = ({
           <div className="flex items-center justify-between gap-4">
             <div className="border-body-color/10 flex flex-1 items-center border-r pr-5">
               <div className="mr-4">
-                <div className="relative h-10 w-10 overflow-hidden rounded-full">
-                  <Image
-                    src={companyLogo}
-                    alt={title}
-                    fill
-                    className="object-cover"
-                  />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-bold uppercase text-white">
+                  {companyInitials}
                 </div>
               </div>
               <div className="w-full">

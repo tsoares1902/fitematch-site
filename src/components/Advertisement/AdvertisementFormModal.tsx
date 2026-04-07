@@ -23,10 +23,6 @@ type AdvertisementFormState = {
   title: string;
   slots: number;
   salary: string;
-  transportation: boolean;
-  alimentation: boolean;
-  health: boolean;
-  parking: boolean;
   bonus: string;
 };
 
@@ -103,10 +99,6 @@ export default function AdvertisementFormModal({
       title: "",
       slots: 1,
       salary: "",
-      transportation: false,
-      alimentation: false,
-      health: false,
-      parking: false,
       bonus: "",
     },
   });
@@ -116,10 +108,6 @@ export default function AdvertisementFormModal({
   const companyIdValue = watch("companyId");
   const slotsValue = watch("slots");
   const isPaidAdvertising = watch("isPaidAdvertising");
-  const transportation = watch("transportation");
-  const alimentation = watch("alimentation");
-  const health = watch("health");
-  const parking = watch("parking");
 
   const remainingBonusCharacters = useMemo(
     () => 255 - (bonusValue?.length || 0),
@@ -172,10 +160,10 @@ export default function AdvertisementFormModal({
         slots: data.slots,
         benefits: {
           salary: data.salary ? Number(data.salary.replace(/[^\d,-]/g, "").replace(".", "").replace(",", ".")) || null : null,
-          transportation: data.transportation,
-          alimentation: data.alimentation,
-          health: data.health,
-          parking: data.parking,
+          transportation: false,
+          alimentation: false,
+          health: false,
+          parking: false,
           bonus: data.bonus.trim(),
         },
         role: data.role,
@@ -192,10 +180,6 @@ export default function AdvertisementFormModal({
         title: "",
         slots: 1,
         salary: "",
-        transportation: false,
-        alimentation: false,
-        health: false,
-        parking: false,
         bonus: "",
       });
       setFeedback({
@@ -420,7 +404,7 @@ export default function AdvertisementFormModal({
 
                 <hr className="border-gray-200" />
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6">
                   <label className="space-y-2 md:col-span-2">
                     <span className="text-sm font-medium text-black">Salário</span>
                     <input
@@ -442,51 +426,6 @@ export default function AdvertisementFormModal({
                       </p>
                     ) : null}
                   </label>
-
-                  <Controller
-                    control={control}
-                    name="transportation"
-                    render={({ field }) => (
-                      <SwitchField
-                        label={`Vale Transporte: ${transportation ? "Sim" : "Não"}`}
-                        checked={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="alimentation"
-                    render={({ field }) => (
-                      <SwitchField
-                        label={`Vale Alimentação/Refeição: ${alimentation ? "Sim" : "Não"}`}
-                        checked={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="health"
-                    render={({ field }) => (
-                      <SwitchField
-                        label={`Plano de Saúde: ${health ? "Sim" : "Não"}`}
-                        checked={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="parking"
-                    render={({ field }) => (
-                      <SwitchField
-                        label={`Vaga de Estacionamento: ${parking ? "Sim" : "Não"}`}
-                        checked={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
                 </div>
 
                 <label className="space-y-2">

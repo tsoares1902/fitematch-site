@@ -2,6 +2,7 @@ import { getAllJobs } from "@/api/job.api";
 import { getAllApplies } from "@/api/apply.api";
 
 import FeaturedJobsMarquee from "./FeaturedJobsMarquee";
+import JobCardDetails from "./JobCardDetails";
 import JobsSearchPanel from "./JobsSearchPanel";
 
 const Jobs = async ({
@@ -38,7 +39,16 @@ const Jobs = async ({
             <div className="border-body-color/15 my-10 border-t" />
             <JobsSearchPanel />
             <div className="border-body-color/15 my-10 border-t" />
-            <FeaturedJobsMarquee jobs={regularJobs} appliedJobIds={appliedJobIds} />
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {regularJobs.map((job) => (
+                <div key={job.id ?? job.slug} className="min-w-0">
+                  <JobCardDetails
+                    job={job}
+                    hasApplied={job.id ? appliedJobIds.includes(job.id) : false}
+                  />
+                </div>
+              ))}
+            </div>
           </>
         ) : null}
       </div>
