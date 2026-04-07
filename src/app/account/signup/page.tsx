@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { FaUserPlus } from "react-icons/fa";
+import { FaUserGraduate, FaUserTie } from "react-icons/fa6";
 
 export const metadata: Metadata = {
   title: "fitematch | Criar Conta",
@@ -26,14 +26,14 @@ export default function SignUpPage() {
                   href="/account/candidate/register"
                   className="shadow-submit flex w-full items-center justify-center gap-2 rounded-xs bg-green-900 px-9 py-4 text-base font-medium text-white duration-300 hover:bg-green-600"
                 >
-                  <FaUserPlus className="h-[1.1em] w-[1.1em] shrink-0" />
+                  <FaUserGraduate className="h-[1.1em] w-[1.1em] shrink-0" />
                   Criar conta de candidato
                 </Link>
                 <Link
                   href="/account/recruiter/register"
                   className="shadow-submit flex w-full items-center justify-center gap-2 rounded-xs bg-green-900 px-9 py-4 text-base font-medium text-white duration-300 hover:bg-green-600"
                 >
-                  <FaUserPlus className="h-[1.1em] w-[1.1em] shrink-0" />
+                  <FaUserTie className="h-[1.1em] w-[1.1em] shrink-0" />
                   Criar conta de recrutador
                 </Link>
               </div>

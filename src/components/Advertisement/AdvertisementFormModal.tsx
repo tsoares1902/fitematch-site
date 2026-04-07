@@ -11,7 +11,7 @@ import { createNewJob } from "@/api/job.api";
 import { Company } from "@/interfaces/company.interface";
 import { buildSlug } from "@/utils/slug";
 
-const roleOptions = ["intern", "freelance", "contract"] as const;
+const roleOptions = ["intern", "freelance", "contract_person", "contract_company"] as const;
 
 type RoleOption = (typeof roleOptions)[number];
 
@@ -295,8 +295,9 @@ export default function AdvertisementFormModal({
                       })}
                     >
                       <option value="intern">Estágio</option>
-                      <option value="freelance">Feelancer</option>
-                      <option value="contract">Contrato</option>
+                      <option value="freelance">Autônomo</option>
+                      <option value="contract_person">CLT</option>
+                      <option value="contract_company">PJ</option>
                     </select>
                     {errors.role ? (
                       <p className="mt-2 text-sm text-red-500">

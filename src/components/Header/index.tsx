@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IoMdExit } from "react-icons/io";
 import { MdLogin } from "react-icons/md";
+import { MdKeyboardDoubleArrowDown } from "react-icons/md";
 import { TbUserSquareRounded } from "react-icons/tb";
 import { FaUserPlus } from "react-icons/fa";
 import { logout } from "@/api/auth.api";
@@ -90,7 +91,7 @@ const Header = () => {
             <div className="w-60 max-w-full px-4 xl:mr-12">
               <Link
                 href="/"
-                className={`header-logo block w-full text-2xl font-bold tracking-tight text-black transition-colors hover:text-gray-900 ${
+                className={`header-logo block w-full text-2xl font-bold tracking-tight text-gray-800 transition-colors hover:text-gray-600 ${
                   sticky ? "py-5 lg:py-2" : "py-8"
                 } `}
               >
@@ -135,19 +136,10 @@ const Header = () => {
                         <button
                           type="button"
                           onClick={() => handleSubmenu(languageMenuItem.id)}
-                          className="text-dark flex w-full items-center justify-between py-2 text-base font-semibold"
+                          className="flex w-full items-center justify-between py-2 text-base font-semibold text-gray-800 transition-colors hover:text-gray-600"
                         >
                           {activeLanguage?.title || languageMenuItem.title}
-                          <span className="pl-3">
-                            <svg width="25" height="24" viewBox="0 0 25 24">
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M6.29289 8.8427C6.68342 8.45217 7.31658 8.45217 7.70711 8.8427L12 13.1356L16.2929 8.8427C16.6834 8.45217 17.3166 8.45217 17.7071 8.8427C18.0976 9.23322 18.0976 9.86639 17.7071 10.2569L12 15.964L6.29289 10.2569C5.90237 9.86639 5.90237 9.23322 6.29289 8.8427Z"
-                                fill="currentColor"
-                              />
-                            </svg>
-                          </span>
+                          <MdKeyboardDoubleArrowDown className="ml-2 text-lg" />
                         </button>
                         <div
                           className={`pt-2 ${openIndex === languageMenuItem.id ? "block" : "hidden"}`}
@@ -163,7 +155,7 @@ const Header = () => {
                                   setOpenIndex(-1);
                                   setNavbarOpen(false);
                                 }}
-                                className="text-dark hover:text-primary block w-full rounded-sm py-2.5 text-left text-sm font-semibold"
+                                className="block w-full rounded-sm py-2.5 text-left text-xs font-semibold text-gray-800 transition-colors hover:text-gray-600"
                               >
                                 {submenuItem.title}
                               </button>
@@ -197,7 +189,7 @@ const Header = () => {
                             <Link
                               href="/account/login"
                               onClick={() => setNavbarOpen(false)}
-                              className="ease-in-up shadow-btn hover:shadow-btn-hover flex items-center justify-center gap-2 rounded-xs bg-blue-900 px-5 py-3 text-center text-base font-medium text-white transition duration-300 hover:bg-blue-600"
+                              className="ease-in-up shadow-btn hover:shadow-btn-hover flex items-center justify-center gap-2 rounded-xs border border-blue-800 bg-transparent px-5 py-3 text-center text-base font-medium text-blue-800 transition duration-300 hover:border-blue-100 hover:bg-blue-800 hover:text-blue-100"
                             >
                               <MdLogin className="h-5 w-5 shrink-0" />
                               Entrar
@@ -205,7 +197,7 @@ const Header = () => {
                             <Link
                               href="/account/signup"
                               onClick={() => setNavbarOpen(false)}
-                              className="ease-in-up shadow-btn hover:shadow-btn-hover flex items-center justify-center gap-2 rounded-xs bg-green-900 px-5 py-3 text-center text-base font-medium text-white transition duration-300 hover:bg-green-600"
+                              className="ease-in-up shadow-btn hover:shadow-btn-hover flex items-center justify-center gap-2 rounded-xs bg-green-700 px-5 py-3 text-center text-base font-medium text-green-100 transition duration-300 hover:bg-green-900"
                             >
                               <FaUserPlus className="h-5 w-5 shrink-0" />
                               Cadastro
@@ -220,7 +212,7 @@ const Header = () => {
                           <Link
                             href={menuItem.path}
                             className={`flex py-2 text-base lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 ${
-                              usePathName === menuItem.path ? "text-primary" : "text-dark hover:text-primary"
+                              usePathName === menuItem.path ? "text-gray-800" : "text-gray-800 hover:text-gray-600"
                             }`}
                           >
                             {menuItem.title}
@@ -230,19 +222,10 @@ const Header = () => {
                             <button
                               type="button"
                               onClick={() => handleSubmenu(index)}
-                              className="text-dark group-hover:text-primary flex cursor-pointer items-center justify-between py-2 text-base lg:mr-0 lg:inline-flex lg:px-0 lg:py-6"
+                              className="flex cursor-pointer items-center justify-between py-2 text-base text-gray-800 transition-colors group-hover:text-gray-600 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6"
                             >
                               {menuItem.title}
-                              <span className="pl-3">
-                                <svg width="25" height="24" viewBox="0 0 25 24">
-                                  <path
-                                    fillRule="evenodd"
-                                    clipRule="evenodd"
-                                    d="M6.29289 8.8427C6.68342 8.45217 7.31658 8.45217 7.70711 8.8427L12 13.1356L16.2929 8.8427C16.6834 8.45217 17.3166 8.45217 17.7071 8.8427C18.0976 9.23322 18.0976 9.86639 17.7071 10.2569L12 15.964L6.29289 10.2569C5.90237 9.86639 5.90237 9.23322 6.29289 8.8427Z"
-                                    fill="currentColor"
-                                  />
-                                </svg>
-                              </span>
+                              <MdKeyboardDoubleArrowDown className="ml-2 text-lg" />
                             </button>
                             <div
                               className={`submenu relative top-full left-0 rounded-sm bg-white transition-[top] duration-300 group-hover:opacity-100 lg:invisible lg:absolute lg:top-[110%] lg:block lg:w-[250px] lg:p-4 lg:opacity-0 lg:shadow-lg lg:group-hover:visible lg:group-hover:top-full ${
@@ -253,7 +236,7 @@ const Header = () => {
                                 <Link
                                   href={submenuItem.path || "#"}
                                   key={index}
-                                  className="text-dark hover:text-primary block rounded-sm py-2.5 text-sm lg:px-3"
+                                  className="block rounded-sm py-2.5 text-sm text-gray-800 transition-colors hover:text-gray-600 lg:px-3"
                                 >
                                   {submenuItem.title}
                                 </Link>
@@ -272,19 +255,10 @@ const Header = () => {
                     <button
                       type="button"
                       onClick={() => handleSubmenu(languageMenuItem.id)}
-                      className="text-dark group-hover:text-primary flex cursor-pointer items-center justify-between px-7 py-3 text-base font-semibold"
+                      className="flex cursor-pointer items-center justify-between px-7 py-3 text-base font-semibold text-gray-800 transition-colors group-hover:text-gray-600"
                     >
                       {activeLanguage?.title || languageMenuItem.title}
-                      <span className="pl-3">
-                        <svg width="25" height="24" viewBox="0 0 25 24">
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M6.29289 8.8427C6.68342 8.45217 7.31658 8.45217 7.70711 8.8427L12 13.1356L16.2929 8.8427C16.6834 8.45217 17.3166 8.45217 17.7071 8.8427C18.0976 9.23322 18.0976 9.86639 17.7071 10.2569L12 15.964L6.29289 10.2569C5.90237 9.86639 5.90237 9.23322 6.29289 8.8427Z"
-                            fill="currentColor"
-                          />
-                        </svg>
-                      </span>
+                      <MdKeyboardDoubleArrowDown className="ml-2 text-lg" />
                     </button>
                     <div
                       className={`submenu absolute top-[110%] right-0 rounded-sm bg-white transition-[top] duration-300 lg:block lg:w-[250px] lg:p-4 lg:opacity-0 lg:shadow-lg lg:group-hover:visible lg:group-hover:top-full lg:group-hover:opacity-100 ${
@@ -303,7 +277,7 @@ const Header = () => {
                               setActiveLanguage(submenuItem);
                               setOpenIndex(-1);
                             }}
-                            className="text-dark hover:text-primary block w-full rounded-sm py-2.5 text-left text-sm font-semibold lg:px-3"
+                            className="block w-full rounded-sm py-2.5 text-left text-xs font-semibold text-gray-800 transition-colors hover:text-gray-600 lg:px-3"
                           >
                             {submenuItem.title}
                           </button>
@@ -339,14 +313,14 @@ const Header = () => {
                 >
                   <Link
                     href="/account/login"
-                    className="ease-in-up shadow-btn hover:shadow-btn-hover hidden items-center justify-center gap-2 rounded-xs bg-blue-900 px-8 py-3 text-base font-medium text-white transition duration-300 hover:bg-blue-600 md:flex md:px-9 lg:px-6 xl:px-9"
+                    className="ease-in-up shadow-btn hover:shadow-btn-hover hidden items-center justify-center gap-2 rounded-xs border border-blue-800 bg-transparent px-8 py-3 text-base font-medium text-blue-800 transition duration-300 hover:border-blue-100 hover:bg-blue-800 hover:text-blue-100 md:flex md:px-9 lg:px-6 xl:px-9"
                   >
                     <MdLogin className="h-5 w-5 shrink-0" />
                     Entrar
                   </Link>
                   <Link
                     href="/account/signup"
-                    className="ease-in-up shadow-btn hover:shadow-btn-hover hidden items-center justify-center gap-2 rounded-xs bg-green-900 px-8 py-3 text-base font-medium text-white transition duration-300 hover:bg-green-600 md:flex md:px-9 lg:px-6 xl:px-9"
+                    className="ease-in-up shadow-btn hover:shadow-btn-hover hidden items-center justify-center gap-2 rounded-xs bg-green-700 px-8 py-3 text-base font-medium text-green-100 transition duration-300 hover:bg-green-900 md:flex md:px-9 lg:px-6 xl:px-9"
                   >
                     <FaUserPlus className="h-5 w-5 shrink-0" />
                     Cadastro

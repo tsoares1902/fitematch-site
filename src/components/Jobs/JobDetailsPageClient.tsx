@@ -41,11 +41,13 @@ function formatRole(role: string) {
     case "intern":
       return "Estágio";
     case "freelance":
-      return "Frrelancer";
-    case "contract":
-      return "Contrato";
+      return "Autônomo";
+    case "contract_person":
+      return "CLT";
+    case "contract_company":
+      return "PJ";
     default:
-      return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+      return role;
   }
 }
 
@@ -167,8 +169,8 @@ export default function JobDetailsPageClient({
 
             <div className="overflow-hidden rounded-xs border border-gray-200 bg-white shadow-one">
               <div className="relative aspect-16/7 w-full bg-gray-100">
-                <div className="absolute top-6 left-6 z-10">
-                  <span className="bg-primary rounded-full px-4 py-2 text-sm font-semibold text-white capitalize">
+                <div className="absolute top-6 right-6 z-10">
+                  <span className="rounded-full bg-blue-800 px-4 py-2 text-xs font-semibold uppercase text-blue-100">
                     {formattedRole}
                   </span>
                 </div>

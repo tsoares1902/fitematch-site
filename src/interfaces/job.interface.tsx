@@ -9,7 +9,7 @@ export interface Job {
   slots: number;
   benefits: JobBenefits;
   isPaidAdvertising?: boolean;
-  role: "intern" | "freelance" | "contract";
+  role: "intern" | "freelance" | "contract_person" | "contract_company";
   status: string;
   company: Company;
   createdAt?: Date;

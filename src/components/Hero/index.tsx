@@ -1,44 +1,5 @@
 import Link from "next/link";
-
-const CandidateIcon = () => (
-  <svg
-    aria-hidden="true"
-    viewBox="0 0 20 20"
-    fill="none"
-    className="h-[1.1em] w-[1.1em] shrink-0"
-  >
-    <circle cx="10" cy="6" r="3" stroke="currentColor" strokeWidth="1.8" />
-    <path
-      d="M4.5 16.5c.6-2.8 2.8-4.5 5.5-4.5s4.9 1.7 5.5 4.5"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
-const RecruiterIcon = () => (
-  <svg
-    aria-hidden="true"
-    viewBox="0 0 20 20"
-    fill="none"
-    className="h-[1.1em] w-[1.1em] shrink-0"
-  >
-    <circle cx="8" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-    <path
-      d="M3.8 15.5c.5-2.2 2.2-3.5 4.2-3.5 1 0 1.9.3 2.6.8"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
-    <path
-      d="M13.5 11.5v5m-2.5-2.5h5"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+import { FaUserGraduate, FaUserTie } from "react-icons/fa6";
 
 const Hero = () => {
   return (
@@ -61,14 +22,14 @@ const Hero = () => {
                     href="/account/candidate"
                     className="inline-flex items-center gap-2 rounded-xs bg-black px-8 py-4 text-base font-semibold text-white duration-300 ease-in-out hover:bg-gray-700"
                   >
-                    <CandidateIcon />
+                    <FaUserGraduate className="h-[1.1em] w-[1.1em] shrink-0" />
                     Sou um candidato
                   </Link>
                   <Link
                     href="/account/recruiter"
                     className="inline-flex items-center gap-2 rounded-xs bg-black px-8 py-4 text-base font-semibold text-white duration-300 ease-in-out hover:bg-gray-700"
                   >
-                    <RecruiterIcon />
+                    <FaUserTie className="h-[1.1em] w-[1.1em] shrink-0" />
                     Sou um recrutador
                   </Link>
                 </div>

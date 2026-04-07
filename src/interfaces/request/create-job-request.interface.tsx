@@ -8,7 +8,7 @@ export interface CreateJobRequestInterface {
   slots: number;
   benefits: JobBenefits;
   isPaidAdvertising?: boolean;
-  role: "intern" | "freelance" | "contract";
+  role: "intern" | "freelance" | "contract_person" | "contract_company";
   status: string;
   createdAt?: Date;
   updatedAt?: Date;

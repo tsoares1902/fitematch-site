@@ -19,11 +19,11 @@ const Footer = () => {
               <div className="mb-12 max-w-[360px] lg:mb-16">
                 <Link
                   href="/"
-                  className="mb-8 inline-block text-2xl font-bold tracking-tight text-black transition-colors hover:text-gray-900"
+                  className="mb-8 inline-block text-2xl font-bold tracking-tight text-gray-800 transition-colors hover:text-gray-600"
                 >
                   fitematch
                 </Link>
-                <p className="mb-9 text-base leading-relaxed text-body-color">
+                <p className="mb-9 text-base leading-relaxed text-gray-600">
                   Você pode nos encontrar em alguns canais:
                 </p>
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -32,7 +32,7 @@ const Footer = () => {
                     aria-label="facebook-link"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-body-color duration-300 hover:text-blue-700"
+                    className="text-gray-600 duration-300 hover:text-gray-600"
                   >
                     <CiFacebook className="text-[28px]" />
                   </a>
@@ -41,7 +41,7 @@ const Footer = () => {
                     aria-label="instagram-link"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-body-color duration-300 hover:text-purple-700"
+                    className="text-gray-600 duration-300 hover:text-gray-600"
                   >
                     <CiInstagram className="text-[28px]" />
                   </a>
@@ -50,7 +50,7 @@ const Footer = () => {
                     aria-label="x-link"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-body-color duration-300 hover:text-black"
+                    className="text-gray-600 duration-300 hover:text-gray-600"
                   >
                     <FaXTwitter className="text-[22px]" />
                   </a>
@@ -59,7 +59,7 @@ const Footer = () => {
                     aria-label="youtube-link"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-body-color duration-300 hover:text-red-700"
+                    className="text-gray-600 duration-300 hover:text-gray-600"
                   >
                     <CiYoutube className="text-[28px]" />
                   </a>
@@ -68,7 +68,7 @@ const Footer = () => {
                     aria-label="linkedin-link"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-body-color duration-300 hover:text-blue-700"
+                    className="text-gray-600 duration-300 hover:text-gray-600"
                   >
                     <CiLinkedin className="text-[28px]" />
                   </a>
@@ -84,14 +84,14 @@ const Footer = () => {
 
             <div className="w-full px-4 md:w-1/2 lg:w-4/12 xl:w-3/12">
               <div className="mb-12 lg:mb-16">
-                <h2 className="mb-10 text-xl font-bold text-black">
+                <h2 className="mb-10 text-xl font-bold text-gray-800">
                   Suporte & Ajuda
                 </h2>
                 <ul>
                   <li>
                     <Link
                       href="/privacy-policy"
-                      className="mb-4 inline-block text-base text-body-color duration-300 hover:text-primary"
+                      className="mb-4 inline-block text-base text-gray-600 duration-300 hover:text-gray-600"
                     >
                       Política de Privacidade
                     </Link>
@@ -99,7 +99,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/terms-of-use"
-                      className="mb-4 inline-block text-base text-body-color duration-300 hover:text-primary"
+                      className="mb-4 inline-block text-base text-gray-600 duration-300 hover:text-gray-600"
                     >
                       Termos de Uso
                     </Link>
@@ -107,7 +107,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/faq"
-                      className="mb-4 inline-block text-base text-body-color duration-300 hover:text-primary"
+                      className="mb-4 inline-block text-base text-gray-600 duration-300 hover:text-gray-600"
                     >
                       FAQ
                     </Link>
@@ -119,16 +119,16 @@ const Footer = () => {
 
           <div className="h-px w-full bg-linear-to-r from-transparent via-[#D2D8E183] to-transparent"></div>
           <div className="py-8">
-            <p className="text-center text-base text-body-color">
+            <p className="text-center text-base text-gray-600">
               © {currentYear} fitematch - Todos os direitos reservados
             </p>
-            <p className="text-center text-base text-body-color">
+            <p className="text-center text-base text-gray-600">
               Desenvolvido por{" "}
               <a
                 href="http://drowper.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-primary"
+                className="text-gray-600 transition-colors hover:text-gray-600"
               >
                 drowper
               </a>

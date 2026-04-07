@@ -15,35 +15,29 @@ import { Menu } from "@/types/menu";
   },
   {
     id: 3,
-    title: "Preços",
-    path: "/pricing",
-    newTab: false,
-  },
-  {
-    id: 4,
     title: "FAQ",
     path: "/faq",
     newTab: false,
   },
   {
-    id: 5,
+    id: 4,
     title: "Línguas",
     newTab: false,
     submenu: [
       {
-        id: 6,
+        id: 5,
         title: "🇧🇷 PORTUGUÊS",
         path: "#",
         newTab: false,
       },
       {
-        id: 7,
+        id: 6,
         title: "🇪🇸 ESPANHOL",
         path: "#",
         newTab: false,
       },
       {
-        id: 8,
+        id: 7,
         title: "🇺🇸 INGLÊS",
         path: "#",
         newTab: false,

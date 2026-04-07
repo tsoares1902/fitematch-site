@@ -4,6 +4,21 @@ import { FaMedal } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
+function formatRole(role: string) {
+  switch (role.toLowerCase()) {
+    case "intern":
+      return "Estágio";
+    case "freelance":
+      return "Autônomo";
+    case "contract_person":
+      return "CLT";
+    case "contract_company":
+      return "PJ";
+    default:
+      return role;
+  }
+}
+
 function getCompanyInitials(name?: string) {
   const normalizedName = name?.trim();
 
@@ -59,6 +74,7 @@ const JobCardDetails = ({
   const locationState = company.address?.state?.trim();
   const locationLabel = [locationCity, locationState].filter(Boolean).join(" - ");
   const showFeaturedBadge = isPaidAdvertising === true;
+  const roleLabel = formatRole(role).toUpperCase();
 
   return (
     <div className="group shadow-one hover:shadow-two relative overflow-hidden rounded-xs bg-white duration-300">
@@ -67,12 +83,17 @@ const JobCardDetails = ({
           className="relative block aspect-37/22 w-full"
         >
           <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-          <div className="absolute top-6 left-6 z-20 flex flex-wrap items-center gap-2">
-            {showFeaturedBadge ? (
+          {showFeaturedBadge ? (
+            <div className="absolute top-6 left-6 z-20">
               <span className="bg-orange-900 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white">
                 <FaMedal className="text-base" />
               </span>
-            ) : null}
+            </div>
+          ) : null}
+          <div className="absolute top-6 right-6 z-20">
+            <span className="inline-flex items-center justify-center rounded-full bg-blue-800 px-4 py-2 text-xs font-semibold uppercase text-blue-100">
+              {roleLabel}
+            </span>
           </div>
           <div className="absolute right-6 bottom-6 left-6 z-20">
             <h3 className="text-xl font-bold text-white sm:text-2xl">
@@ -89,11 +110,11 @@ const JobCardDetails = ({
         <div className="p-6 sm:p-8 md:px-6 md:py-8 lg:p-8 xl:px-5 xl:py-8 2xl:p-8">
           <div className="border-body-color/10 mb-6 border-b pb-6">
             {hasApplied ? (
-              <p className="text-body-color text-base font-bold uppercase">
+              <p className="text-base font-bold uppercase text-gray-500">
                 Você já se aplicou a esta vaga
               </p>
             ) : (
-              <p className="text-body-color text-base font-bold uppercase">
+              <p className="text-base font-bold uppercase text-gray-500">
                 {slotsLabel}
               </p>
             )}
@@ -114,7 +135,7 @@ const JobCardDetails = ({
             </div>
             <Link
               href={jobDetailsHref}
-              className="inline-flex items-center gap-2 rounded-md bg-green-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
+              className="inline-flex items-center gap-2 rounded-md bg-green-700 px-4 py-2 text-sm font-medium text-green-100 transition-colors hover:bg-green-900"
             >
               <CiCirclePlus className="text-lg" />
               Detalhes

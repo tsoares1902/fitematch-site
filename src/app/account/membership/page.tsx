@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { MdKeyboardDoubleArrowDown } from "react-icons/md";
 import AccountMenu from "@/components/Common/AccountMenu";
 
 export const metadata: Metadata = {
@@ -24,17 +22,6 @@ export default function MembershipPage() {
               <p className="text-body-color text-base leading-relaxed md:text-lg">
                 Sua conta padrão está ativa no momento.
               </p>
-              <hr className="my-6 border-gray-200" />
-              <h4 className="mb-4 text-base font-bold text-black md:text-lg">
-                Alterar Plano
-              </h4>
-              <Link
-                href="/pricing"
-                className="text-body-color flex items-center justify-between gap-3 text-base leading-relaxed transition-colors duration-300 hover:text-gray-700 md:text-lg"
-              >
-                <span>Consulte os planos disponiveis.</span>
-                <MdKeyboardDoubleArrowDown className="h-5 w-5 shrink-0" />
-              </Link>
             </div>
           </div>
         </div>

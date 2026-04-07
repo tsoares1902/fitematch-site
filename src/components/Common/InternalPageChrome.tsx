@@ -141,14 +141,6 @@ const getBreadcrumbContent = (pathname: string) => {
     };
   }
 
-  if (pathname === "/pricing") {
-    return {
-      pageName: "Preços",
-      description:
-        "Conheça os planos para candidatos e recrutadores e escolha a melhor opção.",
-    };
-  }
-
   if (pathname === "/faq") {
     return {
       pageName: "FAQ",
