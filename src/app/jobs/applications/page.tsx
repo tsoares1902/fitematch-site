@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { getAllApplies } from "@/api/apply.api";
-import { getJob } from "@/api/job.api";
-import { ApplyStatus } from "@/interfaces/apply.interface";
+import { getAllApplies } from "@/services/apply/apply.api";
+import { getJob } from "@/services/job/job.api";
+import { getJobMongoId } from "@/services/job/job.helpers";
+import { ApplyStatus } from "@/services/apply/apply.types";
 import Link from "next/link";
 import { MdEditNote } from "react-icons/md";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   description: "Acompanhe o andamento das suas candidaturas e processos seletivos na fitematch.",
 };
 
-function formatDate(date?: Date) {
+function formatDate(date?: Date | string) {
   if (!date) {
     return "Nao informado";
   }
@@ -96,9 +97,10 @@ export default async function JobApplicationsPage() {
           <div className="space-y-6">
             {validApplications.length > 0 ? (
               validApplications.map(({ apply, job }) => {
+                const jobMongoId = getJobMongoId(job);
                 const locationLabel = [
-                  job.company.address?.city?.trim(),
-                  job.company.address?.state?.trim(),
+                  job.company?.address?.city?.trim(),
+                  job.company?.address?.state?.trim(),
                 ]
                   .filter(Boolean)
                   .join(" - ");
@@ -113,7 +115,7 @@ export default async function JobApplicationsPage() {
                         {status.label}
                       </p>
                       <h3 className="mb-2 text-2xl font-bold text-black">
-                        {job.company.name || "Empresa"} - {job.title}
+                        {job.company?.name || "Empresa"} - {job.title}
                       </h3>
                       <p className="text-body-color mb-3 text-base">
                         {locationLabel || "Localizacao nao informada"}
@@ -123,7 +125,7 @@ export default async function JobApplicationsPage() {
                           Candidatura enviada em: {formatDate(apply.createdAt)}
                         </p>
                         <Link
-                          href={`/job/${job.id || apply.jobId}/details`}
+                          href={`/job/${jobMongoId}/details`}
                           className="inline-flex items-center gap-2 rounded-md bg-green-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
                         >
                           <MdEditNote className="text-lg" />

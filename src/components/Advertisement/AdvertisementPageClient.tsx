@@ -4,7 +4,7 @@ import { useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 
 import AccountMenu from "@/components/Common/AccountMenu";
-import { Company } from "@/interfaces/company.interface";
+import { Company } from "@/services/company/company.types";
 
 import AdvertisementFormModal from "./AdvertisementFormModal";
 

@@ -2,9 +2,8 @@ export interface User {
   id: string;
   role: string;
   username: string;
+  name?: string;
   isPaidMembership?: boolean;
-  firstName: string;
-  lastName: string;
   email: string;
   password: string;
   birthday: string;
@@ -31,3 +30,8 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type UpdateUserRequestInterface = Omit<
+  User,
+  'id' | 'createdAt' | 'updatedAt'
+>;

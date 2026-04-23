@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthClientContextInterface } from "@/interfaces/auth-client-context.interface";
+import { AuthClientContextInterface } from "@/services/auth";
 
 type RequiredAuthClientFields = Required<AuthClientContextInterface>;
 

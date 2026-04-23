@@ -7,7 +7,7 @@ import { GrNotes } from "react-icons/gr";
 import { TbUserSquareRounded } from "react-icons/tb";
 import { FaCreditCard } from "react-icons/fa";
 import { MdOutlineSecurity } from "react-icons/md";
-import { logout } from "@/api/auth.api";
+import { signOut as requestSignOut } from "@/services/auth";
 import { useAuth } from "@/contexts/auth-context";
 import { getLocaleFromPathname, localizePath } from "@/i18n/config";
 
@@ -45,7 +45,7 @@ const accountMenuItems = [
 ];
 
 export default function AccountMenu() {
-  const { accessToken, role, signOut } = useAuth();
+  const { accessToken, refreshToken, role, signOut } = useAuth();
   const pathname = usePathname();
   const locale = getLocaleFromPathname(pathname) ?? "pt";
   const normalizedPathname = pathname.replace(/^\/(pt|es|en)(?=\/|$)/, "") || "/";
@@ -55,7 +55,7 @@ export default function AccountMenu() {
   );
 
   const handleSignOut = async () => {
-    if (!accessToken) {
+    if (!accessToken || !refreshToken) {
       signOut();
       router.replace(localizePath("/", locale));
       router.refresh();
@@ -63,15 +63,13 @@ export default function AccountMenu() {
     }
 
     try {
-      const success = await logout({
-        access_token: accessToken,
+      await requestSignOut({
+        refreshToken,
       });
 
-      if (success) {
-        signOut();
-        router.replace(localizePath("/", locale));
-        router.refresh();
-      }
+      signOut();
+      router.replace(localizePath("/", locale));
+      router.refresh();
     } catch {
       return;
     }

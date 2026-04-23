@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { getSessionsByUser } from "@/api/auth.api";
+import { getSessionsByUser } from "@/services/auth";
 import AccountMenu from "@/components/Common/AccountMenu";
 import { useAuth } from "@/contexts/auth-context";
-import { AuthAccessItemInterface } from "@/interfaces/auth-access-item.interface";
+import { AuthAccessItemInterface } from "@/services/auth";
 
 const NOT_INFORMED_LABEL = "Nao informado";
 const UNKNOWN_BROWSER_LABEL = "Navegador desconhecido";

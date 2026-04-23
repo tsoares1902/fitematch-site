@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { MdLogin } from "react-icons/md";
 
-import { login } from "@/api/auth.api";
+import { signIn } from "@/services/auth";
 import { useLocale } from "@/contexts/locale-context";
 import { localizePath } from "@/i18n/config";
 import { useAuth } from "@/contexts/auth-context";
@@ -31,7 +31,7 @@ const inputClassName =
 const inputErrorClassName = "border-red-500 focus:border-red-500";
 
 export function LoginForm() {
-  const { setAccessToken } = useAuth();
+  const { setAuthTokens } = useAuth();
   const locale = useLocale();
   const {
     register,
@@ -73,14 +73,14 @@ export function LoginForm() {
         return;
       }
 
-      const response = await login({
+      const response = await signIn({
         client,
         email: data.email,
         password: data.password,
       });
 
-      if (response.access_token) {
-        setAccessToken(response.access_token);
+      if (response.accessToken && response.refreshToken) {
+        setAuthTokens(response.accessToken, response.refreshToken);
         reset({
           email: "",
           password: "",

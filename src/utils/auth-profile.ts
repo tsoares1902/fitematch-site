@@ -5,9 +5,7 @@ export type TokenProfileData = {
   age: string;
   createdAt: string;
   email: string;
-  firstName: string;
   identityDocument: string;
-  lastName: string;
   name: string;
   neighborhood: string;
   number: string;
@@ -26,9 +24,7 @@ export const defaultProfileData: TokenProfileData = {
   age: "Not available",
   createdAt: "Not available",
   email: "Not available",
-  firstName: "",
   identityDocument: "Nao informado",
-  lastName: "",
   name: "Not available",
   neighborhood: "Nao informado",
   number: "Nao informado",
@@ -117,12 +113,8 @@ export function getProfileDataFromToken(token: string | null): TokenProfileData 
     return defaultProfileData;
   }
 
-  const firstName = typeof payload.firstName === "string" ? payload.firstName : "";
-  const lastName = typeof payload.lastName === "string" ? payload.lastName : "";
-  const fullName = `${firstName} ${lastName}`.trim();
   const name =
-    fullName ||
-    (typeof payload.name === "string" ? payload.name : "") ||
+    (typeof payload.name === "string" && payload.name.trim() ? payload.name : "") ||
     (typeof payload.username === "string" ? payload.username : "") ||
     defaultProfileData.name;
   const birthday =
@@ -187,9 +179,7 @@ export function getProfileDataFromToken(token: string | null): TokenProfileData 
     age: getAgeFromBirthday(birthday),
     createdAt,
     email,
-    firstName,
     identityDocument,
-    lastName,
     name,
     neighborhood,
     number,

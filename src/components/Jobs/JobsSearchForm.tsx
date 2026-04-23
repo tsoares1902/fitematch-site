@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 
 import { useDictionary } from "@/contexts/locale-context";
-import { Job } from "@/interfaces/job.interface";
+import { getJobMongoId } from "@/services/job/job.helpers";
+import { Job } from "@/services/job/job.types";
 
 import JobCardDetails from "./JobCardDetails";
 
@@ -50,18 +51,20 @@ export default function JobsSearchForm({
 
     return jobs.filter((job) => {
       const localizedRole =
-        dictionary.jobs.roleLabels[
-          job.role as keyof typeof dictionary.jobs.roleLabels
-        ] ?? "";
+        job.role
+          ? dictionary.jobs.roleLabels[
+              job.role as keyof typeof dictionary.jobs.roleLabels
+            ] ?? ""
+          : "";
 
       return matchesFields(
         [
-          job.company.name,
+          job.company?.name,
           job.title,
-          job.company.address?.city,
-          job.company.address?.state,
+          job.company?.address?.city,
+          job.company?.address?.state,
           job.role,
-          formatRole(job.role),
+          job.role ? formatRole(job.role) : undefined,
           localizedRole,
         ],
         normalizedQuery,
@@ -93,14 +96,18 @@ export default function JobsSearchForm({
 
       <div className="border-body-color/15 my-10 border-t" />
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {filteredJobs.map((job) => (
-          <div key={job.id ?? job.slug} className="min-w-0">
+        {filteredJobs.map((job) => {
+          const jobMongoId = getJobMongoId(job);
+
+          return (
+          <div key={jobMongoId ?? job.slug} className="min-w-0">
             <JobCardDetails
               job={job}
-              hasApplied={job.id ? appliedJobIds.includes(job.id) : false}
+              hasApplied={jobMongoId ? appliedJobIds.includes(jobMongoId) : false}
             />
           </div>
-        ))}
+          );
+        })}
       </div>
     </>
   );

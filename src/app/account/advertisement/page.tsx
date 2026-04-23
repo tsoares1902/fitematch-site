@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { getAllCompanies } from "@/api/company.api";
+import { getAllCompanies } from "@/services/company/company.api";
 import AdvertisementPageClient from "@/components/Advertisement/AdvertisementPageClient";
 
 export const metadata: Metadata = {

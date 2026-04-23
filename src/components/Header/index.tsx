@@ -7,14 +7,14 @@ import { MdLogin } from "react-icons/md";
 import { MdKeyboardDoubleArrowDown } from "react-icons/md";
 import { TbUserSquareRounded } from "react-icons/tb";
 import { FaUserPlus } from "react-icons/fa";
-import { logout } from "@/api/auth.api";
+import { signOut as requestSignOut } from "@/services/auth";
 import { useDictionary, useLocale } from "@/contexts/locale-context";
 import { useAuth } from "@/contexts/auth-context";
 import { Locale, localizePath } from "@/i18n/config";
 import { localeCookieName } from "@/i18n/config";
 
 const Header = () => {
-  const { accessToken, isAuthenticated, signOut } = useAuth();
+  const { accessToken, refreshToken, isAuthenticated, signOut } = useAuth();
   const dictionary = useDictionary();
   const locale = useLocale();
   const router = useRouter();
@@ -69,7 +69,7 @@ const Header = () => {
   };
 
   const handleSignOut = async () => {
-    if (!accessToken) {
+    if (!accessToken || !refreshToken) {
       signOut();
       setNavbarOpen(false);
       router.replace(localizePath("/", locale));
@@ -78,16 +78,14 @@ const Header = () => {
     }
 
     try {
-      const success = await logout({
-        access_token: accessToken,
+      await requestSignOut({
+        refreshToken,
       });
 
-      if (success) {
-        signOut();
-        setNavbarOpen(false);
-        router.replace(localizePath("/", locale));
-        router.refresh();
-      }
+      signOut();
+      setNavbarOpen(false);
+      router.replace(localizePath("/", locale));
+      router.refresh();
     } catch {
       return;
     }

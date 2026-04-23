@@ -22,11 +22,10 @@ import {
 import { IoMdClose } from "react-icons/io";
 import { IoIosArrowDropleft } from "react-icons/io";
 
-import { getUser, updateUser } from "@/api/user.api";
+import { AuthUser, me, updateMe } from "@/services/auth";
 import AccountMenu from "@/components/Common/AccountMenu";
 import ViaCepLookup from "@/components/Common/ViaCepLookup";
 import { useAuth } from "@/contexts/auth-context";
-import { User } from "@/interfaces/user.interface";
 import { getProfileDataFromToken } from "@/utils/auth-profile";
 
 const NOT_INFORMED_LABEL = "Não informado";
@@ -76,6 +75,10 @@ function getUserIdFromToken(token: string | null) {
   }
 
   return null;
+}
+
+function mapMeResponseToUser(response: Awaited<ReturnType<typeof me>>): AuthUser {
+  return response;
 }
 
 function formatDate(value: string | Date | null | undefined) {
@@ -178,13 +181,41 @@ function formatCpf(value: string) {
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 }
 
-function buildUserUpdateData(user: User, overrides: Partial<User>): User {
+function buildUserUpdateData(user: AuthUser, overrides: Partial<AuthUser>): AuthUser {
   return {
     ...user,
     ...overrides,
-    social: {
-      ...user.social,
-      ...overrides.social,
+    candidateProfile: {
+      ...user.candidateProfile,
+      ...overrides.candidateProfile,
+      contacts: {
+        ...user.candidateProfile?.contacts,
+        ...overrides.candidateProfile?.contacts,
+        address: {
+          ...user.candidateProfile?.contacts?.address,
+          ...overrides.candidateProfile?.contacts?.address,
+        },
+        phone: {
+          ...user.candidateProfile?.contacts?.phone,
+          ...overrides.candidateProfile?.contacts?.phone,
+        },
+        social: {
+          ...user.candidateProfile?.contacts?.social,
+          ...overrides.candidateProfile?.contacts?.social,
+        },
+      },
+      documents: {
+        ...user.candidateProfile?.documents,
+        ...overrides.candidateProfile?.documents,
+        cpf: {
+          ...user.candidateProfile?.documents?.cpf,
+          ...overrides.candidateProfile?.documents?.cpf,
+        },
+        rg: {
+          ...user.candidateProfile?.documents?.rg,
+          ...overrides.candidateProfile?.documents?.rg,
+        },
+      },
     },
   };
 }
@@ -229,8 +260,7 @@ type DocumentsFormState = {
 type InfoFormState = {
   birthday: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  name: string;
 };
 
 type ContactFormState = {
@@ -372,17 +402,17 @@ function InfoModal({
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div>
+            <div className="md:col-span-2">
               <label
-                htmlFor="profile-info-first-name"
+                htmlFor="profile-info-name"
                 className="mb-2 block text-sm font-medium text-black"
               >
                 Nome
               </label>
               <input
-                id="profile-info-first-name"
+                id="profile-info-name"
                 type="text"
-                {...register("firstName", {
+                {...register("name", {
                   required: "Informe seu nome.",
                   minLength: {
                     value: 2,
@@ -390,34 +420,10 @@ function InfoModal({
                   },
                 })}
                 className="w-full rounded-xs border border-gray-200 bg-white px-4 py-3 text-sm text-black outline-none transition-colors placeholder:text-gray-400 focus:border-blue-900"
-                placeholder="Digite seu nome"
+                placeholder="Digite seu nome completo"
               />
-              {errors.firstName ? (
-                <p className="mt-2 text-sm text-red-600">{errors.firstName.message}</p>
-              ) : null}
-            </div>
-            <div>
-              <label
-                htmlFor="profile-info-last-name"
-                className="mb-2 block text-sm font-medium text-black"
-              >
-                Sobrenome
-              </label>
-              <input
-                id="profile-info-last-name"
-                type="text"
-                {...register("lastName", {
-                  required: "Informe seu sobrenome.",
-                  minLength: {
-                    value: 2,
-                    message: "Informe um sobrenome válido.",
-                  },
-                })}
-                className="w-full rounded-xs border border-gray-200 bg-white px-4 py-3 text-sm text-black outline-none transition-colors placeholder:text-gray-400 focus:border-blue-900"
-                placeholder="Digite seu sobrenome"
-              />
-              {errors.lastName ? (
-                <p className="mt-2 text-sm text-red-600">{errors.lastName.message}</p>
+              {errors.name ? (
+                <p className="mt-2 text-sm text-red-600">{errors.name.message}</p>
               ) : null}
             </div>
             <div>
@@ -1272,8 +1278,7 @@ export default function ProfilePage() {
     () => getProfileDataFromToken(accessToken),
     [accessToken],
   );
-  const userId = useMemo(() => getUserIdFromToken(accessToken), [accessToken]);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState(false);
@@ -1282,8 +1287,7 @@ export default function ProfilePage() {
   const [infoDraft, setInfoDraft] = useState<InfoFormState>({
     birthday: "",
     email: "",
-    firstName: "",
-    lastName: "",
+    name: "",
   });
   const [documentsDraft, setDocumentsDraft] = useState<DocumentsFormState>({
     cpf: "",
@@ -1312,7 +1316,7 @@ export default function ProfilePage() {
     let isMounted = true;
 
     const loadUser = async () => {
-      if (!userId) {
+      if (!accessToken) {
         if (isMounted) {
           setUser(null);
           setIsLoading(false);
@@ -1322,55 +1326,49 @@ export default function ProfilePage() {
       }
 
       try {
-        const response = await getUser(userId);
-        const responseRecord = response as User & Record<string, unknown>;
+        const response = await me(accessToken);
+        const mappedUser = mapMeResponseToUser(response);
+        const documents = mappedUser.candidateProfile?.documents;
+        const contacts = mappedUser.candidateProfile?.contacts;
+        const address = contacts?.address;
+        const phone = contacts?.phone;
+        const social = contacts?.social;
 
         if (isMounted) {
-          setUser(response);
+          setUser(mappedUser);
           setInfoDraft({
-            birthday: formatDateInputValue(response.birthday),
-            email: typeof response.email === "string" ? response.email : "",
-            firstName: typeof response.firstName === "string" ? response.firstName : "",
-            lastName: typeof response.lastName === "string" ? response.lastName : "",
+            birthday: formatDateInputValue(mappedUser.birthday),
+            email: typeof mappedUser.email === "string" ? mappedUser.email : "",
+            name: typeof mappedUser.name === "string" ? mappedUser.name : "",
           });
           setDocumentsDraft({
-            cpf: typeof response.socialDocument === "string" ? response.socialDocument : "",
-            rg: typeof response.identityDocument === "string" ? response.identityDocument : "",
+            cpf: typeof documents?.cpf?.number === "string" ? documents.cpf.number : "",
+            rg: typeof documents?.rg?.number === "string" ? documents.rg.number : "",
           });
           setContactDraft({
-            city: typeof response.city === "string" ? response.city : "",
-            complement: typeof response.complement === "string" ? response.complement : "",
-            neighborhood: typeof response.neighborhood === "string" ? response.neighborhood : "",
+            city: typeof address?.city === "string" ? address.city : "",
+            complement: typeof address?.complement === "string" ? address.complement : "",
+            neighborhood: typeof address?.neighborhood === "string" ? address.neighborhood : "",
             number:
-              typeof response.number === "string" || typeof response.number === "number"
-                ? String(response.number)
+              typeof address?.number === "string" || typeof address?.number === "number"
+                ? String(address.number)
                 : "",
-            phone: typeof response.phone === "string" ? response.phone : "",
-            state: typeof response.state === "string" ? response.state : "",
-            street: typeof response.street === "string" ? response.street : "",
-            telegram:
-              typeof response.isTelegram === "boolean"
-                ? response.isTelegram
-                : typeof responseRecord.telegram === "boolean"
-                  ? responseRecord.telegram
-                  : false,
-            whatsapp:
-              typeof response.isWhatsApp === "boolean"
-                ? response.isWhatsApp
-                : typeof responseRecord.whatsapp === "boolean"
-                  ? responseRecord.whatsapp
-                  : false,
-            zipCode: typeof response.zipCode === "string" ? response.zipCode : "",
+            phone: typeof phone?.number === "string" ? phone.number : "",
+            state: typeof address?.state === "string" ? address.state : "",
+            street: typeof address?.street === "string" ? address.street : "",
+            telegram: typeof phone?.isTelegram === "boolean" ? phone.isTelegram : false,
+            whatsapp: typeof phone?.isWhatsapp === "boolean" ? phone.isWhatsapp : false,
+            zipCode: typeof address?.zipCode === "string" ? address.zipCode : "",
           });
           setSocialDraft({
-            facebook: typeof response.social?.facebook === "string" ? response.social.facebook : "",
-            instagram: typeof response.social?.instagram === "string" ? response.social.instagram : "",
-            linkedin: typeof response.social?.linkedin === "string" ? response.social.linkedin : "",
+            facebook: typeof social?.facebook === "string" ? social.facebook : "",
+            instagram: typeof social?.instagram === "string" ? social.instagram : "",
+            linkedin: typeof social?.linkedin === "string" ? social.linkedin : "",
             twitter:
-              typeof response.social?.x === "string"
-                ? response.social.x
-                : typeof response.social?.twitter === "string"
-                  ? response.social.twitter
+              typeof social?.x === "string"
+                ? social.x
+                : typeof social?.twitter === "string"
+                  ? social.twitter
                   : "",
           });
         }
@@ -1394,37 +1392,39 @@ export default function ProfilePage() {
     return () => {
       isMounted = false;
     };
-  }, [userId]);
+  }, [accessToken]);
 
-  const fullName = user
-    ? `${user.firstName} ${user.lastName}`.trim() || tokenProfileData.name
-    : `${tokenProfileData.firstName} ${tokenProfileData.lastName}`.trim() || tokenProfileData.name;
+  const name = user?.name || tokenProfileData.name;
   const status = user ? getDisplayValue(user.status) : tokenProfileData.status;
   const email = user ? getDisplayValue(user.email) : tokenProfileData.email;
   const birthday = user ? formatDate(user.birthday) : tokenProfileData.birthday;
+  const documents = user?.candidateProfile?.documents;
+  const contacts = user?.candidateProfile?.contacts;
+  const address = contacts?.address;
+  const contactPhone = contacts?.phone;
+  const socialData = contacts?.social;
   const identityDocument = user
-    ? getDisplayValue(user.identityDocument)
+    ? getDisplayValue(documents?.rg?.number)
     : tokenProfileData.identityDocument;
   const socialDocument = user
-    ? getDisplayValue(user.socialDocument)
+    ? getDisplayValue(documents?.cpf?.number)
     : tokenProfileData.socialDocument;
-  const phone = user ? getDisplayValue(user.phone) : tokenProfileData.phone;
+  const phone = user ? getDisplayValue(contactPhone?.number) : tokenProfileData.phone;
   const neighborhood = user
-    ? getDisplayValue(user.neighborhood)
+    ? getDisplayValue(address?.neighborhood)
     : tokenProfileData.neighborhood;
-  const city = user ? getDisplayValue(user.city) : tokenProfileData.city;
-  const state = user ? getDisplayValue(user.state) : tokenProfileData.state;
-  const zipCode = user ? getDisplayValue(user.zipCode) : tokenProfileData.zipCode;
+  const city = user ? getDisplayValue(address?.city) : tokenProfileData.city;
+  const state = user ? getDisplayValue(address?.state) : tokenProfileData.state;
+  const zipCode = user ? getDisplayValue(address?.zipCode) : tokenProfileData.zipCode;
   const createdAt = user ? formatDate(user.createdAt) : tokenProfileData.createdAt;
-  const street = user ? getDisplayValue(user.street) : tokenProfileData.street;
-  const number = user ? getDisplayValue(user.number) : tokenProfileData.number;
-  const complement = user ? getDisplayValue(user.complement) : tokenProfileData.complement;
-  const userRecord = user as (User & Record<string, unknown>) | null;
+  const street = user ? getDisplayValue(address?.street) : tokenProfileData.street;
+  const number = user ? getDisplayValue(address?.number) : tokenProfileData.number;
+  const complement = user ? getDisplayValue(address?.complement) : tokenProfileData.complement;
   const social = {
-    instagram: getOptionalValue(user?.social?.instagram ?? userRecord?.instagram),
-    facebook: getOptionalValue(user?.social?.facebook ?? userRecord?.facebook),
-    twitter: getOptionalValue(user?.social?.x ?? user?.social?.twitter ?? userRecord?.twitter),
-    linkedin: getOptionalValue(user?.social?.linkedin ?? userRecord?.linkedin),
+    instagram: getOptionalValue(socialData?.instagram),
+    facebook: getOptionalValue(socialData?.facebook),
+    twitter: getOptionalValue(socialData?.x ?? socialData?.twitter),
+    linkedin: getOptionalValue(socialData?.linkedin),
   };
   const socialLinks = [
     {
@@ -1458,14 +1458,14 @@ export default function ProfilePage() {
   const hasDocuments =
     identityDocument !== NOT_INFORMED_LABEL || socialDocument !== NOT_INFORMED_LABEL;
   const hasContacts =
-    hasInformedValue(user?.phone ?? tokenProfileData.phone) ||
-    hasInformedValue(user?.street ?? tokenProfileData.street) ||
-    hasInformedValue(user?.number ?? tokenProfileData.number) ||
-    hasInformedValue(user?.complement ?? tokenProfileData.complement) ||
-    hasInformedValue(user?.neighborhood ?? tokenProfileData.neighborhood) ||
-    hasInformedValue(user?.city ?? tokenProfileData.city) ||
-    hasInformedValue(user?.state ?? tokenProfileData.state) ||
-    hasInformedValue(user?.zipCode ?? tokenProfileData.zipCode);
+    hasInformedValue(contactPhone?.number ?? tokenProfileData.phone) ||
+    hasInformedValue(address?.street ?? tokenProfileData.street) ||
+    hasInformedValue(address?.number ?? tokenProfileData.number) ||
+    hasInformedValue(address?.complement ?? tokenProfileData.complement) ||
+    hasInformedValue(address?.neighborhood ?? tokenProfileData.neighborhood) ||
+    hasInformedValue(address?.city ?? tokenProfileData.city) ||
+    hasInformedValue(address?.state ?? tokenProfileData.state) ||
+    hasInformedValue(address?.zipCode ?? tokenProfileData.zipCode);
   const hasSocialLinks = socialLinks.length > 0;
 
   return (
@@ -1527,7 +1527,7 @@ export default function ProfilePage() {
                   )}
                 </p>
                 <p className="text-body-color text-base leading-relaxed md:text-lg">
-                  <span className="font-bold text-black">Nome:</span> {fullName}
+                  <span className="font-bold text-black">Nome:</span> {name}
                 </p>
                 <p className="text-body-color text-base leading-relaxed md:text-lg">
                   <span className="font-bold text-black">E-mail:</span> {email}
@@ -1639,19 +1639,18 @@ export default function ProfilePage() {
           defaultValues={infoDraft}
           onClose={() => setIsInfoModalOpen(false)}
           onSubmit={async (values) => {
-            if (!userId || !user) {
+            if (!accessToken || !user) {
               throw new Error("User not available");
             }
 
-            const updatedUser = await updateUser(
-              userId,
+            const updatedUser = await updateMe(
+              accessToken,
               buildUserUpdateData(user, {
+                name: values.name,
                 birthday: values.birthday,
                 email: values.email,
-                firstName: values.firstName,
-                lastName: values.lastName,
               }),
-            );
+            ) as AuthUser;
             setInfoDraft(values);
             setUser(updatedUser);
           }}
@@ -1663,17 +1662,21 @@ export default function ProfilePage() {
           isCreate={!hasDocuments}
           onClose={() => setIsDocumentsModalOpen(false)}
           onSubmit={async (values) => {
-            if (!userId || !user) {
+            if (!accessToken || !user) {
               throw new Error("User not available");
             }
 
-            const updatedUser = await updateUser(
-              userId,
+            const updatedUser = await updateMe(
+              accessToken,
               buildUserUpdateData(user, {
-                identityDocument: values.rg,
-                socialDocument: values.cpf,
+                candidateProfile: {
+                  documents: {
+                    cpf: { number: values.cpf },
+                    rg: { number: values.rg },
+                  },
+                },
               }),
-            );
+            ) as AuthUser;
             setDocumentsDraft(values);
             setUser(updatedUser);
           }}
@@ -1685,25 +1688,33 @@ export default function ProfilePage() {
           isCreate={!hasContacts}
           onClose={() => setIsContactsModalOpen(false)}
           onSubmit={async (values) => {
-            if (!userId || !user) {
+            if (!accessToken || !user) {
               throw new Error("User not available");
             }
 
-            const updatedUser = await updateUser(
-              userId,
+            const updatedUser = await updateMe(
+              accessToken,
               buildUserUpdateData(user, {
-                city: values.city,
-                complement: values.complement,
-                isTelegram: values.telegram,
-                isWhatsApp: values.whatsapp,
-                neighborhood: values.neighborhood,
-                number: values.number,
-                phone: values.phone,
-                state: values.state,
-                street: values.street,
-                zipCode: values.zipCode,
+                candidateProfile: {
+                  contacts: {
+                    address: {
+                      city: values.city,
+                      complement: values.complement,
+                      neighborhood: values.neighborhood,
+                      number: values.number,
+                      state: values.state,
+                      street: values.street,
+                      zipCode: values.zipCode,
+                    },
+                    phone: {
+                      isTelegram: values.telegram,
+                      isWhatsapp: values.whatsapp,
+                      number: values.phone,
+                    },
+                  },
+                },
               }),
-            );
+            ) as AuthUser;
             setContactDraft(values);
             setUser(updatedUser);
           }}
@@ -1715,22 +1726,26 @@ export default function ProfilePage() {
           isCreate={!hasSocialLinks}
           onClose={() => setIsSocialModalOpen(false)}
           onSubmit={async (values) => {
-            if (!userId || !user) {
+            if (!accessToken || !user) {
               throw new Error("User not available");
             }
 
-            const updatedUser = await updateUser(
-              userId,
+            const updatedUser = await updateMe(
+              accessToken,
               buildUserUpdateData(user, {
-                social: {
-                  facebook: values.facebook,
-                  instagram: values.instagram,
-                  linkedin: values.linkedin,
-                  x: values.twitter,
-                  twitter: values.twitter,
+                candidateProfile: {
+                  contacts: {
+                    social: {
+                      facebook: values.facebook,
+                      instagram: values.instagram,
+                      linkedin: values.linkedin,
+                      x: values.twitter,
+                      twitter: values.twitter,
+                    },
+                  },
                 },
               }),
-            );
+            ) as AuthUser;
             setSocialDraft(values);
             setUser(updatedUser);
           }}

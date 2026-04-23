@@ -2,9 +2,9 @@
 
 import { useDictionary, useLocale } from "@/contexts/locale-context";
 import { localizePath } from "@/i18n/config";
-import { Job } from "@/interfaces/job.interface";
+import { getJobMongoId } from "@/services/job/job.helpers";
+import { Job } from "@/services/job/job.types";
 import { CiCirclePlus } from "react-icons/ci";
-import { FaMedal } from "react-icons/fa";
 import Link from "next/link";
 import CompanyAvatar, { resolveCompanyAssetUrl } from "./CompanyAvatar";
 
@@ -33,14 +33,13 @@ const JobCardDetails = ({
   const dictionary = useDictionary();
   const locale = useLocale();
   const {
-    id,
     title,
     role,
     slots,
     createdAt,
-    isPaidAdvertising,
     company,
   } = job;
+  const jobMongoId = getJobMongoId(job) ?? "";
 
   const publishDate = createdAt
     ? new Date(createdAt).toLocaleString("pt-BR", {
@@ -53,19 +52,20 @@ const JobCardDetails = ({
     slots === 1 ? dictionary.jobs.slotsAvailable : dictionary.jobs.slotsAvailablePlural
   }`;
   const coverImage =
-    resolveCompanyAssetUrl(job.cover) ||
+    resolveCompanyAssetUrl(job.media?.coverUrl ?? job.cover) ||
     "/images/jobs/default_company_cover.png";
   const detailsHref = hasApplied
     ? localizePath("/jobs/applications", locale)
-    : localizePath(`/job/${id || ""}/details`, locale);
-  const jobDetailsHref = localizePath(`/job/${id || ""}/details`, locale);
-  const locationCity = company.address?.city?.trim();
-  const locationState = company.address?.state?.trim();
+    : localizePath(`/job/${jobMongoId}/details`, locale);
+  const jobDetailsHref = localizePath(`/job/${jobMongoId}/details`, locale);
+  const locationCity = company?.address?.city?.trim();
+  const locationState = company?.address?.state?.trim();
   const locationLabel = [locationCity, locationState].filter(Boolean).join(" - ");
-  const showFeaturedBadge = isPaidAdvertising === true;
   const localizedRole =
-    dictionary.jobs.roleLabels[role as keyof typeof dictionary.jobs.roleLabels] ??
-    formatRole(role);
+    role
+      ? dictionary.jobs.roleLabels[role as keyof typeof dictionary.jobs.roleLabels] ??
+        formatRole(role)
+      : dictionary.jobs.notInformed;
   const roleLabel = localizedRole.toUpperCase();
 
   return (
@@ -75,13 +75,6 @@ const JobCardDetails = ({
           className="relative block aspect-37/22 w-full"
         >
           <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-          {showFeaturedBadge ? (
-            <div className="absolute top-6 left-6 z-20">
-              <span className="bg-orange-900 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white">
-                <FaMedal className="text-base" />
-              </span>
-            </div>
-          ) : null}
           <div className="absolute top-6 right-6 z-20">
             <span className="inline-flex items-center justify-center rounded-full bg-blue-800 px-4 py-2 text-xs font-semibold uppercase text-blue-100">
               {roleLabel}
@@ -115,15 +108,15 @@ const JobCardDetails = ({
             <div className="border-body-color/10 flex flex-1 items-center border-r pr-5">
               <div className="mr-4">
                 <CompanyAvatar
-                  logo={company.logo}
-                  name={company.name}
+                  logo={company?.logo}
+                  name={company?.name}
                   sizeClassName="h-10 w-10"
                   textClassName="text-sm"
                 />
               </div>
               <div className="w-full">
                 <h4 className="text-dark mb-1 text-sm font-medium">
-                  {company.name || "Empresa"}
+                  {company?.name || "Empresa"}
                 </h4>
                 <p className="text-body-color text-xs">
                   {dictionary.common.published}: {publishDate}

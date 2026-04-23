@@ -6,9 +6,10 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
 import { MdOutlinePublish } from "react-icons/md";
 
-import { createNewJobApply } from "@/api/apply.api";
+import { createNewJobApply } from "@/services/apply/apply.api";
 import { getLocaleFromPathname, localizePath } from "@/i18n/config";
-import { Job } from "@/interfaces/job.interface";
+import { getJobMongoId } from "@/services/job/job.helpers";
+import { Job } from "@/services/job/job.types";
 import { useAuth } from "@/contexts/auth-context";
 
 type JobApplicationFormState = {
@@ -85,9 +86,10 @@ export default function JobApplicationFormModal({
     control,
     name: "acceptTerms",
   });
-  const companyName = job.company.name || "a empresa";
-  const city = job.company.address?.city?.trim() || "cidade não informada";
-  const state = job.company.address?.state?.trim() || "estado não informado";
+  const companyName = job.company?.name || "a empresa";
+  const city = job.company?.address?.city?.trim() || "cidade não informada";
+  const state = job.company?.address?.state?.trim() || "estado não informado";
+  const jobMongoId = getJobMongoId(job);
   const userId = getUserIdFromToken(accessToken);
   const isSuccess = feedback?.type === "success";
 
@@ -106,7 +108,7 @@ export default function JobApplicationFormModal({
   }, [feedback, locale, onClose, router]);
 
   const onSubmit = async () => {
-    if (!job.id || !userId) {
+    if (!jobMongoId || !userId) {
       setFeedback({
         type: "error",
         message: "Nao foi possivel enviar sua candidatura. Tente novamente.",
@@ -117,7 +119,7 @@ export default function JobApplicationFormModal({
     try {
       await createNewJobApply({
         companyId: job.companyId,
-        jobId: job.id,
+        jobId: jobMongoId,
         userId,
         status: "active",
       });

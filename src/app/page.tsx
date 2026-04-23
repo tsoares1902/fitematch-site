@@ -24,7 +24,7 @@ export default async function Home({
       <ScrollUp />
       <HeroSwitch />
       <Features locale={locale} />
-      <Jobs showRegularJobs={false} />
+      <Jobs />
     </>
   );
 }

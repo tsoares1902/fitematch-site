@@ -14,7 +14,7 @@ import { IoIosArrowDropleft } from "react-icons/io";
 
 import { useDictionary, useLocale } from "@/contexts/locale-context";
 import { localizePath } from "@/i18n/config";
-import { Job } from "@/interfaces/job.interface";
+import { Job } from "@/services/job/job.types";
 
 import JobApplicationFormModal from "./JobApplicationFormModal";
 import CompanyAvatar, { resolveCompanyAssetUrl } from "./CompanyAvatar";
@@ -34,7 +34,7 @@ function formatRole(role: string) {
   }
 }
 
-function formatPublishDate(createdAt?: Date) {
+function formatPublishDate(createdAt?: Date | string) {
   if (!createdAt) {
     return "";
   }
@@ -75,22 +75,29 @@ export default function JobDetailsPageClient({
   const locale = useLocale();
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const coverImage =
-    resolveCompanyAssetUrl(job.cover) ||
+    resolveCompanyAssetUrl(job.media?.coverUrl ?? job.cover) ||
     "/images/jobs/default_company_cover.png";
   const formattedRole =
-    dictionary.jobs.roleLabels[
-      job.role as keyof typeof dictionary.jobs.roleLabels
-    ] ?? formatRole(job.role);
+    job.role
+      ? dictionary.jobs.roleLabels[
+          job.role as keyof typeof dictionary.jobs.roleLabels
+        ] ?? formatRole(job.role)
+      : dictionary.jobs.notInformed;
   const publishDate = formatPublishDate(job.createdAt);
   const locationLabel = [
-    job.company.address?.city?.trim(),
-    job.company.address?.state?.trim(),
+    job.company?.address?.city?.trim(),
+    job.company?.address?.state?.trim(),
   ]
     .filter(Boolean)
     .join(" - ");
-  const neighborhood = job.company.address?.neighborhood?.trim();
+  const neighborhood = job.company?.address?.neighborhood?.trim();
   const addressLabel = [
-    [job.company.address?.street?.trim(), job.company.address?.number?.trim()]
+    [
+      job.company?.address?.street?.trim(),
+      job.company?.address?.number
+        ? String(job.company.address.number).trim()
+        : undefined,
+    ]
       .filter(Boolean)
       .join(", "),
     neighborhood,
@@ -100,22 +107,22 @@ export default function JobDetailsPageClient({
   const slotsLabel = `${job.slots} ${
     job.slots === 1 ? dictionary.jobs.slotsAvailable : dictionary.jobs.slotsAvailablePlural
   }`;
+  const benefitsData = job.benefits;
   const benefits = [
-    job.benefits.salary
-      ? `${locale === "en" ? "Salary" : locale === "es" ? "Salario" : "Salário"}: R$ ${job.benefits.salary}`
+    benefitsData?.salary
+      ? `${locale === "en" ? "Salary" : locale === "es" ? "Salario" : "Salário"}: R$ ${benefitsData.salary}`
       : null,
-    job.benefits.transportation ? "Vale Transporte" : null,
-    job.benefits.alimentation ? "Vale Alimentação/Refeição" : null,
-    job.benefits.health ? "Plano de Saúde" : null,
-    job.benefits.parking ? "Vaga de Estacionamento" : null,
-    job.benefits.bonus ? `Bônus: ${job.benefits.bonus}` : null,
+    benefitsData?.transportationVoucher ? "Vale Transporte" : null,
+    benefitsData?.alimentationVoucher ? "Vale Alimentação/Refeição" : null,
+    benefitsData?.healthInsurance ? "Plano de Saúde" : null,
+    benefitsData?.dentalInsurance ? "Plano Odontológico" : null,
   ].filter(Boolean);
   const socialLinks = [
     {
       key: "instagram",
       href: buildSocialLink(
         "https://www.instagram.com/",
-        job.company.social?.instagram,
+        job.company?.social?.instagram,
       ),
       icon: CiInstagram,
       className: "hover:text-purple-700",
@@ -124,14 +131,14 @@ export default function JobDetailsPageClient({
       key: "facebook",
       href: buildSocialLink(
         "https://www.facebook.com/",
-        job.company.social?.facebook,
+        job.company?.social?.facebook,
       ),
       icon: CiFacebook,
       className: "hover:text-blue-700",
     },
     {
       key: "twitter",
-      href: buildSocialLink("https://x.com/", job.company.social?.twitter),
+      href: buildSocialLink("https://x.com/", job.company?.social?.twitter),
       icon: FaXTwitter,
       className: "hover:text-black",
     },
@@ -139,7 +146,7 @@ export default function JobDetailsPageClient({
       key: "linkedin",
       href: buildSocialLink(
         "https://www.linkedin.com/in/",
-        job.company.social?.linkedin,
+        job.company?.social?.linkedin,
       ),
       icon: CiLinkedin,
       className: "hover:text-blue-700",
@@ -181,7 +188,7 @@ export default function JobDetailsPageClient({
                 </div>
 
                 <h1 className="mb-4 text-3xl font-bold text-black md:text-4xl">
-                  {job.company.name || "Empresa"} - {job.title}
+                  {job.company?.name || "Empresa"} - {job.title}
                 </h1>
 
                 <div className="mb-8 space-y-2 text-base md:text-lg">
@@ -217,14 +224,14 @@ export default function JobDetailsPageClient({
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
                       <CompanyAvatar
-                        logo={job.company.logo}
-                        name={job.company.name}
+                        logo={job.company?.logo}
+                        name={job.company?.name}
                         sizeClassName="h-14 w-14"
                         textClassName="text-lg"
                       />
                       <div>
                         <p className="text-black text-base font-semibold">
-                          {job.company.name || "Empresa"}
+                          {job.company?.name || "Empresa"}
                         </p>
                         {locationLabel ? (
                           <p className="text-body-color text-sm">

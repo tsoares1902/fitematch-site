@@ -1,29 +1,29 @@
 "use client";
 
 import axios from "axios";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
 import { IoIosArrowDropleft } from "react-icons/io";
 import { MdOutlinePublish } from "react-icons/md";
 
-import { createNewJob } from "@/api/job.api";
-import { Company } from "@/interfaces/company.interface";
-import { buildSlug } from "@/utils/slug";
+import { createNewJob } from "@/services/job/job.api";
+import { Company } from "@/services/company/company.types";
 
-const roleOptions = ["intern", "freelance", "contract_person", "contract_company"] as const;
-
-type RoleOption = (typeof roleOptions)[number];
+function getCompanyId(company: Company) {
+  return company._id ?? company.id ?? "";
+}
 
 type AdvertisementFormState = {
   companyId: string;
-  isPaidAdvertising: boolean;
-  role: RoleOption;
-  slug: string;
   title: string;
+  description: string;
   slots: number;
   salary: string;
-  bonus: string;
+  healthInsurance: boolean;
+  dentalInsurance: boolean;
+  alimentationVoucher: boolean;
+  transportationVoucher: boolean;
 };
 
 type SubmitFeedback = {
@@ -92,38 +92,19 @@ export default function AdvertisementFormModal({
   } = useForm<AdvertisementFormState>({
     mode: "onBlur",
     defaultValues: {
-      companyId: companies[0]?.id || "",
-      isPaidAdvertising: false,
-      role: "intern",
-      slug: "",
+      companyId: companies[0] ? getCompanyId(companies[0]) : "",
       title: "",
+      description: "",
       slots: 1,
       salary: "",
-      bonus: "",
+      healthInsurance: false,
+      dentalInsurance: false,
+      alimentationVoucher: false,
+      transportationVoucher: false,
     },
   });
 
-  const bonusValue = watch("bonus");
-  const titleValue = watch("title");
-  const companyIdValue = watch("companyId");
   const slotsValue = watch("slots");
-  const isPaidAdvertising = watch("isPaidAdvertising");
-
-  const remainingBonusCharacters = useMemo(
-    () => 255 - (bonusValue?.length || 0),
-    [bonusValue],
-  );
-
-  useEffect(() => {
-    const companyName =
-      companies.find((company) => company.id === companyIdValue)?.name || "";
-    const slugParts = [companyName, titleValue].filter(Boolean).join(" ");
-
-    setValue("slug", buildSlug(slugParts), {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  }, [companies, companyIdValue, setValue, titleValue]);
 
   useEffect(() => {
     if (feedback?.type !== "success") {
@@ -141,7 +122,7 @@ export default function AdvertisementFormModal({
   const onSubmit = async (data: AdvertisementFormState) => {
     try {
       const hasSelectedCompany = companies.some(
-        (company) => company.id === data.companyId,
+        (company) => getCompanyId(company) === data.companyId,
       );
 
       if (!hasSelectedCompany) {
@@ -155,32 +136,42 @@ export default function AdvertisementFormModal({
 
       await createNewJob({
         companyId: data.companyId,
-        slug: data.slug,
         title: data.title,
+        description: data.description,
         slots: data.slots,
-        benefits: {
-          salary: data.salary ? Number(data.salary.replace(/[^\d,-]/g, "").replace(".", "").replace(",", ".")) || null : null,
-          transportation: false,
-          alimentation: false,
-          health: false,
-          parking: false,
-          bonus: data.bonus.trim(),
+        requirements: {
+          educationLevel: [],
+          languages: [],
+          hardSkills: {
+            required: [],
+            niceToHave: [],
+          },
+          softSkills: {
+            required: [],
+            niceToHave: [],
+          },
         },
-        role: data.role,
-        isPaidAdvertising: data.isPaidAdvertising,
+        benefits: {
+          salary: Number(data.salary.replace(/[^\d,-]/g, "").replace(".", "").replace(",", ".")) || 0,
+          healthInsurance: data.healthInsurance,
+          dentalInsurance: data.dentalInsurance,
+          alimentationVoucher: data.alimentationVoucher,
+          transportationVoucher: data.transportationVoucher,
+        },
         status: "pending",
       });
 
       reset({
         ...data,
-        companyId: companies[0]?.id || "",
-        isPaidAdvertising: false,
-        role: "intern",
-        slug: "",
+        companyId: companies[0] ? getCompanyId(companies[0]) : "",
         title: "",
+        description: "",
         slots: 1,
         salary: "",
-        bonus: "",
+        healthInsurance: false,
+        dentalInsurance: false,
+        alimentationVoucher: false,
+        transportationVoucher: false,
       });
       setFeedback({
         type: "success",
@@ -249,19 +240,6 @@ export default function AdvertisementFormModal({
               ) : null}
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" noValidate>
-                <Controller
-                  control={control}
-                  name="isPaidAdvertising"
-                  render={({ field }) => (
-                    <SwitchField
-                      label={`Colocar em Destaque: ${isPaidAdvertising ? "Sim" : "Não"}`}
-                      checked={field.value}
-                      onChange={field.onChange}
-                      className="w-full md:max-w-[320px]"
-                    />
-                  )}
-                />
-
                 <div className="grid gap-6 md:grid-cols-2">
                   <label className="block w-full max-w-[320px] space-y-2">
                     <span className="text-sm font-medium text-black">Unidade</span>
@@ -273,7 +251,7 @@ export default function AdvertisementFormModal({
                       })}
                     >
                       {companies.map((company) => (
-                        <option key={company.id} value={company.id}>
+                        <option key={getCompanyId(company)} value={getCompanyId(company)}>
                           {company.name}
                         </option>
                       ))}
@@ -284,47 +262,7 @@ export default function AdvertisementFormModal({
                       </p>
                     ) : null}
                   </label>
-
-                  <label className="block w-full max-w-[320px] space-y-2">
-                    <span className="text-sm font-medium text-black">Tipo de Vaga</span>
-                    <select
-                      aria-invalid={errors.role ? "true" : "false"}
-                      className={`${inputClassName} ${errors.role ? inputErrorClassName : ""}`}
-                      {...register("role", {
-                        required: "Selecione o tipo de vaga.",
-                      })}
-                    >
-                      <option value="intern">Estágio</option>
-                      <option value="freelance">Autônomo</option>
-                      <option value="contract_person">CLT</option>
-                      <option value="contract_company">PJ</option>
-                    </select>
-                    {errors.role ? (
-                      <p className="mt-2 text-sm text-red-500">
-                        {errors.role.message}
-                      </p>
-                    ) : null}
-                  </label>
                 </div>
-
-                <label className="space-y-2">
-                  <span className="text-sm font-medium text-black">Slug</span>
-                  <input
-                    type="text"
-                    readOnly
-                    aria-invalid={errors.slug ? "true" : "false"}
-                    className={`w-full cursor-not-allowed rounded-xs border bg-gray-100 px-4 py-3 text-sm outline-none ${errors.slug ? "border-red-500 text-red-500" : "border-gray-200 text-gray-500"}`}
-                    placeholder="slug"
-                    {...register("slug", {
-                      required: "O slug é obrigatório.",
-                    })}
-                  />
-                  {errors.slug ? (
-                    <p className="mt-2 text-sm text-red-500">
-                      {errors.slug.message}
-                    </p>
-                  ) : null}
-                </label>
 
                 <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_180px]">
                   <label className="space-y-2">
@@ -403,6 +341,28 @@ export default function AdvertisementFormModal({
                   </div>
                 </div>
 
+                <label className="space-y-2">
+                  <span className="text-sm font-medium text-black">Descrição</span>
+                  <textarea
+                    rows={5}
+                    placeholder="Descreva as responsabilidades da vaga."
+                    aria-invalid={errors.description ? "true" : "false"}
+                    className={`${inputClassName} resize-none ${errors.description ? inputErrorClassName : ""}`}
+                    {...register("description", {
+                      required: "A descrição é obrigatória.",
+                      minLength: {
+                        value: 10,
+                        message: "A descrição deve ter no mínimo 10 caracteres.",
+                      },
+                    })}
+                  />
+                  {errors.description ? (
+                    <p className="mt-2 text-sm text-red-500">
+                      {errors.description.message}
+                    </p>
+                  ) : null}
+                </label>
+
                 <hr className="border-gray-200" />
 
                 <div className="grid gap-6">
@@ -429,33 +389,52 @@ export default function AdvertisementFormModal({
                   </label>
                 </div>
 
-                <label className="space-y-2">
-                  <span className="text-sm font-medium text-black">Bônus</span>
-                  <textarea
-                    rows={5}
-                    maxLength={255}
-                    placeholder="Descreva regras ou detalhes adicionais do bônus."
-                    aria-invalid={errors.bonus ? "true" : "false"}
-                    className={`${inputClassName} resize-none ${errors.bonus ? inputErrorClassName : ""}`}
-                    {...register("bonus", {
-                      required: "O bônus é obrigatório.",
-                      validate: (value) =>
-                        value.trim().length > 0 || "O bônus é obrigatório.",
-                      maxLength: {
-                        value: 255,
-                        message: "O bônus deve ter no máximo 255 caracteres.",
-                      },
-                    })}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Controller
+                    control={control}
+                    name="healthInsurance"
+                    render={({ field }) => (
+                      <SwitchField
+                        label="Plano de saúde"
+                        checked={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
                   />
-                  <p className="text-right text-xs text-body-color">
-                    {remainingBonusCharacters} caracteres restantes
-                  </p>
-                  {errors.bonus ? (
-                    <p className="mt-2 text-sm text-red-500">
-                      {errors.bonus.message}
-                    </p>
-                  ) : null}
-                </label>
+                  <Controller
+                    control={control}
+                    name="dentalInsurance"
+                    render={({ field }) => (
+                      <SwitchField
+                        label="Plano odontológico"
+                        checked={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="alimentationVoucher"
+                    render={({ field }) => (
+                      <SwitchField
+                        label="Vale alimentação"
+                        checked={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="transportationVoucher"
+                    render={({ field }) => (
+                      <SwitchField
+                        label="Vale transporte"
+                        checked={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
 
                 <hr className="border-gray-200" />
 

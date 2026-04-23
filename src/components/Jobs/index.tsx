@@ -1,22 +1,19 @@
-import { getAllJobs } from "@/api/job.api";
-import { getAllApplies } from "@/api/apply.api";
+import { listJobs } from "@/services/job/job.api";
+import { getAllApplies } from "@/services/apply/apply.api";
 import { getCurrentLocale } from "@/i18n/server";
 import { localizePath } from "@/i18n/config";
 import Link from "next/link";
 import { FaRegArrowAltCircleLeft, FaRegArrowAltCircleRight } from "react-icons/fa";
 
-import FeaturedJobsMarquee from "./FeaturedJobsMarquee";
 import JobsSearchForm from "./JobsSearchForm";
 
 const Jobs = async ({
   currentPage = 1,
-  showRegularJobs = true,
 }: {
   currentPage?: number;
-  showRegularJobs?: boolean;
 }) => {
   const locale = await getCurrentLocale();
-  const { jobs } = await getAllJobs({ limit: 1000 });
+  const jobs = await listJobs();
   const applies = await getAllApplies();
   const appliedJobIds = Array.from(new Set(
     applies
@@ -24,17 +21,10 @@ const Jobs = async ({
       .filter((jobId): jobId is string => Boolean(jobId)),
   ));
   const activeJobs = jobs.filter((job) => job.status === "active");
-  const isFeaturedJob = (value: boolean | undefined) => value === true;
-  const featuredJobs = activeJobs.filter((job) =>
-    isFeaturedJob(job.isPaidAdvertising),
-  );
-  const regularJobs = activeJobs.filter((job) =>
-    !isFeaturedJob(job.isPaidAdvertising),
-  );
   const jobsPerPage = 6;
-  const totalPages = Math.max(1, Math.ceil(regularJobs.length / jobsPerPage));
+  const totalPages = Math.max(1, Math.ceil(activeJobs.length / jobsPerPage));
   const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
-  const paginatedRegularJobs = regularJobs.slice(
+  const paginatedJobs = activeJobs.slice(
     (safeCurrentPage - 1) * jobsPerPage,
     safeCurrentPage * jobsPerPage,
   );
@@ -48,12 +38,9 @@ const Jobs = async ({
       className="bg-gray-light py-16 md:py-20 lg:py-28"
     >
       <div className="container">
-        <FeaturedJobsMarquee jobs={featuredJobs} appliedJobIds={appliedJobIds} />
-
-        {showRegularJobs && regularJobs.length > 0 ? (
+        {activeJobs.length > 0 ? (
           <>
-            <div className="border-body-color/15 my-10 border-t" />
-            <JobsSearchForm jobs={paginatedRegularJobs} appliedJobIds={appliedJobIds} />
+            <JobsSearchForm jobs={paginatedJobs} appliedJobIds={appliedJobIds} />
             {totalPages > 1 ? (
               <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-xs border border-gray-200 bg-white px-6 py-4 text-sm text-body-color shadow-one md:flex-row">
                 <p>

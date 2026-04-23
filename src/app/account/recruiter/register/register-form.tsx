@@ -6,13 +6,12 @@ import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { FaUserPlus } from "react-icons/fa";
 
-import { createUser } from "@/api/user.api";
+import { signUp } from "@/services/auth";
 import { useLocale } from "@/contexts/locale-context";
 import { localizePath } from "@/i18n/config";
 
 type RecruiterRegisterFormData = {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   password: string;
   birthday: string;
@@ -98,15 +97,12 @@ export function RecruiterRegisterForm() {
 
   const onSubmit = async (data: RecruiterRegisterFormData) => {
     try {
-      await createUser({
-        role: "recruiter",
-        username: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
+      await signUp({
+        name: data.name.trim(),
         email: data.email,
         password: data.password,
         birthday: data.birthday,
-        status: "pending",
+        productRole: "recruiter",
       });
 
       reset();
@@ -146,18 +142,18 @@ export function RecruiterRegisterForm() {
               <form onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div className="mb-8">
                   <label
-                    htmlFor="firstName"
+                    htmlFor="name"
                     className="text-dark mb-3 block text-sm"
                   >
                     Nome
                   </label>
                   <input
                     type="text"
-                    id="firstName"
-                    placeholder="Digite seu primeiro nome"
-                    aria-invalid={errors.firstName ? "true" : "false"}
-                    className={`${inputClassName} ${errors.firstName ? inputErrorClassName : ""}`}
-                    {...register("firstName", {
+                    id="name"
+                    placeholder="Digite seu nome completo"
+                    aria-invalid={errors.name ? "true" : "false"}
+                    className={`${inputClassName} ${errors.name ? inputErrorClassName : ""}`}
+                    {...register("name", {
                       required: "O nome é obrigatório.",
                       minLength: {
                         value: 2,
@@ -169,40 +165,9 @@ export function RecruiterRegisterForm() {
                       },
                     })}
                   />
-                  {errors.firstName ? (
+                  {errors.name ? (
                     <p className="mt-2 text-sm text-red-500">
-                      {errors.firstName.message}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="mb-8">
-                  <label
-                    htmlFor="lastName"
-                    className="text-dark mb-3 block text-sm"
-                  >
-                    Sobrenome
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    placeholder="Digite seu sobrenome"
-                    aria-invalid={errors.lastName ? "true" : "false"}
-                    className={`${inputClassName} ${errors.lastName ? inputErrorClassName : ""}`}
-                    {...register("lastName", {
-                      required: "O sobrenome é obrigatório.",
-                      minLength: {
-                        value: 2,
-                        message: "O sobrenome deve ter no mínimo 2 caracteres.",
-                      },
-                      maxLength: {
-                        value: 64,
-                        message: "O sobrenome deve ter no máximo 64 caracteres.",
-                      },
-                    })}
-                  />
-                  {errors.lastName ? (
-                    <p className="mt-2 text-sm text-red-500">
-                      {errors.lastName.message}
+                      {errors.name.message}
                     </p>
                   ) : null}
                 </div>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getJob } from "@/api/job.api";
+import { getJob } from "@/services/job/job.api";
 import { getCurrentLocale } from "@/i18n/server";
 import { localizePath } from "@/i18n/config";
 

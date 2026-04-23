@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-
-import { getAllApplies } from "@/api/apply.api";
-import { getJob } from "@/api/job.api";
+import { listApplies } from "@/services/apply/apply.api";
+import { Apply } from "@/services/apply";
+import { readCompany } from "@/services/company/company.api";
+import { Company } from "@/services/company/company.types";
+import { readJob } from "@/services/job/job.api";
+import { getJobMongoId } from "@/services/job/job.helpers";
+import { Job } from "@/services/job/job.types";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import JobDetailsPageClient from "@/components/Jobs/JobDetailsPageClient";
-import { Job } from "@/interfaces/job.interface";
 
 type JobDetailsPageProps = {
   params: Promise<{
@@ -15,10 +18,56 @@ type JobDetailsPageProps = {
 
 async function readJobOrNull(jobId: string): Promise<Job | null> {
   try {
-    return await getJob(jobId);
+    return await readJob(jobId);
   } catch {
     return null;
   }
+}
+
+async function readCompanyOrNull(companyId: string): Promise<Company | null> {
+  try {
+    return await readCompany(companyId);
+  } catch {
+    return null;
+  }
+}
+
+async function readAppliesOrNull(): Promise<Apply[]> {
+  try {
+    return await listApplies();
+  } catch {
+    return [];
+  }
+}
+
+function getCompanyLocationLabel(company: Company | null) {
+  return [
+    company?.contacts?.address?.city?.trim(),
+    company?.contacts?.address?.state?.trim(),
+  ]
+    .filter(Boolean)
+    .join(" - ");
+}
+
+function withCompany(job: Job, company: Company | null): Job {
+  if (!company) {
+    return job;
+  }
+
+  return {
+    ...job,
+    company: {
+      ...company,
+      id: company.id,
+      slug: company.slug,
+      name: company.name ?? company.tradeName,
+      address: company.address ?? company.contacts.address,
+      social: company.social,
+      logo: company.logo,
+      cover: company.cover,
+      status: company.status,
+    },
+  };
 }
 
 export async function generateMetadata({
@@ -26,6 +75,7 @@ export async function generateMetadata({
 }: JobDetailsPageProps): Promise<Metadata> {
   const { id } = await params;
   const job = await readJobOrNull(id);
+  const company = job?.companyId ? await readCompanyOrNull(job.companyId) : null;
 
   if (!job) {
     return {
@@ -33,12 +83,7 @@ export async function generateMetadata({
     };
   }
 
-  const locationLabel = [
-    job.company.address?.city?.trim(),
-    job.company.address?.state?.trim(),
-  ]
-    .filter(Boolean)
-    .join(" - ");
+  const locationLabel = getCompanyLocationLabel(company);
 
   return {
     title: `fitematch | ${job.title}`,
@@ -52,21 +97,21 @@ export default async function JobDetailsPage({
   params,
 }: Readonly<JobDetailsPageProps>) {
   const { id } = await params;
-  const [job, applies] = await Promise.all([
-    readJobOrNull(id),
-    getAllApplies(),
-  ]);
+  const job = await readJobOrNull(id);
 
   if (!job) {
     notFound();
   }
-  const hasApplied = applies.some((apply) => apply.jobId === job.id);
-  const locationLabel = [
-    job.company.address?.city?.trim(),
-    job.company.address?.state?.trim(),
-  ]
-    .filter(Boolean)
-    .join(" - ");
+
+  const [company, applies] = await Promise.all([
+    job.companyId ? readCompanyOrNull(job.companyId) : Promise.resolve(null),
+    readAppliesOrNull(),
+  ]);
+
+  const jobMongoId = getJobMongoId(job);
+  const hasApplied = applies.some((apply) => apply.jobId === jobMongoId);
+  const locationLabel = getCompanyLocationLabel(company);
+  const jobWithCompany = withCompany(job, company);
 
   return (
     <>
@@ -74,7 +119,7 @@ export default async function JobDetailsPage({
         pageName={job.title}
         description={locationLabel || "Localização não informada"}
       />
-      <JobDetailsPageClient job={job} hasApplied={hasApplied} />
+      <JobDetailsPageClient job={jobWithCompany} hasApplied={hasApplied} />
     </>
   );
 }
