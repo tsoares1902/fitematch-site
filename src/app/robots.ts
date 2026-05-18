@@ -11,6 +11,7 @@ export default function robots(): MetadataRoute.Robots {
           '/profile',
           '/sessions',
           '/applications',
+          '/candidate',
           '/recruiter',
           '/sign-in',
           '/sign-up',

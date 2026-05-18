@@ -1,0 +1,30 @@
+import { Metadata } from 'next';
+import { UserRound } from 'lucide-react';
+import { ProfileForm } from '@/components/profile/profile-form';
+import { DashboardShell } from '@/features/recruiter-dashboard/components/dashboard-shell';
+
+export const metadata: Metadata = {
+  title: 'Perfil recruiter',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+export default function RecruiterProfilePage() {
+  return (
+    <DashboardShell title="Perfil" subtitle="Área do recrutador">
+      <div className="mb-8 flex items-center gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-lime-500/20 bg-lime-500/10 text-lime-400">
+          <UserRound className="h-4 w-4" />
+        </span>
+        <div>
+          <h2 className="text-3xl font-semibold uppercase tracking-[-0.05em] text-zinc-50">
+            Edite seus dados
+          </h2>
+        </div>
+      </div>
+      <ProfileForm />
+    </DashboardShell>
+  );
+}

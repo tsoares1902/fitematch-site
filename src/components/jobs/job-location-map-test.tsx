@@ -235,9 +235,14 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
     company?.contacts?.address?.street,
     company?.contacts?.address?.number,
     company?.contacts?.address?.complement,
+  ]
+    .filter(Boolean)
+    .join(' - ');
+  const companyRegion = [
     company?.contacts?.address?.neighborhood,
-    company?.contacts?.address?.city,
-    company?.contacts?.address?.state,
+    [company?.contacts?.address?.city, company?.contacts?.address?.state]
+      .filter(Boolean)
+      .join(' / '),
   ]
     .filter(Boolean)
     .join(' - ');
@@ -285,7 +290,10 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
                 className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-700/70 bg-black/50 px-3 py-3 transition-colors hover:border-slate-500 hover:bg-black/65"
               >
                 <MdPlace className="mt-0.5 h-4 w-4 shrink-0 text-lime-400" />
-                <p className="leading-6">{companyLocation}</p>
+                <div className="leading-6">
+                  <p>{companyLocation}</p>
+                  {companyRegion && <p className="text-gray-400">{companyRegion}</p>}
+                </div>
               </a>
             )}
             {candidateCoordinates ? (
@@ -298,7 +306,7 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
                 <MdOutlineSocialDistance className="h-4 w-4 shrink-0 text-gray-100" />
                 <p>
                   Indisponível. Complete seu{' '}
-                  <Link href={ROUTES.PROFILE} className="underline hover:text-gray-100">
+                  <Link href={ROUTES.CANDIDATE_PROFILE} className="underline hover:text-gray-100">
                     perfil
                   </Link>{' '}
                   para calcular.

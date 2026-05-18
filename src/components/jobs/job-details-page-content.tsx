@@ -125,8 +125,8 @@ export function JobDetailsPageContent({ jobId }: JobDetailsPageContentProps) {
         />
 
         {company?.tradeName && (
-          <div className="mt-8 flex items-start gap-3">
-            <span className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-lime-500/20 bg-lime-500/10 text-lime-400">
+          <div className="mt-8 flex items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-lime-500/20 bg-lime-500/10 text-lime-400">
               <Building2 className="h-4 w-4" />
             </span>
             <div className="min-w-0">

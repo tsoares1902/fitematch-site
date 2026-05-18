@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { type ComponentType, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { Save } from 'lucide-react';
 import {
@@ -42,6 +42,7 @@ import {
   ClothingSizeEnum,
   ShoesSizeUnitEnum,
   AvailabilityShiftEnum,
+  CandidateProfileEntity,
   CourseTypeEnum,
 } from '@/types/entities/user.entity';
 import { RecruiterProfileForm } from '@/components/profile/recruiter-profile-form';
@@ -134,6 +135,109 @@ function hasValue(value: unknown) {
   return true;
 }
 
+const candidateProfileSections: Array<{
+  id: string;
+  title: string;
+  icon: ComponentType<{ className?: string }>;
+}> = [
+  { id: 'dados-basicos', title: 'Dados Básicos', icon: GrDocumentText },
+  { id: 'telefone', title: 'Telefone', icon: FaPhoneSquare },
+  { id: 'endereco', title: 'Endereço', icon: MdOutlinePlace },
+  { id: 'documentos', title: 'Documentos', icon: FaPassport },
+  { id: 'midia', title: 'Mídia', icon: BsFiles },
+  { id: 'etnia', title: 'Etnia', icon: FaGlobeAmericas },
+  { id: 'diversidade', title: 'Diversidade', icon: MdDiversity2 },
+  { id: 'atributos-fisicos', title: 'Atributos Físicos', icon: GiBodyHeight },
+  { id: 'uniforme', title: 'Uniforme', icon: GiBodySwapping },
+  { id: 'formacao', title: 'Formação', icon: GiGraduateCap },
+  { id: 'experiencias-profissionais', title: 'Experiências Profissionais', icon: GrCertificate },
+  { id: 'disponibilidade', title: 'Disponibilidade', icon: MdEventAvailable },
+];
+
+type CandidateProfileSectionId =
+  | 'dados-basicos'
+  | 'telefone'
+  | 'endereco'
+  | 'documentos'
+  | 'midia'
+  | 'etnia'
+  | 'diversidade'
+  | 'atributos-fisicos'
+  | 'uniforme'
+  | 'formacao'
+  | 'experiencias-profissionais'
+  | 'disponibilidade';
+
+type CandidateProfileCompletion = Record<CandidateProfileSectionId, boolean>;
+
+function getCandidateProfileCompletion({
+  name,
+  email,
+  birthday,
+  profile,
+}: {
+  name?: string;
+  email?: string;
+  birthday?: string | Date;
+  profile?: CandidateProfileEntity;
+}): CandidateProfileCompletion {
+  return {
+    'dados-basicos': [name, email, birthday].every(hasValue),
+    telefone: [profile?.contacts?.phone?.country, profile?.contacts?.phone?.number].every(hasValue),
+    endereco: [
+      profile?.contacts?.address?.zipCode,
+      profile?.contacts?.address?.street,
+      profile?.contacts?.address?.number,
+      profile?.contacts?.address?.neighborhood,
+      profile?.contacts?.address?.city,
+      profile?.contacts?.address?.state,
+      profile?.contacts?.address?.country,
+    ].every(hasValue),
+    documentos: hasValue(profile?.documents?.cpf?.number),
+    midia: hasValue(profile?.media?.resumeUrl),
+    etnia: hasValue(profile?.ethnicity),
+    diversidade: [profile?.diversity?.genderIdentity, profile?.diversity?.sexualOrientation].every(
+      hasValue,
+    ),
+    'atributos-fisicos': [
+      profile?.physicalAttributes?.height,
+      profile?.physicalAttributes?.weight,
+    ].every(hasValue),
+    uniforme: [
+      profile?.uniform?.tShirtSize,
+      profile?.uniform?.jacketSize,
+      profile?.uniform?.shortSize,
+      profile?.uniform?.pantsSize,
+      profile?.uniform?.shoeSizeUnit,
+      profile?.uniform?.shoeSize,
+    ].every(hasValue),
+    formacao:
+      Boolean(profile?.educations?.length) &&
+      Boolean(
+        profile?.educations?.every(
+          (education) =>
+            hasValue(education.courseType) &&
+            hasValue(education.courseName) &&
+            hasValue(education.institution) &&
+            hasValue(education.startYear) &&
+            (education.isOngoing || hasValue(education.endYear)),
+        ),
+      ),
+    'experiencias-profissionais':
+      Boolean(profile?.professionalExperiences?.length) &&
+      Boolean(
+        profile?.professionalExperiences?.every(
+          (experience) =>
+            hasValue(experience.companyName) &&
+            hasValue(experience.role) &&
+            hasValue(experience.startYear) &&
+            (experience.isCurrent || hasValue(experience.endYear)),
+        ),
+      ),
+    disponibilidade: Array.isArray(profile?.availability) && profile.availability.length > 0,
+  };
+}
+
 export function ProfileForm() {
   const { user } = useAuth();
 
@@ -168,18 +272,44 @@ export function CandidateProfileForm() {
       [CourseTypeEnum.OTHER]: 'Outro',
     }[value],
   }));
-  const [showBasic, setShowBasic] = useState(true);
-  const [showPhone, setShowPhone] = useState(true);
-  const [showAddress, setShowAddress] = useState(true);
-  const [showContacts, setShowContacts] = useState(true);
-  const [showMedia, setShowMedia] = useState(true);
-  const [showEthnicity, setShowEthnicity] = useState(true);
-  const [showDiversity, setShowDiversity] = useState(true);
-  const [showPhysicalAttributes, setShowPhysicalAttributes] = useState(true);
-  const [showUniform, setShowUniform] = useState(true);
-  const [showEducation, setShowEducation] = useState(true);
-  const [showExperiences, setShowExperiences] = useState(true);
-  const [showAvailability, setShowAvailability] = useState(true);
+  const savedProfileCompletionBySection = useMemo(
+    () =>
+      getCandidateProfileCompletion({
+        name: user?.name,
+        email: user?.email,
+        birthday: user?.birthday,
+        profile: user?.candidateProfile,
+      }),
+    [user?.birthday, user?.candidateProfile, user?.email, user?.name],
+  );
+  const [completedSectionOverrides, setCompletedSectionOverrides] = useState<
+    Partial<CandidateProfileCompletion>
+  >({});
+  const visibleProfileCompletionBySection = useMemo(
+    () => ({
+      ...savedProfileCompletionBySection,
+      ...completedSectionOverrides,
+    }),
+    [completedSectionOverrides, savedProfileCompletionBySection],
+  );
+  const [showBasic, setShowBasic] = useState(!savedProfileCompletionBySection['dados-basicos']);
+  const [showPhone, setShowPhone] = useState(!savedProfileCompletionBySection.telefone);
+  const [showAddress, setShowAddress] = useState(!savedProfileCompletionBySection.endereco);
+  const [showContacts, setShowContacts] = useState(!savedProfileCompletionBySection.documentos);
+  const [showMedia, setShowMedia] = useState(!savedProfileCompletionBySection.midia);
+  const [showEthnicity, setShowEthnicity] = useState(!savedProfileCompletionBySection.etnia);
+  const [showDiversity, setShowDiversity] = useState(!savedProfileCompletionBySection.diversidade);
+  const [showPhysicalAttributes, setShowPhysicalAttributes] = useState(
+    !savedProfileCompletionBySection['atributos-fisicos'],
+  );
+  const [showUniform, setShowUniform] = useState(!savedProfileCompletionBySection.uniforme);
+  const [showEducation, setShowEducation] = useState(!savedProfileCompletionBySection.formacao);
+  const [showExperiences, setShowExperiences] = useState(
+    !savedProfileCompletionBySection['experiencias-profissionais'],
+  );
+  const [showAvailability, setShowAvailability] = useState(
+    !savedProfileCompletionBySection.disponibilidade,
+  );
   const [isEducationModalOpen, setIsEducationModalOpen] = useState(false);
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
   const [educationIndexToDelete, setEducationIndexToDelete] = useState<number | null>(null);
@@ -200,7 +330,7 @@ export function CandidateProfileForm() {
     endYear: currentYear,
   });
   const boxClassName =
-    'rounded-[1.75rem] border border-zinc-800 bg-black/90 p-7 shadow-[0_18px_50px_rgba(0,0,0,0.36)] backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-lime-300/25 hover:shadow-[0_0_0_1px_rgba(199,245,29,0.06),0_20px_52px_rgba(0,0,0,0.4)]';
+    'rounded-[1.75rem] border border-zinc-800 bg-black/90 p-7 shadow-[0_18px_50px_rgba(0,0,0,0.36)] backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-white/30 hover:shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_20px_52px_rgba(0,0,0,0.4)]';
   const fieldClassName =
     'rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-200 placeholder:text-zinc-500';
   const labelClassName = 'text-zinc-300';
@@ -241,7 +371,6 @@ export function CandidateProfileForm() {
       candidateProfile: user?.candidateProfile,
     },
   });
-
   useEffect(() => {
     reset({
       name: user?.name,
@@ -314,6 +443,18 @@ export function CandidateProfileForm() {
     name: 'candidateProfile.media.resumeUrl',
   });
   const hasShoeSizeUnit = Boolean(shoeSizeUnitValue);
+  const getSectionBoxClassName = (sectionId: CandidateProfileSectionId) =>
+    `${boxClassName} scroll-mt-24 ${
+      visibleProfileCompletionBySection[sectionId]
+        ? '!border-lime-400/60 shadow-[0_0_0_1px_rgba(163,230,53,0.16),0_18px_50px_rgba(0,0,0,0.36)] hover:!border-lime-300/80'
+        : ''
+    }`;
+  const markSectionComplete = (sectionId: CandidateProfileSectionId) => {
+    setCompletedSectionOverrides((current) => ({
+      ...current,
+      [sectionId]: true,
+    }));
+  };
 
   function updateNumericField(
     field:
@@ -440,6 +581,8 @@ export function CandidateProfileForm() {
       }
 
       appendEducation(nextEducation);
+      markSectionComplete('formacao');
+      setShowEducation(false);
       setIsEducationModalOpen(false);
       resetEducationDraft();
     });
@@ -479,6 +622,8 @@ export function CandidateProfileForm() {
       }
 
       appendExperience(nextExperience);
+      markSectionComplete('experiencias-profissionais');
+      setShowExperiences(false);
       setIsExperienceModalOpen(false);
       resetExperienceDraft();
     });
@@ -489,7 +634,12 @@ export function CandidateProfileForm() {
       { name: getValues('name') },
       'Dados básicos atualizados com sucesso.',
       'Não foi possível atualizar os dados básicos.',
-    );
+    ).then((saved) => {
+      if (saved && [getValues('name'), user?.email, user?.birthday].every(hasValue)) {
+        markSectionComplete('dados-basicos');
+        setShowBasic(false);
+      }
+    });
   }
 
   function handleSavePhone() {
@@ -510,7 +660,12 @@ export function CandidateProfileForm() {
       },
       'Telefone atualizado com sucesso.',
       'Não foi possível atualizar o telefone.',
-    );
+    ).then((saved) => {
+      if (saved && [phone?.country, phone?.number].every(hasValue)) {
+        markSectionComplete('telefone');
+        setShowPhone(false);
+      }
+    });
   }
 
   function handleSaveDocuments() {
@@ -572,7 +727,12 @@ export function CandidateProfileForm() {
       },
       'Documentos atualizados com sucesso.',
       'Não foi possível atualizar os documentos.',
-    );
+    ).then((saved) => {
+      if (saved && hasValue(cpf?.number)) {
+        markSectionComplete('documentos');
+        setShowContacts(false);
+      }
+    });
   }
 
   function handleSaveAddress() {
@@ -600,35 +760,65 @@ export function CandidateProfileForm() {
       },
       'Endereço atualizado com sucesso.',
       'Não foi possível atualizar o endereço.',
-    );
+    ).then((saved) => {
+      if (
+        saved &&
+        [
+          address?.zipCode,
+          address?.street,
+          address?.number,
+          address?.neighborhood,
+          address?.city,
+          address?.state,
+          address?.country,
+        ].every(hasValue)
+      ) {
+        markSectionComplete('endereco');
+        setShowAddress(false);
+      }
+    });
   }
 
   function handleSaveMedia() {
+    const resumeUrl = getValues('candidateProfile.media.resumeUrl');
+
     void submitCandidateUpdate(
       {
         candidateProfile: {
           ...user?.candidateProfile,
           media: {
-            resumeUrl: getValues('candidateProfile.media.resumeUrl'),
+            resumeUrl,
           },
         },
       },
       'Currículo atualizado com sucesso.',
       'Não foi possível atualizar o currículo.',
-    );
+    ).then((saved) => {
+      if (saved && hasValue(resumeUrl)) {
+        markSectionComplete('midia');
+        setShowMedia(false);
+      }
+    });
   }
 
   function handleSaveEthnicity() {
+    const ethnicity = getValues('candidateProfile.ethnicity');
+
     void submitCandidateUpdate(
       {
         candidateProfile: {
           ...user?.candidateProfile,
-          ethnicity: getValues('candidateProfile.ethnicity'),
+          ethnicity,
         },
       },
       'Etnia atualizada com sucesso.',
       'Não foi possível atualizar a etnia.',
-    );
+    ).then((saved) => {
+      if (saved && hasValue(ethnicity)) {
+        markSectionComplete('etnia');
+        setShowEthnicity(false);
+      }
+    });
   }
 
   function handleSaveDiversity() {
@@ -649,7 +839,12 @@ export function CandidateProfileForm() {
       },
       'Diversidade atualizada com sucesso.',
       'Não foi possível atualizar a diversidade.',
-    );
+    ).then((saved) => {
+      if (saved && [diversity?.genderIdentity, diversity?.sexualOrientation].every(hasValue)) {
+        markSectionComplete('diversidade');
+        setShowDiversity(false);
+      }
+    });
   }
 
   function handleSavePhysicalAttributes() {
@@ -674,7 +869,12 @@ export function CandidateProfileForm() {
       },
       'Atributos físicos atualizados com sucesso.',
       'Não foi possível atualizar os atributos físicos.',
-    );
+    ).then((saved) => {
+      if (saved && [physicalAttributes?.height, physicalAttributes?.weight].every(hasValue)) {
+        markSectionComplete('atributos-fisicos');
+        setShowPhysicalAttributes(false);
+      }
+    });
   }
 
   function handleSaveUniform() {
@@ -705,20 +905,42 @@ export function CandidateProfileForm() {
       },
       'Uniforme atualizado com sucesso.',
       'Não foi possível atualizar o uniforme.',
-    );
+    ).then((saved) => {
+      if (
+        saved &&
+        [
+          uniform?.tShirtSize,
+          uniform?.jacketSize,
+          uniform?.shortSize,
+          uniform?.pantsSize,
+          uniform?.shoeSizeUnit,
+          uniform?.shoeSize,
+        ].every(hasValue)
+      ) {
+        markSectionComplete('uniforme');
+        setShowUniform(false);
+      }
+    });
   }
 
   function handleSaveAvailability() {
+    const availability = getValues('candidateProfile.availability') || [];
+
     void submitCandidateUpdate(
       {
         candidateProfile: {
           ...user?.candidateProfile,
-          availability: getValues('candidateProfile.availability') || [],
+          availability,
         },
       },
       'Disponibilidade atualizada com sucesso.',
       'Não foi possível atualizar a disponibilidade.',
-    );
+    ).then((saved) => {
+      if (saved && availability.length > 0) {
+        markSectionComplete('disponibilidade');
+        setShowAvailability(false);
+      }
+    });
   }
 
   function handleDeleteEducation(index: number) {
@@ -797,7 +1019,32 @@ export function CandidateProfileForm() {
 
   return (
     <form className="space-y-8">
-      <div className={boxClassName}>
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-2 backdrop-blur">
+        <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-6">
+          {candidateProfileSections.map((section) => {
+            const Icon = section.icon;
+            const isComplete =
+              visibleProfileCompletionBySection[section.id as CandidateProfileSectionId];
+
+            return (
+              <a
+                key={section.title}
+                href={`#${section.id}`}
+                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-300 hover:bg-white/[0.03] ${
+                  isComplete
+                    ? 'text-lime-400 hover:text-lime-300'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span>{section.title}</span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+
+      <div id="dados-basicos" className={getSectionBoxClassName('dados-basicos')}>
         <ProfileSectionTitle
           title="Dados Básicos"
           icon={GrDocumentText}
@@ -849,7 +1096,7 @@ export function CandidateProfileForm() {
           </div>
         )}
       </div>
-      <div className={boxClassName}>
+      <div id="telefone" className={getSectionBoxClassName('telefone')}>
         <ProfileSectionTitle
           title="Telefone"
           icon={FaPhoneSquare}
@@ -862,7 +1109,7 @@ export function CandidateProfileForm() {
         />
         {showPhone && (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <div className="md:col-span-2 md:col-start-1 md:row-start-1">
+            <div>
               <PhoneInput
                 label="Telefone"
                 labelClassName={labelClassName}
@@ -882,7 +1129,7 @@ export function CandidateProfileForm() {
                 }
               />
             </div>
-            <div className="flex items-end md:col-start-1 md:row-start-2">
+            <div className="flex items-end">
               <div className="grid w-full gap-3 md:grid-cols-2">
                 <label className={`${optionCardClassName} flex-1`}>
                   <input
@@ -920,7 +1167,7 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div id="endereco" className={getSectionBoxClassName('endereco')}>
         <ProfileSectionTitle
           title="Endereço"
           icon={MdOutlinePlace}
@@ -933,21 +1180,24 @@ export function CandidateProfileForm() {
         />
         {showAddress && (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <Input
-              label="CEP"
-              labelClassName={labelClassName}
-              className={fieldClassName}
-              placeholder="01310-100"
-              {...zipCodeField}
-              onChange={(event) => {
-                clearZipCodeError();
-                zipCodeField.onChange(event);
-              }}
-              onBlur={(event) => {
-                zipCodeField.onBlur(event);
-                void handleZipCodeLookup(event.target.value);
-              }}
-            />
+            <div className="grid gap-4 md:grid-cols-2">
+              <Input
+                label="CEP"
+                labelClassName={labelClassName}
+                className={fieldClassName}
+                placeholder="01310-100"
+                {...zipCodeField}
+                onChange={(event) => {
+                  clearZipCodeError();
+                  zipCodeField.onChange(event);
+                }}
+                onBlur={(event) => {
+                  zipCodeField.onBlur(event);
+                  void handleZipCodeLookup(event.target.value);
+                }}
+              />
+              <div className="hidden md:block" />
+            </div>
             <div className="hidden md:block" />
             {isZipCodeLoading && (
               <div className="md:col-span-2">
@@ -1065,7 +1315,7 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div id="documentos" className={getSectionBoxClassName('documentos')}>
         <ProfileSectionTitle
           title="Documentos"
           icon={FaPassport}
@@ -1192,7 +1442,7 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div id="midia" className={getSectionBoxClassName('midia')}>
         <ProfileSectionTitle
           title="Mídia"
           icon={BsFiles}
@@ -1240,7 +1490,7 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div id="etnia" className={getSectionBoxClassName('etnia')}>
         <ProfileSectionTitle
           title="Etnia"
           icon={FaGlobeAmericas}
@@ -1280,7 +1530,7 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div id="diversidade" className={getSectionBoxClassName('diversidade')}>
         <ProfileSectionTitle
           title="Diversidade"
           icon={MdDiversity2}
@@ -1329,7 +1579,7 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div id="atributos-fisicos" className={getSectionBoxClassName('atributos-fisicos')}>
         <ProfileSectionTitle
           title="Atributos Físicos"
           icon={GiBodyHeight}
@@ -1466,7 +1716,7 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div id="uniforme" className={getSectionBoxClassName('uniforme')}>
         <ProfileSectionTitle
           title="Uniforme"
           icon={GiBodySwapping}
@@ -1611,7 +1861,7 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div id="formacao" className={getSectionBoxClassName('formacao')}>
         <ProfileSectionTitle
           title="Formação"
           icon={GiGraduateCap}
@@ -1697,7 +1947,10 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div
+        id="experiencias-profissionais"
+        className={getSectionBoxClassName('experiencias-profissionais')}
+      >
         <ProfileSectionTitle
           title="Experiências Profissionais"
           icon={GrCertificate}
@@ -1783,7 +2036,7 @@ export function CandidateProfileForm() {
         )}
       </div>
 
-      <div className={boxClassName}>
+      <div id="disponibilidade" className={getSectionBoxClassName('disponibilidade')}>
         <ProfileSectionTitle
           title="Disponibilidade"
           icon={MdEventAvailable}

@@ -3,30 +3,57 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { BriefcaseBusiness, Building2, ChevronLeft, LayoutDashboard, Menu, X } from 'lucide-react';
+import {
+  BriefcaseBusiness,
+  Building2,
+  ChevronLeft,
+  Globe2,
+  LayoutDashboard,
+  Menu,
+  MonitorSmartphone,
+  Server,
+  UserRound,
+  X,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { ROUTES } from '@/constants/routes';
 
-const NAV_ITEMS = [
+interface DashboardNavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+const DEFAULT_NAV_ITEMS: DashboardNavItem[] = [
   { href: ROUTES.RECRUITER_DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
+  { href: ROUTES.RECRUITER_PROFILE, label: 'Perfil', icon: UserRound },
   { href: ROUTES.RECRUITER_COMPANY, label: 'Empresa', icon: Building2 },
   { href: ROUTES.RECRUITER_JOBS, label: 'Vagas', icon: BriefcaseBusiness },
+  { href: ROUTES.RECRUITER_SESSIONS, label: 'Sessões', icon: MonitorSmartphone },
 ];
 
 function SidebarContent({
   collapsed,
+  homeHref,
+  navItems,
+  sidebarExtra,
   onNavigate,
 }: {
   collapsed: boolean;
+  homeHref: string;
+  navItems: DashboardNavItem[];
+  sidebarExtra?: React.ReactNode;
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const dashboardHref = navItems[0]?.href || homeHref;
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center justify-between border-b border-zinc-800 px-4">
         <Link
-          href={ROUTES.RECRUITER_DASHBOARD}
+          href={homeHref}
           className="inline-flex items-center gap-3 lowercase"
           onClick={onNavigate}
         >
@@ -36,12 +63,10 @@ function SidebarContent({
 
       <div className="flex-1 px-3 py-4">
         <div className="mb-4 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-2 backdrop-blur">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
-              item.href === ROUTES.RECRUITER_DASHBOARD
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
+              item.href === dashboardHref ? pathname === item.href : pathname.startsWith(item.href);
 
             return (
               <Link
@@ -61,19 +86,32 @@ function SidebarContent({
           })}
         </div>
 
-        {!collapsed && (
+        {!collapsed && sidebarExtra}
+
+        {!collapsed && !sidebarExtra && (
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-4 backdrop-blur">
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
-              Snapshot
-            </p>
+            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">Status</p>
             <div className="mt-4 space-y-3 text-sm text-zinc-400">
               <div className="flex items-center justify-between">
-                <span>Hiring cadence</span>
-                <span className="text-lime-400">Healthy</span>
+                <span className="inline-flex items-center gap-2">
+                  <Server className="h-4 w-4 text-lime-400" />
+                  API
+                </span>
+                <span className="text-lime-400">Online</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Pipeline quality</span>
-                <span className="text-zinc-200">92%</span>
+                <span className="inline-flex items-center gap-2">
+                  <Globe2 className="h-4 w-4 text-lime-400" />
+                  Site
+                </span>
+                <span className="text-lime-400">Online</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-2">
+                  <UserRound className="h-4 w-4 text-lime-400" />
+                  Perfil
+                </span>
+                <span className="text-zinc-200">Recrutador</span>
               </div>
             </div>
           </div>
@@ -86,10 +124,16 @@ function SidebarContent({
 export function DashboardShell({
   title,
   subtitle,
+  homeHref = ROUTES.RECRUITER_DASHBOARD,
+  navItems = DEFAULT_NAV_ITEMS,
+  sidebarExtra,
   children,
 }: {
   title: string;
   subtitle: string;
+  homeHref?: string;
+  navItems?: DashboardNavItem[];
+  sidebarExtra?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -103,7 +147,12 @@ export function DashboardShell({
             collapsed ? 'w-24' : 'w-72'
           } transition-all duration-300`}
         >
-          <SidebarContent collapsed={collapsed} />
+          <SidebarContent
+            collapsed={collapsed}
+            homeHref={homeHref}
+            navItems={navItems}
+            sidebarExtra={sidebarExtra}
+          />
         </aside>
 
         <AnimatePresence>
@@ -132,7 +181,13 @@ export function DashboardShell({
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                <SidebarContent collapsed={false} onNavigate={() => setMobileOpen(false)} />
+                <SidebarContent
+                  collapsed={false}
+                  homeHref={homeHref}
+                  navItems={navItems}
+                  sidebarExtra={sidebarExtra}
+                  onNavigate={() => setMobileOpen(false)}
+                />
               </motion.aside>
             </>
           )}

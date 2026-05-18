@@ -41,9 +41,8 @@ describe('ApplyJobButton', () => {
       isAuthenticated: false,
     });
 
-    const { container } = render(<ApplyJobButton jobId="job-1" />);
+    render(<ApplyJobButton jobId="job-1" />);
 
-    expect(container.firstChild).toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
@@ -57,12 +56,10 @@ describe('ApplyJobButton', () => {
 
     render(<ApplyJobButton jobId="job-1" hasAlreadyApplied />);
 
-    expect(
-      screen.getByRole('button', { name: /Candidatura enviada/i })
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Candidatura enviada/i })).toBeDisabled();
   });
 
-  it('aplica com sucesso', async () => {
+  it('abre modal e aplica com sucesso ao confirmar', async () => {
     const user = userEvent.setup();
     const onApplied = jest.fn();
     const refetch = jest.fn();
@@ -75,15 +72,14 @@ describe('ApplyJobButton', () => {
     });
     jest.spyOn(ApplyService, 'create').mockResolvedValue({ _id: 'apply-1' } as never);
 
-    render(
-      <ApplyJobButton
-        jobId="job-1"
-        onApplied={onApplied}
-        refetch={refetch}
-      />
-    );
+    render(<ApplyJobButton jobId="job-1" onApplied={onApplied} refetch={refetch} />);
 
     await user.click(screen.getByRole('button', { name: /Aplicar/i }));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(ApplyService.create).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: /Confirmar aplicação/i }));
 
     await waitFor(() => {
       expect(ApplyService.create).toHaveBeenCalledWith({ jobId: 'job-1' });
@@ -125,11 +121,10 @@ describe('ApplyJobButton', () => {
     render(<ApplyJobButton jobId="job-1" />);
 
     await user.click(screen.getByRole('button', { name: /Aplicar/i }));
+    await user.click(screen.getByRole('button', { name: /Confirmar aplicação/i }));
 
     await waitFor(() => {
-      expect(showError).toHaveBeenCalledWith(
-        'Não foi possível realizar sua candidatura.'
-      );
+      expect(showError).toHaveBeenCalledWith('Não foi possível realizar sua candidatura.');
     });
   });
 });

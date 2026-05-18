@@ -15,9 +15,16 @@ export const ROUTES = {
   SESSIONS: '/sessions',
   APPLICATIONS: '/applications',
 
+  CANDIDATE_DASHBOARD: '/candidate',
+  CANDIDATE_PROFILE: '/candidate/profile',
+  CANDIDATE_APPLICATIONS: '/candidate/applications',
+  CANDIDATE_SESSIONS: '/candidate/sessions',
+
   RECRUITER_DASHBOARD: '/recruiter',
+  RECRUITER_PROFILE: '/recruiter/profile',
   RECRUITER_COMPANY: '/recruiter/company',
   RECRUITER_JOBS: '/recruiter/jobs',
+  RECRUITER_SESSIONS: '/recruiter/sessions',
   RECRUITER_NEW_JOB: '/recruiter/jobs/new',
   RECRUITER_EDIT_JOB: (jobId: string) => `/recruiter/jobs/${jobId}/edit`,
   RECRUITER_JOB_APPLICATIONS: (jobId: string) => `/recruiter/jobs/${jobId}/applications`,
