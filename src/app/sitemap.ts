@@ -25,14 +25,27 @@ const publicRouteSeo: Record<
   [ROUTES.PRIVACY_POLICY]: { changeFrequency: 'monthly', priority: 0.3 },
 };
 
+function localizedPath(locale: string, route: string) {
+  return `/${locale}${route === ROUTES.HOME ? '' : route}`;
+}
+
+function localizedAlternates(route: string) {
+  return {
+    languages: Object.fromEntries(
+      locales.map((locale) => [locale, absoluteUrl(localizedPath(locale, route))]),
+    ),
+  };
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const publicRoutes = Object.keys(publicRouteSeo);
   const staticRoutes: MetadataRoute.Sitemap = locales.flatMap((locale) =>
     publicRoutes.map((route) => ({
-      url: absoluteUrl(`/${locale}${route === ROUTES.HOME ? '' : route}`),
+      url: absoluteUrl(localizedPath(locale, route)),
       lastModified: new Date(),
       changeFrequency: publicRouteSeo[route].changeFrequency,
       priority: publicRouteSeo[route].priority,
+      alternates: localizedAlternates(route),
     })),
   );
 
@@ -43,13 +56,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...staticRoutes,
       ...locales.flatMap((locale) =>
         jobs.map((job) => ({
-          url: absoluteUrl(`/${locale}${ROUTES.JOBS}/${job._id}`),
+          url: absoluteUrl(localizedPath(locale, `${ROUTES.JOBS}/${job._id}`)),
           lastModified: toDate(
             (job.updatedAt as string | Date | undefined) ||
               (job.createdAt as string | Date | undefined),
           ),
           changeFrequency: 'weekly' as const,
           priority: 0.8,
+          alternates: localizedAlternates(`${ROUTES.JOBS}/${job._id}`),
         })),
       ),
     ];
