@@ -72,7 +72,9 @@ export function Header() {
       : [{ href: profileHref, label: t('profile'), icon: UserRound }];
 
   const navItems = [
+    { href: ROUTES.ABOUT, label: t('about'), show: true },
     { href: ROUTES.JOBS, label: t('jobs'), show: true },
+    { href: ROUTES.CONTACT, label: t('contact'), show: true },
     { href: ROUTES.FAQ, label: t('faq'), show: true },
   ].filter((item) => item.show);
 

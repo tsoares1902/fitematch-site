@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { ExternalLink } from 'lucide-react';
 import { MdOutlineSocialDistance, MdPlace } from 'react-icons/md';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/use-auth';
@@ -282,7 +283,20 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
 
       {!isLoading && !error && companyCoordinates && (
         <>
-          <div ref={mapRef} className="h-[260px] w-full rounded-xl border border-gray-500" />
+          <div className="relative">
+            <div ref={mapRef} className="h-[260px] w-full rounded-xl border border-gray-500" />
+            {googleMapsUrl && (
+              <a
+                href={googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute bottom-10 right-3 z-[400] inline-flex items-center gap-2 rounded-xl border border-slate-700/70 bg-black/50 px-3 py-3 text-sm font-medium text-zinc-100 shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur transition-colors hover:border-slate-500 hover:bg-black/65"
+              >
+                {t('openMaps')}
+                <ExternalLink className="h-4 w-4 text-lime-400" />
+              </a>
+            )}
+          </div>
           <div className="mt-5 space-y-3 text-sm text-gray-300">
             {companyLocation && (
               <a

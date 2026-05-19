@@ -85,9 +85,9 @@ describe('JobLocationMapTest', () => {
 
     expect(screen.getByText('Carregando mapa...')).toBeInTheDocument();
     expect(await screen.findByText(/km/)).toBeInTheDocument();
-    expect(screen.getByRole('link')).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'openMaps' })).toHaveAttribute(
       'href',
-      expect.stringContaining('google.com/maps/search')
+      expect.stringContaining('google.com/maps/search'),
     );
   });
 
@@ -105,7 +105,7 @@ describe('JobLocationMapTest', () => {
     render(<JobLocationMapTest company={company as never} />);
 
     expect(
-      await screen.findByText('Não foi possível carregar o mapa navegável.')
+      await screen.findByText('Não foi possível carregar o mapa navegável.'),
     ).toBeInTheDocument();
   });
 
@@ -142,7 +142,7 @@ describe('JobLocationMapTest', () => {
     render(<JobLocationMapTest company={company as never} />);
 
     expect(
-      await screen.findByText('Não foi possível localizar a academia no mapa.')
+      await screen.findByText('Não foi possível localizar a academia no mapa.'),
     ).toBeInTheDocument();
   });
 });

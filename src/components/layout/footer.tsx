@@ -1,54 +1,8 @@
 import { ArrowUpRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import {
-  FaDiscord,
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaXTwitter,
-  FaYoutube,
-} from 'react-icons/fa6';
 import { ROUTES } from '@/constants/routes';
+import { SOCIAL_LINKS } from '@/constants/social-links';
 import { Link } from '@/i18n/navigation';
-
-const SOCIAL_LINKS = [
-  {
-    href: '#',
-    label: 'Facebook',
-    icon: FaFacebookF,
-    hoverClassName: 'hover:border-[#1877F2]/30 hover:text-[#1877F2]',
-  },
-  {
-    href: '#',
-    label: 'Instagram',
-    icon: FaInstagram,
-    hoverClassName: 'hover:border-[#E4405F]/30 hover:text-[#E4405F]',
-  },
-  {
-    href: '#',
-    label: 'X',
-    icon: FaXTwitter,
-    hoverClassName: 'hover:border-white/30 hover:text-white',
-  },
-  {
-    href: '#',
-    label: 'YouTube',
-    icon: FaYoutube,
-    hoverClassName: 'hover:border-[#FF0000]/30 hover:text-[#FF0000]',
-  },
-  {
-    href: '#',
-    label: 'LinkedIn',
-    icon: FaLinkedinIn,
-    hoverClassName: 'hover:border-[#0A66C2]/30 hover:text-[#0A66C2]',
-  },
-  {
-    href: '#',
-    label: 'Discord',
-    icon: FaDiscord,
-    hoverClassName: 'hover:border-[#5865F2]/30 hover:text-[#5865F2]',
-  },
-];
 
 export function Footer() {
   const t = useTranslations('Footer');
@@ -57,6 +11,7 @@ export function Footer() {
   const copyrightYears = currentYear > baseYear ? `${baseYear} - ${currentYear}` : `${baseYear}`;
   const footerLinks = [
     { href: ROUTES.JOBS, label: t('jobs') },
+    { href: ROUTES.CONTACT, label: t('contact') },
     { href: ROUTES.FAQ, label: 'FAQ' },
     { href: ROUTES.PRIVACY_POLICY, label: t('privacy') },
     { href: ROUTES.TERMS_OF_USE, label: t('terms') },

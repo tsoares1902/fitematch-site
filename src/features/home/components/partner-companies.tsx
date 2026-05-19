@@ -4,13 +4,15 @@ import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { SectionLoading } from '@/components/ui/section-loading';
 import { usePublicCompanies } from '@/hooks/use-public-companies';
 import { getUniqueCompaniesByBrand } from '@/utils/company-brand';
 import { resolveFileUrl } from '@/utils/file-url';
 
 const VISIBLE_COMPANIES = 6;
-const ROTATION_INTERVAL_MS = 10000;
-const TRANSITION_LOADING_MS = 450;
+const ROTATION_INTERVAL_MS = 35000;
+const ROTATION_SWAP_MS = 520;
+const ROTATION_OVERLAY_MS = 980;
 
 export function PartnerCompanies() {
   const { companies, error, isLoading } = usePublicCompanies();
@@ -30,28 +32,31 @@ export function PartnerCompanies() {
   }, [effectiveStartIndex, uniqueCompanies]);
 
   useEffect(() => {
-    if (uniqueCompanies.length <= VISIBLE_COMPANIES) {
+    if (isLoading || uniqueCompanies.length <= VISIBLE_COMPANIES) {
       return;
     }
 
-    let transitionTimeout: number | undefined;
+    let swapTimeout: number | undefined;
+    let doneTimeout: number | undefined;
 
     const interval = window.setInterval(() => {
       setIsTransitioning(true);
-
-      transitionTimeout = window.setTimeout(() => {
+      swapTimeout = window.setTimeout(() => {
         setStartIndex((currentIndex) => (currentIndex + 1) % uniqueCompanies.length);
-        setIsTransitioning(false);
-      }, TRANSITION_LOADING_MS);
+      }, ROTATION_SWAP_MS);
+      doneTimeout = window.setTimeout(() => setIsTransitioning(false), ROTATION_OVERLAY_MS);
     }, ROTATION_INTERVAL_MS);
 
     return () => {
       window.clearInterval(interval);
-      if (transitionTimeout) {
-        window.clearTimeout(transitionTimeout);
+      if (swapTimeout) {
+        window.clearTimeout(swapTimeout);
+      }
+      if (doneTimeout) {
+        window.clearTimeout(doneTimeout);
       }
     };
-  }, [uniqueCompanies.length]);
+  }, [isLoading, uniqueCompanies.length]);
 
   if (!isLoading && !error && uniqueCompanies.length === 0) {
     return null;
@@ -64,32 +69,29 @@ export function PartnerCompanies() {
           {t('partnerCompanies')}
         </p>
 
-        <div className="mt-12">
-          {(isLoading || isTransitioning) && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-24 animate-pulse rounded-2xl border border-zinc-200 bg-white/90"
-                />
-              ))}
-            </div>
-          )}
+        <div className="mt-12 min-h-[20rem] sm:min-h-[13rem] lg:min-h-[7rem]">
+          <AnimatePresence mode="wait">
+            {isLoading && (
+              <SectionLoading
+                key="partner-companies-loading"
+                label={t('loadingStats')}
+                className="min-h-[20rem] sm:min-h-[13rem] lg:min-h-[7rem]"
+              />
+            )}
+          </AnimatePresence>
 
-          {!isLoading && !isTransitioning && !error && (
-            <AnimatePresence initial={false} mode="wait">
+          {!isLoading && !error && (
+            <AnimatePresence initial={false}>
               <motion.div
-                key={effectiveStartIndex}
-                initial={{ opacity: 0.35, filter: 'brightness(0.45)' }}
-                animate={{ opacity: 1, filter: 'brightness(1)' }}
-                exit={{ opacity: 0.25, filter: 'brightness(0.45)' }}
-                transition={{ duration: 0.45, ease: 'easeInOut' }}
+                initial={{ opacity: 0, y: 10, filter: 'brightness(0.72)' }}
+                animate={{ opacity: 1, y: 0, filter: 'brightness(1)' }}
+                transition={{ duration: 0.42, ease: 'easeInOut' }}
                 className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6"
               >
                 {visibleCompanies.map((company, index) => (
                   <div
-                    key={company._id || company.slug || `${company.tradeName}-${index}`}
-                    className="flex h-24 items-center justify-center rounded-2xl border border-white/80 bg-white px-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] transition-colors duration-300 hover:border-lime-300/70 hover:shadow-[0_18px_46px_rgba(0,0,0,0.24),0_0_24px_rgba(132,204,22,0.10)]"
+                    key={`partner-company-slot-${index}`}
+                    className="relative flex h-24 items-center justify-center overflow-hidden rounded-2xl border border-white/80 bg-white px-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] transition-colors duration-300 hover:border-lime-300/70 hover:shadow-[0_18px_46px_rgba(0,0,0,0.24),0_0_24px_rgba(132,204,22,0.10)]"
                   >
                     {company.media?.logoUrl ? (
                       <Image
@@ -103,6 +105,23 @@ export function PartnerCompanies() {
                     ) : (
                       <span className="text-sm font-medium text-zinc-900">{company.tradeName}</span>
                     )}
+                    <AnimatePresence>
+                      {isTransitioning && (
+                        <motion.div
+                          initial={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
+                          animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+                          exit={{ opacity: 0, clipPath: 'inset(100% 0 0 0)' }}
+                          transition={{
+                            duration: 0.32,
+                            delay: index * 0.035,
+                            ease: 'easeInOut',
+                          }}
+                          className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-white"
+                        >
+                          <div className="h-9 w-28 animate-pulse rounded-full bg-zinc-200" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 ))}
               </motion.div>

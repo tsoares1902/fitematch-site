@@ -5,6 +5,8 @@
   },
   "Header": {
     "jobs": "Vagas",
+    "about": "Sobre",
+    "contact": "Contato",
     "faq": "FAQ",
     "signIn": "Entrar",
     "signUp": "Criar conta",
@@ -34,6 +36,7 @@
     "channels": "Canais",
     "navigation": "Navegação",
     "jobs": "Vagas",
+    "contact": "Contato",
     "privacy": "Privacidade",
     "terms": "Termos",
     "rights": "Todos os direitos reservados.",
@@ -111,6 +114,100 @@
     "quickRead": "Leitura rápida",
     "termsSubtitle": "Regras iniciais de utilização da plataforma fitematch.",
     "privacySubtitle": "Resumo do tratamento de dados na plataforma fitematch."
+  },
+  "about": {
+    "metadata": {
+      "title": "Sobre a fitematch",
+      "description": "Conheça a fitematch, startup de recrutamento fitness fundada em 2026 em Santos/SP."
+    },
+    "hero": {
+      "eyebrow": "HR Tech Fitness",
+      "title": "Tecnologia para o match perfeito no mercado fitness.",
+      "subtitle": "A fitematch combina dados, cultura de performance e experiência de produto para aproximar profissionais de educação física das vagas certas em academias, studios e empresas fitness.",
+      "primaryCta": "Explorar vagas",
+      "secondaryCta": "Fazer parte",
+      "imageAlt": "Escritório moderno da fitematch"
+    },
+    "story": {
+      "eyebrow": "Nossa história",
+      "title": "Nascemos na baixada para revolucionar.",
+      "description": "Fundada em 2026 em Santos, a fitematch nasceu para resolver desafios: conectar talentos a empresas.",
+      "body": "",
+      "imageAlt": "Logo da fitematch",
+      "stats": {
+        "foundation": {
+          "label": "Fundação",
+          "value": "2026"
+        },
+        "city": {
+          "label": "Cidade",
+          "value": "Santos/SP"
+        },
+        "segment": {
+          "label": "Segmento",
+          "value": "HR Tech Fitness"
+        },
+        "model": {
+          "label": "Modelo",
+          "value": "Startup"
+        }
+      }
+    },
+    "spaces": {
+      "eyebrow": "Espaços & cultura",
+      "title": "Conheça mais nosso espaço.",
+      "description": "",
+      "items": {
+        "office": {
+          "label": "Escritório",
+          "title": "Escritório",
+          "summary": "Ambiente premium para produto, dados e operação.",
+          "headline": "Nosso escritório onde revolucionamos.",
+          "body": "Vivemos tecnologia para inovar o recrutamento online.",
+          "imageAlt": "Escritório da fitematch em Santos"
+        },
+        "meeting": {
+          "label": "Sala de Reunião",
+          "title": "Sala de Reunião",
+          "summary": "Decisões rápidas, alinhamento de produto e execução.",
+          "headline": "Onde estratégia vira ação.",
+          "body": "A sala de reunião para planejar o crescimento da empresa.",
+          "imageAlt": "Sala de reunião estratégica da fitematch"
+        },
+        "gym": {
+          "label": "Academia",
+          "title": "Academia",
+          "summary": "Treino, movimento e cultura fitness na rotina.",
+          "headline": "A academia faz parte da nossa rotina.",
+          "body": "Rreforça uma cultura de disciplina, energia, saúde e alta performance.",
+          "imageAlt": "Academia da fitematch"
+        },
+        "fun": {
+          "label": "Sala de Descompressão",
+          "title": "Sala de Descompressão",
+          "summary": "Espaço para pausa, troca e criatividade.",
+          "headline": "Criatividade também precisa de pausa.",
+          "body": "Reduzir fricção, aproximar pessoas e criar momentos.",
+          "imageAlt": "Área de lazer da fitematch"
+        },
+        "bathroom": {
+          "label": "Vestiário",
+          "title": "Vestiário",
+          "summary": "Conforto para treinar, pedalar e seguir o dia.",
+          "headline": "Infraestrutura para uma rotina.",
+          "body": "Vestiário moderno e lockers individuais para colaboradores.",
+          "imageAlt": "Vestiário moderno com lockers individuais da fitematch"
+        }
+      }
+    },
+    "cta": {
+      "eyebrow": "Próximo movimento",
+      "title": "Fit de profissionais. Match de resultados.",
+      "description": "Estamos construindo a infraestrutura de recrutamento para o futuro do mercado fitness.",
+      "primaryCta": "Ver vagas",
+      "secondaryCta": "Criar conta",
+      "logoAlt": "Logo da fitematch"
+    }
   },
   "CandidateDashboard": {
     "totalApplications": "Candidaturas totais",
@@ -562,6 +659,7 @@
     "loadingMap": "Carregando mapa...",
     "mapLoadError": "Não foi possível carregar o mapa navegável.",
     "mapLocationError": "Não foi possível localizar a academia no mapa.",
+    "openMaps": "Abrir mapa",
     "distanceUnavailablePrefix": "Indisponível. Complete seu",
     "profile": "perfil",
     "distanceUnavailableSuffix": "para calcular.",
@@ -656,9 +754,65 @@
     "needNewCode": "Precisa de um novo código?",
     "requestAgain": "Solicitar novamente"
   },
+  "contact": {
+    "breadcrumb": {
+      "home": "Home",
+      "contact": "Contato"
+    },
+    "header": {
+      "title": "Vamos conversar.",
+      "description": "Dúvidas, sugestões, críticas ou oportunidades? Entre em contato com a fitematch."
+    },
+    "form": {
+      "name": "Nome",
+      "namePlaceholder": "Seu nome",
+      "email": "E-mail",
+      "emailPlaceholder": "voce@email.com",
+      "type": "Tipo de contato",
+      "message": "Mensagem",
+      "messagePlaceholder": "Conte como podemos ajudar.",
+      "submit": "Enviar mensagem",
+      "sending": "Enviando...",
+      "types": {
+        "question": "Dúvida",
+        "suggestion": "Sugestão",
+        "criticism": "Crítica",
+        "company_interest": "Interesse de empresa",
+        "platform_issue": "Problema na plataforma",
+        "other": "Outro"
+      }
+    },
+    "location": {
+      "title": "Localização",
+      "addressLine1": "fitematch",
+      "addressLine2": "Rua Quintino Bocaiuva, 3 - Gonzaga - Santos / SP",
+      "openMaps": "Abrir Mapa"
+    },
+    "channels": {
+      "email": "E-mail",
+      "hours": "Horário de atendimento",
+      "hoursValue": "Segunda a sexta, 9h às 18h"
+    },
+    "feedback": {
+      "success": "Mensagem enviada com sucesso. Em breve entraremos em contato.",
+      "error": "Não foi possível enviar sua mensagem. Tente novamente."
+    },
+    "validation": {
+      "required": "Campo obrigatório.",
+      "invalidEmail": "Informe um e-mail válido.",
+      "invalidType": "Selecione um tipo válido.",
+      "messageTooShort": "Escreva pelo menos 10 caracteres."
+    },
+    "metadata": {
+      "title": "Contato | fitematch",
+      "description": "Fale com a fitematch para tirar dúvidas, enviar sugestões, críticas ou conversar sobre oportunidades."
+    }
+  },
   "Metadata": {
     "home": "fitematch",
     "jobs": "Vagas",
+    "about": "Sobre a fitematch",
+    "contact": "Contato",
     "faq": "FAQ",
     "terms": "Termos de uso",
     "privacy": "Política de privacidade",
@@ -674,6 +828,8 @@
     "newJob": "Nova vaga",
     "homeDescription": "Conecte profissionais de educação física às melhores vagas em academias, studios e empresas fitness.",
     "jobsDescription": "Encontre vagas para profissionais de educação física em academias, studios e empresas fitness.",
+    "aboutDescription": "Conheça a fitematch, startup de recrutamento fitness fundada em 2026 em Santos/SP.",
+    "contactDescription": "Fale com a fitematch para tirar dúvidas, enviar sugestões, críticas ou conversar sobre oportunidades.",
     "faqDescription": "Dúvidas frequentes sobre a fitematch.",
     "termsDescription": "Conheça as regras de uso da plataforma fitematch.",
     "privacyDescription": "Entenda como a fitematch trata seus dados pessoais."
