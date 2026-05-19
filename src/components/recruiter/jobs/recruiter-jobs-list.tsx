@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, BriefcaseBusiness, FileText, PencilLine, Trash2, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PaginationBox } from '@/components/ui/pagination-box';
@@ -13,8 +13,11 @@ import { useFlashMessage } from '@/contexts/flash-message-context';
 import { useRecruiterJobs } from '@/hooks/use-recruiter-jobs';
 import { JobService } from '@/services/job/job.service';
 import { JobEntity, JobStatusEnum } from '@/types/entities/job.entity';
+import { Link } from '@/i18n/navigation';
 
-function getContractTypeLabel(value?: string) {
+type RecruiterJobsTranslator = ReturnType<typeof useTranslations>;
+
+function getContractTypeLabel(value: string | undefined, t: RecruiterJobsTranslator) {
   const normalizedValue = value
     ?.trim()
     .toLowerCase()
@@ -23,11 +26,11 @@ function getContractTypeLabel(value?: string) {
     clt: 'CLT',
     pj: 'PJ',
     freelance: 'Freelance',
-    internship: 'Estágio',
-    temporary: 'Temporário',
-    part_time: 'Meio período',
-    full_time: 'Tempo integral',
-    autonomous: 'Autônomo',
+    internship: t('contractInternship'),
+    temporary: t('contractTemporary'),
+    part_time: t('contractPartTime'),
+    full_time: t('contractFullTime'),
+    autonomous: t('contractAutonomous'),
   };
 
   if (normalizedValue && contractTypeMap[normalizedValue]) {
@@ -47,26 +50,26 @@ function getContractTypeLabel(value?: string) {
   }
 
   if (normalizedValue?.includes('estag')) {
-    return 'Estágio';
+    return t('contractInternship');
   }
 
   if (normalizedValue?.includes('tempor')) {
-    return 'Temporário';
+    return t('contractTemporary');
   }
 
   if (normalizedValue?.includes('part_time') || normalizedValue?.includes('meio_periodo')) {
-    return 'Meio período';
+    return t('contractPartTime');
   }
 
   if (normalizedValue?.includes('full_time') || normalizedValue?.includes('tempo_integral')) {
-    return 'Tempo integral';
+    return t('contractFullTime');
   }
 
   if (normalizedValue?.includes('autonom')) {
-    return 'Autônomo';
+    return t('contractAutonomous');
   }
 
-  return value || 'Não definido';
+  return value || t('notDefined');
 }
 
 function getStatusTone(status?: string) {
@@ -81,17 +84,17 @@ function getStatusTone(status?: string) {
   return 'border-zinc-800 bg-black/40 text-zinc-400';
 }
 
-function getStatusLabel(status?: string) {
+function getStatusLabel(status: string | undefined, t: RecruiterJobsTranslator) {
   return (
     {
-      [JobStatusEnum.DRAFT]: 'Rascunho',
-      [JobStatusEnum.PENDING]: 'Pendente',
-      [JobStatusEnum.ACTIVE]: 'Ativa',
-      [JobStatusEnum.PAUSED]: 'Pausada',
-      [JobStatusEnum.CLOSED]: 'Encerrada',
+      [JobStatusEnum.DRAFT]: t('statusDraft'),
+      [JobStatusEnum.PENDING]: t('statusPending'),
+      [JobStatusEnum.ACTIVE]: t('statusActive'),
+      [JobStatusEnum.PAUSED]: t('statusPaused'),
+      [JobStatusEnum.CLOSED]: t('statusClosed'),
     }[status || ''] ||
     status ||
-    'Sem status'
+    t('noStatus')
   );
 }
 
@@ -126,6 +129,7 @@ function SummaryCard({
 }
 
 export function RecruiterJobsList() {
+  const t = useTranslations('RecruiterJobs');
   const { jobs, isLoading, error, refetch } = useRecruiterJobs();
   const { showSuccess, showError } = useFlashMessage();
   const [jobToDelete, setJobToDelete] = useState<JobEntity | null>(null);
@@ -149,11 +153,11 @@ export function RecruiterJobsList() {
   async function handleDelete(jobId: string) {
     try {
       await JobService.deleteMine(jobId);
-      showSuccess('Vaga removida com sucesso.');
+      showSuccess(t('deleteSuccess'));
       setJobToDelete(null);
       await refetch();
     } catch {
-      showError('Não foi possível remover a vaga.');
+      showError(t('deleteError'));
     }
   }
 
@@ -178,27 +182,27 @@ export function RecruiterJobsList() {
         ) : (
           <>
             <SummaryCard
-              label="Publicadas"
+              label={t('published')}
               value={String(jobs.length)}
-              helper="Total Vaga Puclicada"
+              helper={t('publishedHelper')}
               icon={<BriefcaseBusiness className="h-4 w-4" />}
             />
             <SummaryCard
-              label="Ativas"
+              label={t('active')}
               value={String(activeJobs)}
-              helper="Vagas Ativa"
+              helper={t('activeHelper')}
               icon={<ArrowUpRight className="h-4 w-4" />}
             />
             <SummaryCard
-              label="Pendentes"
+              label={t('pending')}
               value={String(pendingJobs)}
-              helper="Vaga Pendente de Aprovação"
+              helper={t('pendingHelper')}
               icon={<FileText className="h-4 w-4" />}
             />
             <SummaryCard
-              label="Candidatos"
+              label={t('candidates')}
               value={String(totalSlots)}
-              helper="Candidatos as Vagas Publicadas"
+              helper={t('candidatesHelper')}
               icon={<Users className="h-4 w-4" />}
             />
           </>
@@ -214,12 +218,12 @@ export function RecruiterJobsList() {
         <div className="flex flex-col gap-4 border-b border-zinc-800 px-6 py-5 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="mt-1 text-xl font-semibold text-zinc-50 uppercase">
-              Publicações da empresa
+              {t('companyPublications')}
             </h2>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-zinc-800 bg-black/40 px-3 py-1.5 text-sm text-zinc-400">
             <BriefcaseBusiness className="h-4 w-4 text-lime-400" />
-            {isLoading ? 'Carregando vagas' : `${jobs.length} registros`}
+            {isLoading ? t('loadingJobs') : t('records', { count: jobs.length })}
           </div>
         </div>
 
@@ -236,7 +240,7 @@ export function RecruiterJobsList() {
 
         {!isLoading && jobs.length === 0 && (
           <div className="p-6">
-            <EmptyState message="Você ainda não publicou nenhuma vaga." />
+            <EmptyState message={t('empty')} />
           </div>
         )}
 
@@ -246,11 +250,11 @@ export function RecruiterJobsList() {
               <table className="min-w-full divide-y divide-zinc-800 text-left">
                 <thead className="bg-black/30">
                   <tr className="text-xs uppercase tracking-[0.22em] text-zinc-500">
-                    <th className="px-6 py-4 font-medium">Vaga</th>
+                    <th className="px-6 py-4 font-medium">{t('job')}</th>
                     <th className="px-6 py-4 font-medium">Status</th>
-                    <th className="px-6 py-4 font-medium">Contrato</th>
-                    <th className="px-6 py-4 font-medium">Quantidade Vagas</th>
-                    <th className="px-6 py-4 font-medium text-right">Ações</th>
+                    <th className="px-6 py-4 font-medium">{t('contract')}</th>
+                    <th className="px-6 py-4 font-medium">{t('jobQuantity')}</th>
+                    <th className="px-6 py-4 font-medium text-right">{t('actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
@@ -274,11 +278,11 @@ export function RecruiterJobsList() {
                           <span
                             className={`rounded-full border px-3 py-1 text-xs uppercase tracking-[0.2em] ${getStatusTone(job.status)}`}
                           >
-                            {getStatusLabel(job.status)}
+                            {getStatusLabel(job.status, t)}
                           </span>
                         </td>
                         <td className="px-6 py-5 text-sm text-zinc-300">
-                          {getContractTypeLabel(job.contractType)}
+                          {getContractTypeLabel(job.contractType, t)}
                         </td>
                         <td className="px-6 py-5 text-sm text-zinc-300">{job.slots}</td>
                         <td className="px-6 py-5">
@@ -290,7 +294,7 @@ export function RecruiterJobsList() {
                                   icon={<PencilLine className="h-4 w-4" />}
                                   className="rounded-xl border-zinc-800 bg-black/40 text-zinc-200 hover:bg-white/[0.03]"
                                 >
-                                  Editar
+                                  {t('edit')}
                                 </Button>
                               </Link>
                             )}
@@ -301,7 +305,7 @@ export function RecruiterJobsList() {
                                   icon={<Users className="h-4 w-4" />}
                                   className="rounded-xl border-lime-500/20 bg-lime-500/10 text-lime-300 hover:bg-lime-500/15"
                                 >
-                                  Candidatos
+                                  {t('candidates')}
                                 </Button>
                               </Link>
                             )}
@@ -317,7 +321,7 @@ export function RecruiterJobsList() {
                               disabled={!jobId}
                               className="rounded-xl border-red-500/20 bg-red-500/10 text-red-200 hover:bg-red-500/15"
                             >
-                              Remover
+                              {t('remove')}
                             </Button>
                           </div>
                         </td>
@@ -349,17 +353,17 @@ export function RecruiterJobsList() {
                         <span
                           className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] ${getStatusTone(job.status)}`}
                         >
-                          {getStatusLabel(job.status)}
+                          {getStatusLabel(job.status, t)}
                         </span>
                       </div>
 
                       <div className="grid gap-3 md:grid-cols-3">
                         <div className="rounded-xl border border-zinc-800 bg-black/40 p-4">
                           <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-                            Contrato
+                            {t('contract')}
                           </p>
                           <p className="mt-2 text-sm text-zinc-200">
-                            {getContractTypeLabel(job.contractType)}
+                            {getContractTypeLabel(job.contractType, t)}
                           </p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-black/40 p-4">
@@ -368,7 +372,7 @@ export function RecruiterJobsList() {
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-black/40 p-4">
                           <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Fluxo</p>
-                          <p className="mt-2 text-sm text-zinc-200">Candidaturas e edição</p>
+                          <p className="mt-2 text-sm text-zinc-200">{t('applicationsAndEdit')}</p>
                         </div>
                       </div>
 
@@ -380,7 +384,7 @@ export function RecruiterJobsList() {
                               icon={<PencilLine className="h-4 w-4" />}
                               className="rounded-xl border-zinc-800 bg-black/40 text-zinc-200 hover:bg-white/[0.03]"
                             >
-                              Editar
+                              {t('edit')}
                             </Button>
                           </Link>
                         )}
@@ -391,7 +395,7 @@ export function RecruiterJobsList() {
                               icon={<Users className="h-4 w-4" />}
                               className="rounded-xl border-lime-500/20 bg-lime-500/10 text-lime-300 hover:bg-lime-500/15"
                             >
-                              Candidatos
+                              {t('candidates')}
                             </Button>
                           </Link>
                         )}
@@ -407,7 +411,7 @@ export function RecruiterJobsList() {
                           disabled={!jobId}
                           className="rounded-xl border-red-500/20 bg-red-500/10 text-red-200 hover:bg-red-500/15"
                         >
-                          Remover
+                          {t('remove')}
                         </Button>
                       </div>
                     </div>
@@ -433,24 +437,24 @@ export function RecruiterJobsList() {
             <div className="mb-6 flex items-start justify-between gap-4">
               <div className="flex items-center gap-3 text-xl font-semibold uppercase text-zinc-100">
                 <Trash2 className="h-5 w-5 shrink-0 text-red-300" />
-                <h2>Apagar vaga</h2>
+                <h2>{t('deleteJob')}</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setJobToDelete(null)}
                 className="text-2xl leading-none text-zinc-400 transition-colors hover:text-zinc-100"
-                aria-label="Fechar modal"
+                aria-label={t('closeModal')}
               >
                 ×
               </button>
             </div>
 
             <div className="space-y-4">
-              <p className="text-zinc-300">Confirme a exclusão da vaga abaixo.</p>
+              <p className="text-zinc-300">{t('confirmDeleteDescription')}</p>
 
               <div className="grid gap-4 rounded-2xl border border-zinc-800 bg-black/50 p-6 md:grid-cols-2">
                 <div>
-                  <label className="text-sm text-zinc-400">Título</label>
+                  <label className="text-sm text-zinc-400">{t('title')}</label>
                   <input
                     value={jobToDelete.title}
                     disabled
@@ -458,9 +462,9 @@ export function RecruiterJobsList() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-zinc-400">Tipo de contrato</label>
+                  <label className="text-sm text-zinc-400">{t('contractType')}</label>
                   <input
-                    value={getContractTypeLabel(jobToDelete.contractType)}
+                    value={getContractTypeLabel(jobToDelete.contractType, t)}
                     disabled
                     className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-300 opacity-100"
                   />
@@ -468,13 +472,13 @@ export function RecruiterJobsList() {
                 <div>
                   <label className="text-sm text-zinc-400">Status</label>
                   <input
-                    value={getStatusLabel(jobToDelete.status)}
+                    value={getStatusLabel(jobToDelete.status, t)}
                     disabled
                     className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-300 opacity-100"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-zinc-400">Vagas</label>
+                  <label className="text-sm text-zinc-400">{t('jobs')}</label>
                   <input
                     value={String(jobToDelete.slots)}
                     disabled
@@ -490,7 +494,7 @@ export function RecruiterJobsList() {
                   onClick={() => setJobToDelete(null)}
                   className="rounded-xl border-zinc-800 bg-black/40 text-zinc-200 hover:bg-white/[0.03]"
                 >
-                  Cancelar
+                  {t('cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -505,7 +509,7 @@ export function RecruiterJobsList() {
                   }}
                   className="rounded-xl border-red-500/20 bg-red-500/10 text-red-200 hover:bg-red-500/15"
                 >
-                  Apagar vaga
+                  {t('deleteJob')}
                 </Button>
               </div>
             </div>

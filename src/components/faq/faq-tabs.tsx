@@ -2,55 +2,48 @@
 
 import { useState } from 'react';
 import { Building2, UserRound } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { FaqItem } from './faq-item';
-
-const candidateFaq = [
-  {
-    question: 'Como criar minha conta?',
-    answer:
-      'Acesse a página de cadastro, escolha o perfil de candidato, preencha seus dados básicos e aceite os Termos de Uso e a Política de Privacidade.',
-  },
-  {
-    question: 'Como ativar minha conta?',
-    answer:
-      'Após o cadastro, solicite um código de ativação e informe o código recebido na página de ativação de conta.',
-  },
-  {
-    question: 'Como me aplicar a uma vaga?',
-    answer:
-      'Entre com sua conta, acesse a página de detalhes da vaga e clique em Aplicar-se à vaga.',
-  },
-  {
-    question: 'Preciso preencher dados complementares?',
-    answer:
-      'Sim. O perfil completo ajuda recrutadores a entenderem sua formação, experiências, documentos, disponibilidade e dados profissionais.',
-  },
-];
-
-const recruiterFaq = [
-  {
-    question: 'Como criar uma conta de recrutador?',
-    answer: 'No cadastro, selecione o perfil de recrutador e preencha seus dados básicos.',
-  },
-  {
-    question: 'Como cadastrar minha empresa?',
-    answer:
-      'Após entrar na plataforma, acesse a área de recrutador e envie uma solicitação de cadastro da empresa.',
-  },
-  {
-    question: 'Como publicar uma vaga?',
-    answer:
-      'Depois que sua empresa estiver cadastrada, você poderá enviar uma nova vaga. A vaga entrará com status pendente.',
-  },
-  {
-    question: 'Como atualizar meu perfil?',
-    answer:
-      'Use a página Profile para atualizar seus dados básicos e complementares pelo endpoint auth/me.',
-  },
-];
 
 export function FaqTabs() {
   const [activeTab, setActiveTab] = useState<'candidate' | 'recruiter'>('candidate');
+  const t = useTranslations('Faq');
+  const candidateFaq = [
+    {
+      question: t('candidateCreateAccountQuestion'),
+      answer: t('candidateCreateAccountAnswer'),
+    },
+    {
+      question: t('candidateActivateQuestion'),
+      answer: t('candidateActivateAnswer'),
+    },
+    {
+      question: t('candidateApplyQuestion'),
+      answer: t('candidateApplyAnswer'),
+    },
+    {
+      question: t('candidateProfileQuestion'),
+      answer: t('candidateProfileAnswer'),
+    },
+  ];
+  const recruiterFaq = [
+    {
+      question: t('recruiterCreateQuestion'),
+      answer: t('recruiterCreateAnswer'),
+    },
+    {
+      question: t('recruiterCompanyQuestion'),
+      answer: t('recruiterCompanyAnswer'),
+    },
+    {
+      question: t('recruiterJobQuestion'),
+      answer: t('recruiterJobAnswer'),
+    },
+    {
+      question: t('recruiterProfileQuestion'),
+      answer: t('recruiterProfileAnswer'),
+    },
+  ];
 
   const items = activeTab === 'candidate' ? candidateFaq : recruiterFaq;
 
@@ -67,7 +60,7 @@ export function FaqTabs() {
           }`}
         >
           <UserRound className="h-4 w-4" />
-          Candidatos
+          {t('candidateTab')}
         </button>
 
         <button
@@ -80,7 +73,7 @@ export function FaqTabs() {
           }`}
         >
           <Building2 className="h-4 w-4" />
-          Recrutadores
+          {t('recruiterTab')}
         </button>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Activity,
   ArrowUpRight,
@@ -16,18 +17,20 @@ import { ApplyService } from '@/services/apply/apply.service';
 import ApplyEntity, { ApplicationStatusEnum } from '@/types/entities/apply.entity';
 import { JobStatusEnum } from '@/types/entities/job.entity';
 
-function formatDate(date?: Date) {
+function formatDate(date: Date | undefined, locale: string, fallback: string) {
   if (!date) {
-    return 'Sem data';
+    return fallback;
   }
 
-  return new Intl.DateTimeFormat('pt-BR', {
+  return new Intl.DateTimeFormat(locale === 'pt' ? 'pt-BR' : locale, {
     day: '2-digit',
     month: 'short',
   }).format(new Date(date));
 }
 
 export function RecruiterDashboard() {
+  const t = useTranslations('RecruiterDashboard');
+  const locale = useLocale();
   const { jobs, isLoading, error } = useRecruiterJobs();
   const [recentApplications, setRecentApplications] = useState<ApplyEntity[]>([]);
   const [applicationsLoading, setApplicationsLoading] = useState(true);
@@ -87,40 +90,40 @@ export function RecruiterDashboard() {
 
     return [
       {
-        label: 'Vagas ativas',
+        label: t('activeJobs'),
         value: String(activeJobs),
-        meta: 'pipeline operacional',
+        meta: t('operationalPipeline'),
         icon: BriefcaseBusiness,
       },
       {
-        label: 'Candidaturas recentes',
+        label: t('recentApplications'),
         value: String(recentApplications.length),
-        meta: 'últimos registros',
+        meta: t('latestRecords'),
         icon: Users,
       },
       {
-        label: 'Perfis shortlistados',
+        label: t('shortlistedProfiles'),
         value: String(shortlisted),
-        meta: 'alta aderência',
+        meta: t('highFit'),
         icon: CircleCheckBig,
       },
       {
-        label: 'Posições abertas',
+        label: t('openPositions'),
         value: String(totalSlots),
-        meta: 'capacidade total',
+        meta: t('totalCapacity'),
         icon: Activity,
       },
     ];
-  }, [jobs, recentApplications]);
+  }, [jobs, recentApplications, t]);
 
   const chartData = [
-    { label: 'Seg', value: 5 },
-    { label: 'Ter', value: 8 },
-    { label: 'Qua', value: 6 },
-    { label: 'Qui', value: 10 },
-    { label: 'Sex', value: 12 },
-    { label: 'Sáb', value: 7 },
-    { label: 'Dom', value: 4 },
+    { label: t('mon'), value: 5 },
+    { label: t('tue'), value: 8 },
+    { label: t('wed'), value: 6 },
+    { label: t('thu'), value: 10 },
+    { label: t('fri'), value: 12 },
+    { label: t('sat'), value: 7 },
+    { label: t('sun'), value: 4 },
   ];
 
   return (
@@ -164,8 +167,10 @@ export function RecruiterDashboard() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-zinc-500">Candidatos por dia</p>
-                <h2 className="mt-1 text-xl font-semibold text-zinc-50">Intensidade do pipeline</h2>
+                <p className="text-sm text-zinc-500">{t('candidatesByDay')}</p>
+                <h2 className="mt-1 text-xl font-semibold text-zinc-50">
+                  {t('pipelineIntensity')}
+                </h2>
               </div>
               <span className="inline-flex items-center gap-2 rounded-full border border-lime-500/20 bg-lime-500/10 px-3 py-1 text-xs text-lime-300">
                 <ArrowUpRight className="h-3.5 w-3.5" />
@@ -198,8 +203,8 @@ export function RecruiterDashboard() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-zinc-500">Aplicações recentes</p>
-                <h2 className="mt-1 text-xl font-semibold text-zinc-50">Última atividade</h2>
+                <p className="text-sm text-zinc-500">{t('recentApplications')}</p>
+                <h2 className="mt-1 text-xl font-semibold text-zinc-50">{t('latestActivity')}</h2>
               </div>
               <CalendarClock className="h-4 w-4 text-zinc-600" />
             </div>
@@ -222,10 +227,10 @@ export function RecruiterDashboard() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-sm font-medium text-zinc-100">
-                          {application.user?.name || 'Candidato'}
+                          {application.user?.name || t('candidateFallback')}
                         </p>
                         <p className="mt-1 text-sm text-zinc-500">
-                          {application.details?.jobTitle || 'Vaga ativa'}
+                          {application.details?.jobTitle || t('activeJobFallback')}
                         </p>
                       </div>
                       <span className="rounded-full border border-zinc-800 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-zinc-400">
@@ -233,14 +238,14 @@ export function RecruiterDashboard() {
                       </span>
                     </div>
                     <p className="mt-3 text-xs text-zinc-600">
-                      {formatDate(application.createdAt)}
+                      {formatDate(application.createdAt, locale, t('noDate'))}
                     </p>
                   </div>
                 ))}
 
               {!applicationsLoading && recentApplications.length === 0 && (
                 <div className="rounded-2xl border border-zinc-800 bg-black/50 p-5 text-sm text-zinc-500">
-                  Ainda não há candidaturas recentes para exibir.
+                  {t('noRecentApplications')}
                 </div>
               )}
             </div>
@@ -255,20 +260,20 @@ export function RecruiterDashboard() {
         >
           <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-5">
             <div>
-              <p className="text-sm text-zinc-500">Tabela de vagas</p>
-              <h2 className="mt-1 text-xl font-semibold text-zinc-50">Operação ativa</h2>
+              <p className="text-sm text-zinc-500">{t('jobsTable')}</p>
+              <h2 className="mt-1 text-xl font-semibold text-zinc-50">{t('activeOperation')}</h2>
             </div>
-            <span className="text-sm text-zinc-500">{jobs.length} registros</span>
+            <span className="text-sm text-zinc-500">{t('records', { count: jobs.length })}</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-zinc-800 text-left">
               <thead className="bg-black/30">
                 <tr className="text-xs uppercase tracking-[0.22em] text-zinc-500">
-                  <th className="px-6 py-4 font-medium">Vaga</th>
+                  <th className="px-6 py-4 font-medium">{t('job')}</th>
                   <th className="px-6 py-4 font-medium">Status</th>
                   <th className="px-6 py-4 font-medium">Slots</th>
-                  <th className="px-6 py-4 font-medium">Atualização</th>
+                  <th className="px-6 py-4 font-medium">{t('updatedAt')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800">
@@ -295,7 +300,7 @@ export function RecruiterDashboard() {
                         <div>
                           <p className="text-sm font-medium text-zinc-100">{job.title}</p>
                           <p className="mt-1 text-sm text-zinc-500">
-                            {job.company?.tradeName || 'Empresa não informada'}
+                            {job.company?.tradeName || t('companyNotProvided')}
                           </p>
                         </div>
                       </td>
@@ -306,7 +311,7 @@ export function RecruiterDashboard() {
                       </td>
                       <td className="px-6 py-5 text-sm text-zinc-300">{job.slots}</td>
                       <td className="px-6 py-5 text-sm text-zinc-500">
-                        {formatDate(job.updatedAt)}
+                        {formatDate(job.updatedAt, locale, t('noDate'))}
                       </td>
                     </tr>
                   ))}
@@ -314,7 +319,7 @@ export function RecruiterDashboard() {
                 {!isLoading && jobs.length === 0 && (
                   <tr>
                     <td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500">
-                      Nenhuma vaga cadastrada ainda.
+                      {t('noJobs')}
                     </td>
                   </tr>
                 )}

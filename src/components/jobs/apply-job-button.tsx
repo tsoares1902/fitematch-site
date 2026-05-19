@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { FaPaperPlane } from 'react-icons/fa';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { useFlashMessage } from '@/contexts/flash-message-context';
 import { ApplyService } from '@/services/apply/apply.service';
 import { ProductRoleEnum } from '@/types/entities/user.entity';
+import { useRouter } from '@/i18n/navigation';
 
 interface ApplyJobButtonProps {
   jobId: string;
@@ -24,6 +25,7 @@ export function ApplyJobButton({
   refetch,
 }: ApplyJobButtonProps) {
   const router = useRouter();
+  const t = useTranslations('Jobs');
   const { user, isAuthenticated } = useAuth();
   const { showSuccess, showError } = useFlashMessage();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,22 +38,22 @@ export function ApplyJobButton({
 
   function handleOpenConfirmModal() {
     if (!isAuthenticated) {
-      showError('Você precisa estar logado para se candidatar.');
+      showError(t('loginRequired'));
       return;
     }
 
     if (isRecruiter) {
-      showError('Recrutadores não podem se candidatar a vagas.');
+      showError(t('recruiterCannotApply'));
       return;
     }
 
     if (!isCandidate) {
-      showError('Apenas candidatos podem se candidatar a vagas.');
+      showError(t('candidateOnly'));
       return;
     }
 
     if (hasAlreadyApplied) {
-      showError('Você já se candidatou a esta vaga.');
+      showError(t('alreadyApplied'));
       return;
     }
 
@@ -66,13 +68,13 @@ export function ApplyJobButton({
         jobId,
       });
 
-      showSuccess('Candidatura realizada com sucesso.');
+      showSuccess(t('applySuccess'));
       setIsConfirmModalOpen(false);
       await refetch?.();
       onApplied?.();
       router.refresh();
     } catch {
-      showError('Não foi possível realizar sua candidatura.');
+      showError(t('applyError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -89,7 +91,7 @@ export function ApplyJobButton({
           onClick={handleOpenConfirmModal}
           className="rounded-xl border-lime-500/20 bg-lime-500/10 text-lime-300 hover:bg-lime-500/15"
         >
-          {hasAlreadyApplied ? 'Candidatura enviada' : 'Aplicar'}
+          {hasAlreadyApplied ? t('applicationSent') : t('apply')}
         </Button>
       )}
 
@@ -104,17 +106,17 @@ export function ApplyJobButton({
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <h2 id="apply-confirm-title" className="text-xl font-semibold text-zinc-100">
-                  Confirmar candidatura
+                  {t('confirmApplication')}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  Deseja confirmar sua aplicação para esta vaga?
+                  {t('confirmApplicationDescription')}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsConfirmModalOpen(false)}
                 className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-zinc-800 bg-black/40 text-zinc-400 transition-colors hover:text-zinc-100"
-                aria-label="Fechar modal"
+                aria-label={t('closeModal')}
                 disabled={isSubmitting}
               >
                 <X className="h-4 w-4" />
@@ -129,7 +131,7 @@ export function ApplyJobButton({
                 disabled={isSubmitting}
                 className="rounded-xl border-zinc-800 bg-black/40 text-zinc-200 hover:bg-white/[0.03]"
               >
-                Voltar
+                {t('back')}
               </Button>
               <Button
                 type="button"
@@ -139,7 +141,7 @@ export function ApplyJobButton({
                 disabled={isSubmitting}
                 className="rounded-xl border-lime-500/20 bg-lime-500/10 text-lime-300 hover:bg-lime-500/15"
               >
-                {isSubmitting ? 'Aplicando' : 'Confirmar aplicação'}
+                {isSubmitting ? t('applying') : t('confirmApply')}
               </Button>
             </div>
           </div>

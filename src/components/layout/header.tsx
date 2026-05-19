@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -20,6 +18,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Link as LocaleLink, usePathname, useRouter } from '@/i18n/navigation';
 import { ROUTES } from '@/constants/routes';
 import { useFlashMessage } from '@/contexts/flash-message-context';
 import { useAuth } from '@/hooks/use-auth';
@@ -39,6 +39,7 @@ interface AccountMenuItem {
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const t = useTranslations('Header');
   const { showError, showSuccess } = useFlashMessage();
   const { user, isAuthenticated, isLoading, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,27 +53,27 @@ export function Header() {
     : isRecruiter
       ? ROUTES.RECRUITER_PROFILE
       : ROUTES.PROFILE;
-  const displayName = user?.name?.trim() || 'Minha conta';
+  const displayName = user?.name?.trim() || t('myAccount');
   const accountMenuItems: AccountMenuItem[] = isCandidate
     ? [
-        { href: ROUTES.CANDIDATE_DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
-        { href: ROUTES.CANDIDATE_PROFILE, label: 'Perfil', icon: UserRound },
-        { href: ROUTES.CANDIDATE_APPLICATIONS, label: 'Applications', icon: FileText },
-        { href: ROUTES.CANDIDATE_SESSIONS, label: 'Sessões', icon: MonitorSmartphone },
+        { href: ROUTES.CANDIDATE_DASHBOARD, label: t('dashboard'), icon: LayoutDashboard },
+        { href: ROUTES.CANDIDATE_PROFILE, label: t('profile'), icon: UserRound },
+        { href: ROUTES.CANDIDATE_APPLICATIONS, label: t('applications'), icon: FileText },
+        { href: ROUTES.CANDIDATE_SESSIONS, label: t('sessions'), icon: MonitorSmartphone },
       ]
     : isRecruiter
       ? [
-          { href: ROUTES.RECRUITER_DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
-          { href: ROUTES.RECRUITER_PROFILE, label: 'Perfil', icon: UserRound },
-          { href: ROUTES.RECRUITER_COMPANY, label: 'Empresa', icon: Building2 },
-          { href: ROUTES.RECRUITER_JOBS, label: 'Vagas', icon: BriefcaseBusiness },
-          { href: ROUTES.RECRUITER_SESSIONS, label: 'Sessões', icon: MonitorSmartphone },
+          { href: ROUTES.RECRUITER_DASHBOARD, label: t('dashboard'), icon: LayoutDashboard },
+          { href: ROUTES.RECRUITER_PROFILE, label: t('profile'), icon: UserRound },
+          { href: ROUTES.RECRUITER_COMPANY, label: t('company'), icon: Building2 },
+          { href: ROUTES.RECRUITER_JOBS, label: t('recruiterJobs'), icon: BriefcaseBusiness },
+          { href: ROUTES.RECRUITER_SESSIONS, label: t('sessions'), icon: MonitorSmartphone },
         ]
-      : [{ href: profileHref, label: 'Perfil', icon: UserRound }];
+      : [{ href: profileHref, label: t('profile'), icon: UserRound }];
 
   const navItems = [
-    { href: ROUTES.JOBS, label: 'Vagas', show: true },
-    { href: ROUTES.FAQ, label: 'FAQ', show: true },
+    { href: ROUTES.JOBS, label: t('jobs'), show: true },
+    { href: ROUTES.FAQ, label: t('faq'), show: true },
   ].filter((item) => item.show);
 
   useEffect(() => {
@@ -92,12 +93,12 @@ export function Header() {
   async function handleSignOut() {
     try {
       await signOut();
-      showSuccess('Logout realizado com sucesso.');
+      showSuccess(t('logoutSuccess'));
       setMenuOpen(false);
       setAccountMenuOpen(false);
       router.push(ROUTES.HOME);
     } catch {
-      showError('Não foi possível sair da conta.');
+      showError(t('logoutError'));
     }
   }
 
@@ -110,19 +111,19 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-white/8 bg-black backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-8">
-          <Link
+          <LocaleLink
             href={ROUTES.HOME}
             className="text-lg font-semibold lowercase tracking-[-0.05em] text-zinc-50 transition-opacity hover:opacity-80"
           >
             <span className="text-zinc-50">fite</span>
             <span className="text-lime-400">match</span>
-          </Link>
+          </LocaleLink>
 
           <nav className="hidden items-center gap-1 lg:flex">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className={getNavClass(item.href)}>
+              <LocaleLink key={item.href} href={item.href} className={getNavClass(item.href)}>
                 {item.label}
-              </Link>
+              </LocaleLink>
             ))}
           </nav>
         </div>
@@ -132,20 +133,20 @@ export function Header() {
 
           {!isLoading && !isAuthenticated && (
             <>
-              <Link
+              <LocaleLink
                 href={ROUTES.SIGN_IN}
                 className="inline-flex items-center gap-2 rounded-full bg-zinc-50 px-4 py-2 text-sm font-medium text-black transition-all duration-300 hover:bg-white"
               >
                 <LogIn className="h-4 w-4" />
-                Entrar
-              </Link>
-              <Link
+                {t('signIn')}
+              </LocaleLink>
+              <LocaleLink
                 href={ROUTES.SIGN_UP}
                 className="inline-flex items-center gap-2 rounded-full bg-lime-500 px-4 py-2 text-sm font-medium text-black transition-all duration-300 hover:bg-lime-400"
               >
-                Criar conta
+                {t('signUp')}
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </LocaleLink>
             </>
           )}
 
@@ -181,7 +182,7 @@ export function Header() {
                       <div className="border-b border-zinc-800 px-3 py-3">
                         <p className="truncate text-sm font-medium text-zinc-100">{displayName}</p>
                         <p className="mt-1 text-xs text-zinc-500">
-                          {isRecruiter ? 'Área do recrutador' : 'Área do candidato'}
+                          {isRecruiter ? t('recruiterArea') : t('candidateArea')}
                         </p>
                       </div>
 
@@ -195,7 +196,7 @@ export function Header() {
                               : pathname.startsWith(item.href);
 
                           return (
-                            <Link
+                            <LocaleLink
                               key={item.href}
                               href={item.href}
                               onClick={() => setAccountMenuOpen(false)}
@@ -208,7 +209,7 @@ export function Header() {
                             >
                               <Icon className="h-4 w-4 shrink-0" />
                               <span>{item.label}</span>
-                            </Link>
+                            </LocaleLink>
                           );
                         })}
                       </div>
@@ -224,7 +225,7 @@ export function Header() {
                 className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-200 transition-all duration-300 hover:border-red-500/35 hover:bg-red-500/15 hover:text-red-100"
               >
                 <LogOut className="h-4 w-4" />
-                Sair
+                {t('signOut')}
               </button>
             </>
           )}
@@ -234,7 +235,7 @@ export function Header() {
           type="button"
           onClick={() => setMenuOpen((current) => !current)}
           className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-zinc-100 transition-all duration-300 hover:border-white/15 hover:bg-white/[0.05] lg:hidden"
-          aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+          aria-label={menuOpen ? t('closeMenu') : t('openMenu')}
           aria-expanded={menuOpen}
         >
           {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -257,7 +258,7 @@ export function Header() {
 
               <nav className="flex flex-col gap-1">
                 {navItems.map((item) => (
-                  <Link
+                  <LocaleLink
                     key={item.href}
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
@@ -268,28 +269,28 @@ export function Header() {
                     }`}
                   >
                     {item.label}
-                  </Link>
+                  </LocaleLink>
                 ))}
               </nav>
 
               {!isLoading && !isAuthenticated && (
                 <div className="grid gap-2 pt-2">
-                  <Link
+                  <LocaleLink
                     href={ROUTES.SIGN_IN}
                     onClick={() => setMenuOpen(false)}
                     className="inline-flex items-center justify-center gap-2 rounded-2xl bg-zinc-50 px-4 py-3 text-sm font-medium text-black transition-all duration-300 hover:bg-white"
                   >
                     <LogIn className="h-4 w-4" />
-                    Entrar
-                  </Link>
-                  <Link
+                    {t('signIn')}
+                  </LocaleLink>
+                  <LocaleLink
                     href={ROUTES.SIGN_UP}
                     onClick={() => setMenuOpen(false)}
                     className="inline-flex items-center justify-center gap-2 rounded-2xl bg-lime-500 px-4 py-3 text-sm font-medium text-black transition-all duration-300 hover:bg-lime-400"
                   >
                     <UserRoundPlus className="h-4 w-4" />
-                    Criar conta
-                  </Link>
+                    {t('signUp')}
+                  </LocaleLink>
                 </div>
               )}
 
@@ -301,7 +302,7 @@ export function Header() {
                       <span className="truncate">{displayName}</span>
                     </div>
                     <p className="mt-1 text-xs text-lime-300/70">
-                      {isRecruiter ? 'Área do recrutador' : 'Área do candidato'}
+                      {isRecruiter ? t('recruiterArea') : t('candidateArea')}
                     </p>
                   </div>
 
@@ -315,7 +316,7 @@ export function Header() {
                           : pathname.startsWith(item.href);
 
                       return (
-                        <Link
+                        <LocaleLink
                           key={item.href}
                           href={item.href}
                           onClick={() => setMenuOpen(false)}
@@ -325,7 +326,7 @@ export function Header() {
                         >
                           <Icon className="h-4 w-4 shrink-0" />
                           <span>{item.label}</span>
-                        </Link>
+                        </LocaleLink>
                       );
                     })}
                   </div>
@@ -338,7 +339,7 @@ export function Header() {
                     className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200 transition-all duration-300 hover:border-red-500/35 hover:bg-red-500/15 hover:text-red-100"
                   >
                     <LogOut className="h-4 w-4" />
-                    Sair
+                    {t('signOut')}
                   </button>
                 </div>
               )}

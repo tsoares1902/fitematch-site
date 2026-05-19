@@ -3,6 +3,7 @@
 import { type ComponentType, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { FileText, Save, Send, UserRound, MessageCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/form/phone-input';
@@ -43,17 +44,18 @@ function hasValue(value: unknown) {
 
 const recruiterProfileSections: Array<{
   id: RecruiterProfileSectionId;
-  title: string;
+  titleKey: string;
   icon: ComponentType<{ className?: string }>;
 }> = [
-  { id: 'dados-basicos', title: 'Dados Básicos', icon: FileText },
-  { id: 'dados-recrutador', title: 'Dados Recrutador', icon: UserRound },
+  { id: 'dados-basicos', titleKey: 'basicData', icon: FileText },
+  { id: 'dados-recrutador', titleKey: 'recruiterData', icon: UserRound },
 ];
 
 type RecruiterProfileSectionId = 'dados-basicos' | 'dados-recrutador';
 type RecruiterProfileCompletion = Record<RecruiterProfileSectionId, boolean>;
 
 export function RecruiterProfileForm() {
+  const t = useTranslations('Profile');
   const { user, refreshMe, updateMe } = useAuth();
   const { showSuccess, showError } = useFlashMessage();
   const savedProfileCompletionBySection = useMemo<RecruiterProfileCompletion>(
@@ -183,9 +185,9 @@ export function RecruiterProfileForm() {
       });
 
       markSectionComplete('dados-basicos');
-      showSuccess('Dados básicos atualizados com sucesso.');
+      showSuccess(t('basicDataSuccess'));
     } catch {
-      showError('Não foi possível atualizar os dados básicos.');
+      showError(t('basicDataError'));
     }
   }
 
@@ -212,9 +214,9 @@ export function RecruiterProfileForm() {
       });
 
       markSectionComplete('dados-recrutador');
-      showSuccess('Dados do recrutador atualizados com sucesso.');
+      showSuccess(t('recruiterDataSuccess'));
     } catch {
-      showError('Não foi possível atualizar os dados do recrutador.');
+      showError(t('recruiterDataError'));
     }
   }
 
@@ -228,7 +230,7 @@ export function RecruiterProfileForm() {
 
             return (
               <a
-                key={section.title}
+                key={section.titleKey}
                 href={`#${section.id}`}
                 className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-300 hover:bg-white/[0.03] ${
                   isComplete
@@ -237,7 +239,7 @@ export function RecruiterProfileForm() {
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                <span>{section.title}</span>
+                <span>{t(section.titleKey)}</span>
               </a>
             );
           })}
@@ -246,7 +248,7 @@ export function RecruiterProfileForm() {
 
       <div id="dados-basicos" className={getSectionBoxClassName('dados-basicos')}>
         <ProfileSectionTitle
-          title="Dados básicos"
+          title={t('basicData')}
           icon={FileText as never}
           onIconClick={() => setShowBasic((v) => !v)}
           iconClickable
@@ -259,29 +261,29 @@ export function RecruiterProfileForm() {
         {showBasic && (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Input
-              label="Nome"
+              label={t('name')}
               labelClassName={labelClassName}
               className={fieldClassName}
-              placeholder="Nome"
+              placeholder={t('name')}
               {...register('name')}
             />
 
             <div className="hidden md:block" />
 
             <Input
-              label="E-mail"
+              label={t('email')}
               labelClassName={labelClassName}
               className={fieldClassName}
-              placeholder="E-mail"
+              placeholder={t('email')}
               value={user?.email || ''}
               disabled
             />
 
             <Input
-              label="Data de nascimento"
+              label={t('birthday')}
               labelClassName={labelClassName}
               className={fieldClassName}
-              placeholder="Data de nascimento"
+              placeholder={t('birthday')}
               value={formatBirthday(user?.birthday)}
               disabled
             />
@@ -295,7 +297,7 @@ export function RecruiterProfileForm() {
                 onClick={handleSaveBasic}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -304,7 +306,7 @@ export function RecruiterProfileForm() {
 
       <div id="dados-recrutador" className={getSectionBoxClassName('dados-recrutador')}>
         <ProfileSectionTitle
-          title="Dados do recrutador"
+          title={t('recruiterData')}
           icon={UserRound as never}
           onIconClick={() => setShowRecruiter((v) => !v)}
           iconClickable
@@ -317,10 +319,10 @@ export function RecruiterProfileForm() {
         {showRecruiter && (
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             <Input
-              label="Empresa"
+              label={t('company')}
               labelClassName={labelClassName}
               className={fieldClassName}
-              placeholder="Empresa"
+              placeholder={t('company')}
               {...register('recruiterProfile.tradeName')}
             />
 
@@ -328,15 +330,15 @@ export function RecruiterProfileForm() {
             <div className="hidden lg:block" />
 
             <Input
-              label="Cargo"
+              label={t('position')}
               labelClassName={labelClassName}
               className={fieldClassName}
-              placeholder="Cargo"
+              placeholder={t('position')}
               {...register('recruiterProfile.position')}
             />
 
             <PhoneInput
-              label="Telefone"
+              label={t('phone')}
               labelClassName={labelClassName}
               countryValue={phoneCountryValue || '+55'}
               numberValue={phoneNumberValue || ''}
@@ -384,7 +386,7 @@ export function RecruiterProfileForm() {
                 onClick={handleSaveRecruiter}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>

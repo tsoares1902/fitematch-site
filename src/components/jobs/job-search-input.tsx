@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { FaSearch } from 'react-icons/fa';
 
 interface JobSearchInputProps {
@@ -8,11 +9,13 @@ interface JobSearchInputProps {
 }
 
 export function JobSearchInput({ value, onChange }: JobSearchInputProps) {
+  const t = useTranslations('Jobs');
+
   return (
     <div>
       <div className="max-w-3xl">
         <p className="text-sm font-medium uppercase tracking-[0.28em] text-lime-400">
-          Busca de vagas
+          {t('searchTitle')}
         </p>
       </div>
 
@@ -26,7 +29,7 @@ export function JobSearchInput({ value, onChange }: JobSearchInputProps) {
             <input
               id="jobs-search"
               type="text"
-              placeholder="Ex.: Personal Trainer ou São Paulo ou CLT ou PJ"
+              placeholder={t('searchPlaceholder')}
               value={value}
               onChange={(e) => onChange(e.target.value)}
               className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-white outline-none placeholder:text-zinc-500 md:text-xl"

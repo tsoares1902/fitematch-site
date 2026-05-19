@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MdOutlineSocialDistance, MdPlace } from 'react-icons/md';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/use-auth';
 import { ROUTES } from '@/constants/routes';
 import { PublicCompanyResponse } from '@/services/company/company.types';
@@ -89,6 +90,7 @@ interface JobLocationMapTestProps {
 }
 
 export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
+  const t = useTranslations('Jobs');
   const { user, isAuthenticated } = useAuth();
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<unknown>(null);
@@ -132,7 +134,7 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
           return;
         }
 
-        setError('Não foi possível carregar o mapa navegável.');
+        setError(t('mapLoadError'));
       } finally {
         if (isActive) {
           setIsLoading(false);
@@ -145,7 +147,7 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
     return () => {
       isActive = false;
     };
-  }, [candidateAddressQuery, companyAddressQuery, isAuthenticated]);
+  }, [candidateAddressQuery, companyAddressQuery, isAuthenticated, t]);
 
   useEffect(() => {
     let isMounted = true;
@@ -186,7 +188,7 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={resolveFileUrl(companyLogoUrl)}
-                  alt={company?.tradeName || 'Empresa'}
+                  alt={company?.tradeName || t('companyFallback')}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -206,7 +208,7 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
         icon: companyIcon,
       })
         .addTo(map)
-        .bindPopup(company?.tradeName || 'Academia');
+        .bindPopup(company?.tradeName || t('companyFallback'));
     }
 
     void renderMap();
@@ -214,7 +216,7 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
     return () => {
       isMounted = false;
     };
-  }, [companyCoordinates, companyLogoUrl, company?.tradeName]);
+  }, [companyCoordinates, companyLogoUrl, company?.tradeName, t]);
 
   useEffect(() => {
     return () => {
@@ -257,12 +259,12 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
     >
       <div className="mb-4 flex items-center gap-3 text-lg font-bold text-gray-100">
         <MdPlace className="h-6 w-6 text-lime-400" />
-        <span>Localização</span>
+        <span>{t('location')}</span>
       </div>
 
       {isLoading && (
         <div className="rounded-xl border border-gray-500 bg-black px-4 py-8 text-sm text-gray-300">
-          Carregando mapa...
+          {t('loadingMap')}
         </div>
       )}
 
@@ -274,7 +276,7 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
 
       {!isLoading && !error && !companyCoordinates && (
         <div className="rounded-xl border border-gray-500 bg-black px-4 py-4 text-sm text-gray-300">
-          Não foi possível localizar a academia no mapa.
+          {t('mapLocationError')}
         </div>
       )}
 
@@ -305,11 +307,11 @@ export function JobLocationMapTest({ company }: JobLocationMapTestProps) {
               <div className="flex items-center gap-3 rounded-xl border border-slate-700/70 bg-black/50 px-3 py-3">
                 <MdOutlineSocialDistance className="h-4 w-4 shrink-0 text-gray-100" />
                 <p>
-                  Indisponível. Complete seu{' '}
+                  {t('distanceUnavailablePrefix')}{' '}
                   <Link href={ROUTES.CANDIDATE_PROFILE} className="underline hover:text-gray-100">
-                    perfil
+                    {t('profile')}
                   </Link>{' '}
-                  para calcular.
+                  {t('distanceUnavailableSuffix')}
                 </p>
               </div>
             ) : null}

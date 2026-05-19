@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { DashboardService } from '@/services/dashboard/dashboard.service';
 
 interface HomeHeroStat {
@@ -14,40 +15,46 @@ interface UseHomeHeroStatsState {
   isLoading: boolean;
 }
 
-function formatWeeklyMeta(total: number, singular: string, plural: string): string {
-  if (total === 1) {
-    return `+ 1 ${singular} na semana`;
-  }
+type HomeTranslator = ReturnType<typeof useTranslations>;
 
-  return `+ ${total} ${plural} na semana`;
+function formatWeeklyMeta(
+  total: number,
+  singularKey: string,
+  pluralKey: string,
+  t: HomeTranslator,
+): string {
+  return total === 1 ? t(singularKey) : t(pluralKey, { count: total });
 }
 
-const INITIAL_STATS: HomeHeroStat[] = [
-  {
-    label: 'USUÁRIOS CADASTRADOS',
-    value: '0',
-    meta: 'Carregando...',
-  },
-  {
-    label: 'EMPRESAS VERIFICADAS',
-    value: '0',
-    meta: 'Carregando...',
-  },
-  {
-    label: 'VAGAS ATIVAS NO SITE',
-    value: '0',
-    meta: 'Carregando...',
-  },
-  {
-    label: 'APLICAÇÕES ATIVAS',
-    value: '0',
-    meta: 'Carregando...',
-  },
-];
+function createInitialStats(t: HomeTranslator): HomeHeroStat[] {
+  return [
+    {
+      label: t('registeredUsers'),
+      value: '0',
+      meta: t('loadingStats'),
+    },
+    {
+      label: t('verifiedCompanies'),
+      value: '0',
+      meta: t('loadingStats'),
+    },
+    {
+      label: t('activeJobsOnSite'),
+      value: '0',
+      meta: t('loadingStats'),
+    },
+    {
+      label: t('activeApplications'),
+      value: '0',
+      meta: t('loadingStats'),
+    },
+  ];
+}
 
 export function useHomeHeroStats() {
+  const t = useTranslations('Home');
   const [state, setState] = useState<UseHomeHeroStatsState>({
-    stats: INITIAL_STATS,
+    stats: createInitialStats(t),
     isLoading: true,
   });
 
@@ -65,32 +72,42 @@ export function useHomeHeroStats() {
         setState({
           stats: [
             {
-              label: 'USUÁRIOS CADASTRADOS',
+              label: t('registeredUsers'),
               value: String(summary.users.total),
               meta: summary.users.lastWeek
-                ? formatWeeklyMeta(summary.users.lastWeek, 'novo', 'novos')
-                : 'Sem novos na semana',
+                ? formatWeeklyMeta(summary.users.lastWeek, 'weeklyNewUser', 'weeklyNewUsers', t)
+                : t('noNewUsersWeek'),
             },
             {
-              label: 'EMPRESAS VERIFICADAS',
+              label: t('verifiedCompanies'),
               value: String(summary.companies.total),
               meta: summary.companies.lastWeek
-                ? formatWeeklyMeta(summary.companies.lastWeek, 'nova', 'novas')
-                : 'Sem novas na semana',
+                ? formatWeeklyMeta(
+                    summary.companies.lastWeek,
+                    'weeklyNewCompany',
+                    'weeklyNewCompanies',
+                    t,
+                  )
+                : t('noNewCompaniesWeek'),
             },
             {
-              label: 'VAGAS ATIVAS NO SITE',
+              label: t('activeJobsOnSite'),
               value: String(summary.jobs.total),
               meta: summary.jobs.lastWeek
-                ? formatWeeklyMeta(summary.jobs.lastWeek, 'nova', 'novas')
-                : 'Sem novas na semana',
+                ? formatWeeklyMeta(summary.jobs.lastWeek, 'weeklyNewJob', 'weeklyNewJobs', t)
+                : t('noNewJobsWeek'),
             },
             {
-              label: 'APLICAÇÕES ATIVAS',
+              label: t('activeApplications'),
               value: String(summary.applications.total),
               meta: summary.applications.lastWeek
-                ? formatWeeklyMeta(summary.applications.lastWeek, 'nova', 'novas')
-                : 'Sem novas na semana',
+                ? formatWeeklyMeta(
+                    summary.applications.lastWeek,
+                    'weeklyNewApplication',
+                    'weeklyNewApplications',
+                    t,
+                  )
+                : t('noNewApplicationsWeek'),
             },
           ],
           isLoading: false,
@@ -103,24 +120,24 @@ export function useHomeHeroStats() {
         setState({
           stats: [
             {
-              label: 'USUÁRIOS CADASTRADOS',
+              label: t('registeredUsers'),
               value: '0',
-              meta: 'Não foi possível carregar',
+              meta: t('statsLoadError'),
             },
             {
-              label: 'EMPRESAS VERIFICADAS',
+              label: t('verifiedCompanies'),
               value: '0',
-              meta: 'Não foi possível carregar',
+              meta: t('statsLoadError'),
             },
             {
-              label: 'VAGAS ATIVAS NO SITE',
+              label: t('activeJobsOnSite'),
               value: '0',
-              meta: 'Não foi possível carregar',
+              meta: t('statsLoadError'),
             },
             {
-              label: 'APLICAÇÕES ATIVAS',
+              label: t('activeApplications'),
               value: '0',
-              meta: 'Não foi possível carregar',
+              meta: t('statsLoadError'),
             },
           ],
           isLoading: false,
@@ -133,7 +150,7 @@ export function useHomeHeroStats() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
   return state;
 }

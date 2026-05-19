@@ -1,10 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Building2, Copy, Globe, MapPin, Share2 } from 'lucide-react';
 import { FaFacebookF, FaLinkedinIn, FaWhatsapp, FaXTwitter } from 'react-icons/fa6';
+import { useLocale, useTranslations } from 'next-intl';
 import { useApplications } from '@/hooks/use-applications';
 import { useAuth } from '@/hooks/use-auth';
 import { useJob } from '@/hooks/use-job';
@@ -20,6 +20,7 @@ import { ROUTES } from '@/constants/routes';
 import { useFlashMessage } from '@/contexts/flash-message-context';
 import { PAGE_STYLES } from '@/constants/styles';
 import { ProductRoleEnum } from '@/types/entities/user.entity';
+import { Link } from '@/i18n/navigation';
 import { resolveFileUrl } from '@/utils/file-url';
 
 interface JobDetailsPageContentProps {
@@ -49,6 +50,8 @@ function ShareButton({
 
 export function JobDetailsPageContent({ jobId }: JobDetailsPageContentProps) {
   const { user, isAuthenticated } = useAuth();
+  const locale = useLocale();
+  const t = useTranslations('Jobs');
   const { showSuccess, showError } = useFlashMessage();
   const canLoadApplications = isAuthenticated && user?.productRole === ProductRoleEnum.CANDIDATE;
 
@@ -107,9 +110,9 @@ export function JobDetailsPageContent({ jobId }: JobDetailsPageContentProps) {
   async function handleCopyLink() {
     try {
       await navigator.clipboard.writeText(currentUrl);
-      showSuccess('Link da vaga copiado para a área de transferência.');
+      showSuccess(t('copySuccess'));
     } catch {
-      showError('Não foi possível copiar o link da vaga.');
+      showError(t('copyError'));
     }
   }
 
@@ -118,8 +121,8 @@ export function JobDetailsPageContent({ jobId }: JobDetailsPageContentProps) {
       <div className={PAGE_STYLES.container}>
         <Breadcrumb
           items={[
-            { label: 'Home', href: ROUTES.HOME },
-            { label: 'Vagas', href: ROUTES.JOBS },
+            { label: t('home'), href: ROUTES.HOME },
+            { label: t('jobs'), href: ROUTES.JOBS },
             { label: job.title },
           ]}
         />
@@ -140,8 +143,8 @@ export function JobDetailsPageContent({ jobId }: JobDetailsPageContentProps) {
         <div className="mt-8 flex flex-wrap justify-start gap-2 text-sm text-zinc-400">
           {job.createdAt && (
             <span className="rounded-full border border-zinc-800 bg-zinc-950/80 px-3 py-1.5 backdrop-blur">
-              Publicado em{' '}
-              {new Date(job.createdAt).toLocaleDateString('pt-BR', {
+              {t('publishedAt')}{' '}
+              {new Date(job.createdAt).toLocaleDateString(locale === 'pt' ? 'pt-BR' : locale, {
                 day: '2-digit',
                 month: '2-digit',
                 year: '2-digit',
@@ -165,7 +168,7 @@ export function JobDetailsPageContent({ jobId }: JobDetailsPageContentProps) {
                       icon={<ArrowLeft className="h-4 w-4" />}
                       className="rounded-xl border-zinc-800 bg-black/40 text-zinc-200 hover:bg-white/[0.03]"
                     >
-                      Vagas
+                      {t('jobs')}
                     </Button>
                   </Link>
                   <ApplyJobButton
@@ -190,7 +193,7 @@ export function JobDetailsPageContent({ jobId }: JobDetailsPageContentProps) {
                   {company.media?.logoUrl ? (
                     <Image
                       src={resolveFileUrl(company.media.logoUrl)}
-                      alt={`Logo da empresa ${company.tradeName}`}
+                      alt={t('companyLogoAlt', { company: company.tradeName })}
                       width={56}
                       height={56}
                       unoptimized
@@ -237,14 +240,14 @@ export function JobDetailsPageContent({ jobId }: JobDetailsPageContentProps) {
             >
               <div className="mb-5 flex items-center gap-3 text-lg font-semibold text-zinc-100">
                 <Share2 className="h-5 w-5 text-lime-400" />
-                <span>Compartilhar</span>
+                <span>{t('share')}</span>
               </div>
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() => void handleCopyLink()}
                   className="inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl border border-zinc-800 bg-black/40 text-sm text-zinc-200 transition-all duration-300 hover:border-lime-500/20 hover:text-lime-300"
-                  aria-label="Copiar link"
+                  aria-label={t('copyLink')}
                 >
                   <Copy className="h-4 w-4" />
                 </button>

@@ -4,6 +4,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { FieldErrors, useForm, useWatch } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { BadgeCheck, Building2, Globe, Landmark, MapPin, Save } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { PhoneInput } from '@/components/form/phone-input';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -160,6 +161,7 @@ function LoadingState() {
 }
 
 export function RecruiterCompanyForm() {
+  const t = useTranslations('RecruiterCompany');
   const { showSuccess, showError } = useFlashMessage();
   const [isLoadingCompany, setIsLoadingCompany] = useState(true);
   const [hasCompany, setHasCompany] = useState(false);
@@ -208,34 +210,34 @@ export function RecruiterCompanyForm() {
   const summaryItems = useMemo(
     () => [
       {
-        label: 'Empresa',
-        value: tradeNameValue?.trim() || 'Sem nome fantasia',
-        helper: 'Nome comercial para exibição',
+        label: t('company'),
+        value: tradeNameValue?.trim() || t('noTradeName'),
+        helper: t('tradeNameHelper'),
         icon: <Building2 className="h-4 w-4" />,
       },
       {
-        label: 'Documento',
-        value: cnpjValue?.trim() || 'CNPJ não informado',
-        helper: 'Documento de Identificação Fiscal',
+        label: t('document'),
+        value: cnpjValue?.trim() || t('cnpjNotProvided'),
+        helper: t('documentHelper'),
         icon: <Landmark className="h-4 w-4" />,
       },
       {
-        label: 'Localização',
+        label: t('location'),
         value:
           cityValue?.trim() && stateValue?.trim()
             ? `${cityValue.trim()} - ${stateValue.trim()}`
-            : 'Localização não definida',
-        helper: 'Base principal da empresa cadastrada',
+            : t('locationNotDefined'),
+        helper: t('locationHelper'),
         icon: <MapPin className="h-4 w-4" />,
       },
       {
         label: 'Status',
-        value: hasCompany ? 'Configurada' : 'Pendente',
-        helper: hasCompany ? 'Empresa cadastrada no sistema.' : 'Cadastre sua empresa',
+        value: hasCompany ? t('configured') : t('pending'),
+        helper: hasCompany ? t('configuredHelper') : t('registerCompany'),
         icon: <BadgeCheck className="h-4 w-4" />,
       },
     ],
-    [cityValue, cnpjValue, hasCompany, stateValue, tradeNameValue],
+    [cityValue, cnpjValue, hasCompany, stateValue, t, tradeNameValue],
   );
 
   const reloadCompany = useCallback(
@@ -255,11 +257,11 @@ export function RecruiterCompanyForm() {
         }
 
         if (!(error instanceof ApiError && error.statusCode === 404 && options?.silentNotFound)) {
-          showError('Não foi possível carregar os dados da empresa.');
+          showError(t('loadCompanyError'));
         }
       }
     },
-    [reset, showError],
+    [reset, showError, t],
   );
 
   useEffect(() => {
@@ -312,33 +314,29 @@ export function RecruiterCompanyForm() {
       await reloadCompany();
 
       if (hasCompany) {
-        showSuccess('Empresa atualizada com sucesso.');
+        showSuccess(t('updateSuccess'));
       } else {
-        showSuccess('Empresa cadastrada com sucesso e enviada para aprovação.');
+        showSuccess(t('createSuccess'));
       }
     } catch {
-      showError(
-        hasCompany
-          ? 'Não foi possível atualizar a empresa.'
-          : 'Não foi possível cadastrar a empresa.',
-      );
+      showError(hasCompany ? t('updateError') : t('createError'));
     }
   }
 
   function onInvalidSubmit(formErrors: FieldErrors<RecruiterCompanyFormValues>) {
     if (Object.keys(formErrors).length > 0) {
-      showError('Preencha os campos obrigatórios para salvar a empresa.');
+      showError(t('requiredFieldsError'));
     }
   }
 
   const zipCodeField = register('zipCode', {
-    required: 'Informe o CEP.',
-    validate: (value) => value.replace(/\D/g, '').length === 8 || 'Informe um CEP válido.',
+    required: t('zipCodeRequired'),
+    validate: (value) => value.replace(/\D/g, '').length === 8 || t('zipCodeInvalid'),
   });
 
   const cnpjField = register('cnpj', {
-    required: 'Informe o CNPJ.',
-    validate: (value) => value.replace(/\D/g, '').length === 14 || 'Informe um CNPJ válido.',
+    required: t('cnpjRequired'),
+    validate: (value) => value.replace(/\D/g, '').length === 14 || t('cnpjInvalid'),
   });
 
   async function handleCnpjLookup(cnpj?: string) {
@@ -409,7 +407,7 @@ export function RecruiterCompanyForm() {
 
       {!hasCompany && !tradeNameValue && !cnpjValue && (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6 backdrop-blur">
-          <EmptyState message="Nenhuma empresa cadastrada ainda. Preencha os dados abaixo para iniciar sua operação." />
+          <EmptyState message={t('empty')} />
         </div>
       )}
 
@@ -424,10 +422,8 @@ export function RecruiterCompanyForm() {
                 <Building2 className="h-4 w-4" />
               </span>
               <div>
-                <h2 className="text-xl font-semibold text-zinc-50">Dados da empresa</h2>
-                <p className="mt-1 text-sm text-zinc-500">
-                  Centralize informações institucionais, contato e endereço da operação.
-                </p>
+                <h2 className="text-xl font-semibold text-zinc-50">{t('companyData')}</h2>
+                <p className="mt-1 text-sm text-zinc-500">{t('companyDataDescription')}</p>
               </div>
             </div>
           </div>
@@ -435,15 +431,15 @@ export function RecruiterCompanyForm() {
 
         <div className="space-y-4">
           <SectionCard
-            title="Empresa"
-            description="Defina identidade visual, razão social e documento fiscal da operação."
+            title={t('company')}
+            description={t('companySectionDescription')}
             icon={<Building2 className="h-4 w-4" />}
           >
             <div className="grid gap-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <FileUpload
-                    label="Logo da empresa"
+                    label={t('companyLogo')}
                     accept="image/*"
                     value={logoUrlValue}
                     onUpload={async (file) => {
@@ -495,7 +491,7 @@ export function RecruiterCompanyForm() {
 
               {isCnpjLoading && (
                 <div className="rounded-xl border border-zinc-800 bg-black/40 px-4 py-3 text-sm text-zinc-400">
-                  Consultando CNPJ...
+                  {t('checkingCnpj')}
                 </div>
               )}
 
@@ -507,24 +503,24 @@ export function RecruiterCompanyForm() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
-                  label="Nome fantasia"
+                  label={t('tradeName')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   error={errors.tradeName?.message}
                   {...register('tradeName', {
-                    required: 'Informe o nome fantasia.',
-                    validate: (value) => value.trim().length > 0 || 'Informe o nome fantasia.',
+                    required: t('tradeNameRequired'),
+                    validate: (value) => value.trim().length > 0 || t('tradeNameRequired'),
                   })}
                 />
 
                 <Input
-                  label="Razão social"
+                  label={t('legalName')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   error={errors.legalName?.message}
                   {...register('legalName', {
-                    required: 'Informe a razão social.',
-                    validate: (value) => value.trim().length > 0 || 'Informe a razão social.',
+                    required: t('legalNameRequired'),
+                    validate: (value) => value.trim().length > 0 || t('legalNameRequired'),
                   })}
                 />
               </div>
@@ -532,8 +528,8 @@ export function RecruiterCompanyForm() {
           </SectionCard>
 
           <SectionCard
-            title="Contato"
-            description="Organize os canais que candidatos e parceiros vão utilizar para falar com sua empresa."
+            title={t('contact')}
+            description={t('contactDescription')}
             icon={<Globe className="h-4 w-4" />}
           >
             <div className="grid gap-4">
@@ -543,9 +539,9 @@ export function RecruiterCompanyForm() {
                   <input
                     type="hidden"
                     {...register('phoneNumber', {
-                      required: 'Informe o telefone.',
+                      required: t('phoneRequired'),
                       validate: (value) =>
-                        value.replace(/\D/g, '').length >= 8 || 'Informe o telefone.',
+                        value.replace(/\D/g, '').length >= 8 || t('phoneRequired'),
                     })}
                   />
                   <PhoneInput
@@ -574,22 +570,22 @@ export function RecruiterCompanyForm() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
-                  label="E-mail"
+                  label={t('email')}
                   labelClassName={labelClassName}
                   type="email"
                   className={fieldClassName}
                   error={errors.email?.message}
                   {...register('email', {
-                    required: 'Informe o e-mail.',
+                    required: t('emailRequired'),
                     pattern: {
                       value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Informe um e-mail válido.',
+                      message: t('emailInvalid'),
                     },
                   })}
                 />
 
                 <Input
-                  label="Website"
+                  label={t('website')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="https://suaempresa.com.br"
@@ -600,8 +596,8 @@ export function RecruiterCompanyForm() {
           </SectionCard>
 
           <SectionCard
-            title="Endereço"
-            description="Defina a base da empresa para exibição operacional e preenchimento das vagas."
+            title={t('address')}
+            description={t('addressDescription')}
             icon={<MapPin className="h-4 w-4" />}
           >
             <div className="grid gap-4">
@@ -609,7 +605,7 @@ export function RecruiterCompanyForm() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <Input
-                      label="CEP"
+                      label={t('zipCode')}
                       labelClassName={labelClassName}
                       className={fieldClassName}
                       placeholder="01310-100"
@@ -637,7 +633,7 @@ export function RecruiterCompanyForm() {
 
               {isZipCodeLoading && (
                 <div className="rounded-xl border border-zinc-800 bg-black/40 px-4 py-3 text-sm text-zinc-400">
-                  Consultando CEP...
+                  {t('checkingZipCode')}
                 </div>
               )}
 
@@ -649,30 +645,30 @@ export function RecruiterCompanyForm() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
-                  label="Rua"
+                  label={t('street')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   error={errors.street?.message}
                   {...register('street', {
-                    required: 'Informe a rua.',
-                    validate: (value) => value.trim().length > 0 || 'Informe a rua.',
+                    required: t('streetRequired'),
+                    validate: (value) => value.trim().length > 0 || t('streetRequired'),
                   })}
                 />
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <Input
-                    label="Número"
+                    label={t('number')}
                     labelClassName={labelClassName}
                     className={fieldClassName}
                     error={errors.number?.message}
                     {...register('number', {
-                      required: 'Informe o número.',
-                      validate: (value) => value.trim().length > 0 || 'Informe o número.',
+                      required: t('numberRequired'),
+                      validate: (value) => value.trim().length > 0 || t('numberRequired'),
                     })}
                   />
 
                   <Input
-                    label="Complemento"
+                    label={t('complement')}
                     labelClassName={labelClassName}
                     className={fieldClassName}
                     {...register('complement')}
@@ -682,36 +678,36 @@ export function RecruiterCompanyForm() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
-                  label="Bairro"
+                  label={t('neighborhood')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   error={errors.neighborhood?.message}
                   {...register('neighborhood', {
-                    required: 'Informe o bairro.',
-                    validate: (value) => value.trim().length > 0 || 'Informe o bairro.',
+                    required: t('neighborhoodRequired'),
+                    validate: (value) => value.trim().length > 0 || t('neighborhoodRequired'),
                   })}
                 />
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <Input
-                    label="Cidade"
+                    label={t('city')}
                     labelClassName={labelClassName}
                     className={fieldClassName}
                     error={errors.city?.message}
                     {...register('city', {
-                      required: 'Informe a cidade.',
-                      validate: (value) => value.trim().length > 0 || 'Informe a cidade.',
+                      required: t('cityRequired'),
+                      validate: (value) => value.trim().length > 0 || t('cityRequired'),
                     })}
                   />
 
                   <Input
-                    label="Estado"
+                    label={t('state')}
                     labelClassName={labelClassName}
                     className={fieldClassName}
                     error={errors.state?.message}
                     {...register('state', {
-                      required: 'Informe o estado.',
-                      validate: (value) => value.trim().length > 0 || 'Informe o estado.',
+                      required: t('stateRequired'),
+                      validate: (value) => value.trim().length > 0 || t('stateRequired'),
                     })}
                   />
                 </div>
@@ -728,7 +724,7 @@ export function RecruiterCompanyForm() {
             disabled={isSubmitting}
             className="rounded-xl border-lime-500/20 bg-lime-500/10 px-5 py-2.5 text-lime-300 hover:bg-lime-500/15"
           >
-            {isSubmitting ? 'Salvando...' : hasCompany ? 'Atualizar empresa' : 'Salvar empresa'}
+            {isSubmitting ? t('saving') : hasCompany ? t('updateCompany') : t('saveCompany')}
           </Button>
         </div>
       </form>

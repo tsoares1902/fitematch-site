@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { usePublicCompanies } from '@/hooks/use-public-companies';
 import { getUniqueCompaniesByBrand } from '@/utils/company-brand';
 import { resolveFileUrl } from '@/utils/file-url';
@@ -13,6 +14,7 @@ const TRANSITION_LOADING_MS = 450;
 
 export function PartnerCompanies() {
   const { companies, error, isLoading } = usePublicCompanies();
+  const t = useTranslations('Home');
   const uniqueCompanies = getUniqueCompaniesByBrand(companies);
   const [startIndex, setStartIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -59,7 +61,7 @@ export function PartnerCompanies() {
     <section className="border-t border-zinc-900 bg-black py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="text-sm font-medium uppercase tracking-[0.26em] text-lime-400">
-          Empresas que usam a fitematch
+          {t('partnerCompanies')}
         </p>
 
         <div className="mt-12">

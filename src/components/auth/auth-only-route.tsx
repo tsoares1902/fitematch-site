@@ -1,10 +1,10 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/hooks/use-auth';
 import { PageLoading } from '@/components/ui/page-loading';
+import { useRouter } from '@/i18n/navigation';
 
 interface AuthOnlyRouteProps {
   children: ReactNode;

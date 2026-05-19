@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, BriefcaseBusiness, CircleCheckBig, XCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useApplications } from '@/hooks/use-applications';
 import { ApplicationCard } from './application-card';
 import { Alert } from '@/components/ui/alert';
@@ -42,6 +43,7 @@ function SummaryCard({
 }
 
 export function ApplicationList() {
+  const t = useTranslations('Applications');
   const { applications, isLoading, error, refetch } = useApplications();
   const [page, setPage] = useState(1);
   const itemsPerPage = 6;
@@ -88,27 +90,27 @@ export function ApplicationList() {
         ) : (
           <>
             <SummaryCard
-              label="Candidaturas"
+              label={t('applications')}
               value={String(stats.total)}
-              helper="Totais até o momento"
+              helper={t('totalSoFar')}
               icon={<BriefcaseBusiness className="h-4 w-4" />}
             />
             <SummaryCard
-              label="Ativas"
+              label={t('active')}
               value={String(stats.active)}
-              helper="No momento"
+              helper={t('currently')}
               icon={<Activity className="h-4 w-4" />}
             />
             <SummaryCard
-              label="Pré Aprovações"
+              label={t('preApprovals')}
               value={String(stats.shortlisted)}
-              helper="Até o momento"
+              helper={t('soFar')}
               icon={<CircleCheckBig className="h-4 w-4" />}
             />
             <SummaryCard
-              label="Encerradas"
+              label={t('closed')}
               value={String(stats.rejected)}
-              helper="Até o momento"
+              helper={t('soFar')}
               icon={<XCircle className="h-4 w-4" />}
             />
           </>
@@ -126,7 +128,7 @@ export function ApplicationList() {
         </div>
       ) : applications.length === 0 ? (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6 backdrop-blur">
-          <EmptyState message="Você ainda não se candidatou a nenhuma vaga!" />
+          <EmptyState message={t('empty')} />
         </div>
       ) : (
         <>

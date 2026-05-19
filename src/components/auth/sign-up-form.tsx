@@ -1,9 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useTranslations } from 'next-intl';
 import {
   FaBirthdayCake,
   FaEnvelope,
@@ -25,6 +24,7 @@ import { useFlashMessage } from '@/contexts/flash-message-context';
 import { TermsOfUseModal } from './terms-of-use-modal';
 import { PrivacyPolicyModal } from './privacy-policy-modal';
 import { ROUTES } from '@/constants/routes';
+import { Link, useRouter } from '@/i18n/navigation';
 
 interface SignUpFormValues extends SignUpRequest {
   acceptedLegalTerms: boolean;
@@ -32,6 +32,7 @@ interface SignUpFormValues extends SignUpRequest {
 
 export function SignUpForm() {
   const router = useRouter();
+  const t = useTranslations('Auth');
   const { flashMessage, showSuccess, showError } = useFlashMessage();
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -61,10 +62,10 @@ export function SignUpForm() {
 
     try {
       await AuthService.signUp(payload);
-      showSuccess('Conta criada com sucesso.');
+      showSuccess(t('signUpSuccess'));
       router.push(`${ROUTES.ACTIVATE_ACCOUNT}?email=${encodeURIComponent(data.email)}`);
     } catch {
-      showError('Não foi possível criar sua conta.');
+      showError(t('signUpError'));
     }
   }
 
@@ -121,11 +122,9 @@ export function SignUpForm() {
       >
         <div className="mb-8">
           <h2 className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-zinc-50">
-            CRIE SUA CONTA
+            {t('signUpTitle')}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-500">
-            Escolha seu perfil e configure o acesso inicial à plataforma.
-          </p>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">{t('signUpDescription')}</p>
         </div>
 
         <div className="space-y-4">
@@ -134,14 +133,14 @@ export function SignUpForm() {
               {[
                 {
                   value: ProductRoleEnum.CANDIDATE,
-                  label: 'Candidato',
-                  description: 'Busque vagas',
+                  label: t('candidate'),
+                  description: t('candidateDescription'),
                   icon: FaUserTie,
                 },
                 {
                   value: ProductRoleEnum.RECRUITER,
-                  label: 'Recrutador',
-                  description: 'Ache candidatos',
+                  label: t('recruiter'),
+                  description: t('recruiterDescription'),
                   icon: FaBuildingUser,
                 },
               ].map(({ value, label, description, icon: RoleIcon }) => {
@@ -204,10 +203,10 @@ export function SignUpForm() {
 
           <Input
             icon={<FaUser />}
-            placeholder="Nome"
+            placeholder={t('name')}
             error={errors.name?.message}
             className="border-zinc-800 bg-black text-zinc-100 placeholder:text-zinc-500"
-            {...register('name', { required: 'Informe seu nome.' })}
+            {...register('name', { required: t('nameRequired') })}
           />
 
           {flashMessage && (
@@ -217,27 +216,27 @@ export function SignUpForm() {
           <Input
             icon={<FaEnvelope />}
             type="email"
-            placeholder="E-mail"
+            placeholder={t('email')}
             error={errors.email?.message}
             className="border-zinc-800 bg-black text-zinc-100 placeholder:text-zinc-500"
-            {...register('email', { required: 'Informe seu e-mail.' })}
+            {...register('email', { required: t('emailRequired') })}
           />
 
           <Input
             icon={<FaLock />}
             type="password"
-            placeholder="Senha"
+            placeholder={t('password')}
             error={errors.password?.message}
             className="border-zinc-800 bg-black text-zinc-100 placeholder:text-zinc-500"
-            {...register('password', { required: 'Informe sua senha.' })}
+            {...register('password', { required: t('passwordRequired') })}
           />
 
           <Input
             icon={<FaBirthdayCake />}
-            {...register('birthday', { required: 'Informe sua data de nascimento.' })}
+            {...register('birthday', { required: t('birthdayRequired') })}
             type="text"
             inputMode="numeric"
-            placeholder="dd/mm/yyyy"
+            placeholder={t('birthday')}
             maxLength={10}
             value={birthdayInput}
             onChange={(event) => handleBirthdayChange(event.target.value)}
@@ -252,21 +251,21 @@ export function SignUpForm() {
               className="mt-0.5 rounded border-zinc-700 bg-black text-lime-500"
             />
             <span>
-              Aceito os{' '}
+              {t('acceptPrefix')}{' '}
               <button
                 type="button"
                 onClick={() => setIsTermsOpen(true)}
                 className="text-lime-400 underline"
               >
-                Termos de Uso
+                {t('terms')}
               </button>{' '}
-              e a{' '}
+              {t('andPrivacy')}{' '}
               <button
                 type="button"
                 onClick={() => setIsPrivacyOpen(true)}
                 className="text-lime-400 underline"
               >
-                Política de Privacidade
+                {t('privacy')}
               </button>
             </span>
           </label>
@@ -279,17 +278,17 @@ export function SignUpForm() {
               disabled={isSubmitting || !acceptedLegalTerms}
               className="w-full rounded-2xl border border-lime-500/30 bg-lime-500/10 py-3 text-lime-300 transition-all duration-300 hover:border-lime-400/40 hover:bg-lime-500/14 hover:text-lime-200 sm:w-auto"
             >
-              Criar cadastro
+              {t('createAccount')}
             </Button>
           </div>
 
           <p className="mt-6 text-center text-sm text-zinc-500">
-            Já tem conta?{' '}
+            {t('hasAccount')}{' '}
             <Link
               href={ROUTES.SIGN_IN}
               className="text-lime-400 transition-colors hover:text-lime-300"
             >
-              Fazer login
+              {t('doLogin')}
             </Link>
           </p>
         </div>

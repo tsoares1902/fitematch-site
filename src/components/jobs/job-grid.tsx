@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { JobCard } from './job-card';
 import { useJobs } from '@/hooks/use-jobs';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,6 +18,7 @@ interface JobGridProps {
 export function JobGrid({ search }: JobGridProps) {
   const { jobs, isLoading, error } = useJobs();
   const breakpoint = useBreakpoint();
+  const t = useTranslations('Jobs');
 
   const [page, setPage] = useState(1);
 
@@ -38,13 +40,15 @@ export function JobGrid({ search }: JobGridProps) {
       .toLowerCase();
   }
 
-  function getLanguageLabel(value: LanguagesEnum) {
-    return {
-      [LanguagesEnum.PORTUGUESE]: 'portugues',
-      [LanguagesEnum.ENGLISH]: 'ingles',
-      [LanguagesEnum.SPANISH]: 'espanhol',
-    }[value];
-  }
+  const getLanguageLabel = useCallback(
+    (value: LanguagesEnum) =>
+      ({
+        [LanguagesEnum.PORTUGUESE]: t('portuguese'),
+        [LanguagesEnum.ENGLISH]: t('english'),
+        [LanguagesEnum.SPANISH]: t('spanish'),
+      })[value],
+    [t],
+  );
 
   const filteredJobs = useMemo(() => {
     const normalizedSearch = normalizeSearchValue(search.trim());
@@ -72,7 +76,7 @@ export function JobGrid({ search }: JobGridProps) {
 
       return searchableTerms.some((term) => term.includes(normalizedSearch));
     });
-  }, [jobs, search]);
+  }, [getLanguageLabel, jobs, search]);
 
   const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
   const safePage = totalPages > 0 ? Math.min(page, totalPages) : 1;
@@ -102,7 +106,7 @@ export function JobGrid({ search }: JobGridProps) {
         </div>
       ) : filteredJobs.length === 0 ? (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6 backdrop-blur">
-          <EmptyState message="Nenhuma vaga encontrada." />
+          <EmptyState message={t('empty')} />
         </div>
       ) : (
         <>

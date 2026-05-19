@@ -1,11 +1,11 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/hooks/use-auth';
 import { ProductRoleEnum } from '@/types/entities/user.entity';
 import { PageLoading } from '@/components/ui/page-loading';
+import { useRouter } from '@/i18n/navigation';
 
 interface RoleRouteProps {
   children: ReactNode;
@@ -13,16 +13,11 @@ interface RoleRouteProps {
   redirectTo?: string;
 }
 
-export function RoleRoute({
-  children,
-  allowedRoles,
-  redirectTo = ROUTES.PROFILE,
-}: RoleRouteProps) {
+export function RoleRoute({ children, allowedRoles, redirectTo = ROUTES.PROFILE }: RoleRouteProps) {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
 
-  const hasAllowedRole =
-    Boolean(user?.productRole) && allowedRoles.includes(user!.productRole);
+  const hasAllowedRole = Boolean(user?.productRole) && allowedRoles.includes(user!.productRole);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

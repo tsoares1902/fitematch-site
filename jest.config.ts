@@ -18,12 +18,15 @@ const config: Config = {
     '^.+\\.mjs$': 'babel-jest',
   },
   moduleNameMapper: {
+    '^next-intl$': '<rootDir>/src/tests/mocks/next-intl.ts',
+    '^next-intl/navigation$': '<rootDir>/src/tests/mocks/next-intl-navigation.tsx',
+    '^next-intl/routing$': '<rootDir>/src/tests/mocks/next-intl-routing.ts',
+    '^@/i18n/navigation$': '<rootDir>/src/tests/mocks/i18n-navigation.tsx',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^rettime$': '<rootDir>/node_modules/rettime/src/index.ts',
   },
-  transformIgnorePatterns: [
-    '/node_modules/(?!(msw|@mswjs|until-async|rettime)/)',
-  ],
+  transformIgnorePatterns: ['/node_modules/(?!(msw|@mswjs|until-async|rettime)/)'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
   coverageDirectory: '<rootDir>/coverage',
   collectCoverageFrom: [

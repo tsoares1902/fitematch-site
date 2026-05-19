@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { FaApple } from 'react-icons/fa';
 import { IoLogoAndroid } from 'react-icons/io';
 import { BrainCircuit, ShieldCheck } from 'lucide-react';
@@ -8,37 +9,37 @@ import { BrainCircuit, ShieldCheck } from 'lucide-react';
 const FEATURES = [
   {
     icon: BrainCircuit,
-    title: 'Inteligência',
-    description: 'Veja detalhes do candidato para ter certeza do match.',
+    titleKey: 'featureIntelligenceTitle',
+    descriptionKey: 'featureIntelligenceDescription',
   },
   {
     icon: ShieldCheck,
-    title: 'Confiabilidade',
-    description: 'Todas as empresas são verificadas para garantir autenticidade.',
+    titleKey: 'featureTrustTitle',
+    descriptionKey: 'featureTrustDescription',
   },
   {
     icon: IoLogoAndroid,
-    title: 'App Android',
-    description: 'Baixe o aplicativo para Android na Google Play.',
+    titleKey: 'featureAndroidTitle',
+    descriptionKey: 'featureAndroidDescription',
   },
   {
     icon: FaApple,
-    title: 'App iOS',
-    description: 'Baixe o aplicativo para iOS na App Store.',
+    titleKey: 'featureIosTitle',
+    descriptionKey: 'featureIosDescription',
   },
 ];
 
 export function HomeFeatures() {
+  const t = useTranslations('Home');
+
   return (
     <section className="border-t border-zinc-900 bg-black py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
           <p className="text-sm font-medium uppercase tracking-[0.26em] text-lime-400">
-            Funcionalidades
+            {t('featuresTitle')}
           </p>
-          <p className="mt-5 text-lg leading-8 text-zinc-400">
-            Recrutadores buscam candidatos que buscam vagas e nós damos o match.
-          </p>
+          <p className="mt-5 text-lg leading-8 text-zinc-400">{t('featuresDescription')}</p>
         </div>
 
         <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -47,7 +48,7 @@ export function HomeFeatures() {
 
             return (
               <motion.div
-                key={feature.title}
+                key={feature.titleKey}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
@@ -58,9 +59,9 @@ export function HomeFeatures() {
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-lime-500/20 bg-lime-500/10 text-lime-400">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="text-xl font-semibold text-zinc-50">{feature.title}</h3>
+                  <h3 className="text-xl font-semibold text-zinc-50">{t(feature.titleKey)}</h3>
                 </div>
-                <p className="mt-4 text-sm leading-7 text-zinc-400">{feature.description}</p>
+                <p className="mt-4 text-sm leading-7 text-zinc-400">{t(feature.descriptionKey)}</p>
               </motion.div>
             );
           })}

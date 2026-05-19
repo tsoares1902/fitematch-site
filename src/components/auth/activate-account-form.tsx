@@ -1,9 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { FaCheckCircle, FaEnvelope, FaKey } from 'react-icons/fa';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InlineFlashMessage } from '@/components/ui/inline-flash-message';
@@ -11,9 +10,11 @@ import { ROUTES } from '@/constants/routes';
 import { AuthService } from '@/services/auth/auth.service';
 import { ActivateAccountRequest } from '@/services/auth/auth.types';
 import { useFlashMessage } from '@/contexts/flash-message-context';
+import { Link, useRouter } from '@/i18n/navigation';
 
 export function ActivateAccountForm() {
   const router = useRouter();
+  const t = useTranslations('Auth');
   const { flashMessage, showSuccess, showError } = useFlashMessage();
 
   const {
@@ -25,10 +26,10 @@ export function ActivateAccountForm() {
   async function onSubmit(data: ActivateAccountRequest) {
     try {
       await AuthService.activateAccount(data);
-      showSuccess('Conta ativada com sucesso.');
+      showSuccess(t('activateAccountSuccess'));
       router.push(ROUTES.SIGN_IN);
     } catch {
-      showError('Não foi possível ativar sua conta.');
+      showError(t('activateAccountError'));
     }
   }
 
@@ -39,11 +40,9 @@ export function ActivateAccountForm() {
     >
       <div className="mb-8">
         <h2 className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-zinc-50 uppercase">
-          Ativar conta
+          {t('activateAccount')}
         </h2>
-        <p className="mt-2 text-sm leading-6 text-zinc-500">
-          Informe o e-mail e o código recebido para ativar.
-        </p>
+        <p className="mt-2 text-sm leading-6 text-zinc-500">{t('activateAccountDescription')}</p>
       </div>
 
       <div className="space-y-4">
@@ -54,24 +53,24 @@ export function ActivateAccountForm() {
         <Input
           icon={<FaEnvelope />}
           type="email"
-          placeholder="E-mail"
+          placeholder={t('email')}
           error={errors.email?.message}
           className="border-zinc-800 bg-black text-zinc-100 placeholder:text-zinc-500"
           {...register('email', {
-            required: 'Informe seu e-mail.',
+            required: t('emailRequired'),
           })}
         />
 
         <Input
           icon={<FaKey />}
-          placeholder="Código de ativação"
+          placeholder={t('activationCode')}
           error={errors.code?.message}
           className="border-zinc-800 bg-black text-zinc-100 placeholder:text-zinc-500"
           {...register('code', {
-            required: 'Informe o código de ativação.',
+            required: t('activationCodeRequired'),
             minLength: {
               value: 6,
-              message: 'O código deve ter 6 dígitos.',
+              message: t('activationCodeLength'),
             },
           })}
         />
@@ -85,17 +84,17 @@ export function ActivateAccountForm() {
           disabled={isSubmitting}
           className="w-full rounded-2xl border border-lime-500/30 bg-lime-500/10 py-3 text-lime-300 transition-all duration-300 hover:border-lime-400/40 hover:bg-lime-500/14 hover:text-lime-200 sm:w-auto"
         >
-          Ativar conta
+          {t('activateAccount')}
         </Button>
       </div>
 
       <p className="mt-6 text-center text-sm text-zinc-500">
-        Precisa de um novo código?{' '}
+        {t('needNewCode')}{' '}
         <Link
           href={ROUTES.ACTIVATION_CODE}
           className="text-lime-400 transition-colors hover:text-lime-300"
         >
-          Solicitar novamente
+          {t('requestAgain')}
         </Link>
       </p>
     </form>

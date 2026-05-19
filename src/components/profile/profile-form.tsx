@@ -3,6 +3,7 @@
 import { type ComponentType, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { Save } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   FaGlobeAmericas,
   FaPassport,
@@ -49,7 +50,9 @@ import { RecruiterProfileForm } from '@/components/profile/recruiter-profile-for
 import { ProfileSectionTitle } from '@/components/profile/profile-section-title';
 import { PhoneInput } from '@/components/form/phone-input';
 
-function formatBirthday(value?: string | Date) {
+type ProfileTranslator = ReturnType<typeof useTranslations>;
+
+function formatBirthday(value?: string | Date, locale = 'pt-BR') {
   if (!value) {
     return '';
   }
@@ -64,62 +67,62 @@ function formatBirthday(value?: string | Date) {
     return String(value);
   }
 
-  return date.toLocaleDateString('pt-BR');
+  return date.toLocaleDateString(locale);
 }
 
-function getEthnicityLabel(value: EthnicityTypeEnum) {
+function getEthnicityLabel(value: EthnicityTypeEnum, t: ProfileTranslator) {
   return {
-    [EthnicityTypeEnum.INDIGENOUS]: 'Indígena',
-    [EthnicityTypeEnum.WHITE]: 'Branca',
-    [EthnicityTypeEnum.BLACK]: 'Preta',
-    [EthnicityTypeEnum.BROWN]: 'Parda',
-    [EthnicityTypeEnum.ASIAN]: 'Amarela',
-    [EthnicityTypeEnum.OTHER]: 'Outra',
+    [EthnicityTypeEnum.INDIGENOUS]: t('ethnicityIndigenous'),
+    [EthnicityTypeEnum.WHITE]: t('ethnicityWhite'),
+    [EthnicityTypeEnum.BLACK]: t('ethnicityBlack'),
+    [EthnicityTypeEnum.BROWN]: t('ethnicityBrown'),
+    [EthnicityTypeEnum.ASIAN]: t('ethnicityAsian'),
+    [EthnicityTypeEnum.OTHER]: t('other'),
   }[value];
 }
 
-function getGenderIdentityLabel(value: GenderIdentityEnum) {
+function getGenderIdentityLabel(value: GenderIdentityEnum, t: ProfileTranslator) {
   return {
-    [GenderIdentityEnum.MALE]: 'Masculino',
-    [GenderIdentityEnum.FEMALE]: 'Feminino',
-    [GenderIdentityEnum.NON_BINARY]: 'Não binário',
-    [GenderIdentityEnum.TRANS_MALE]: 'Homem trans',
-    [GenderIdentityEnum.TRANS_FEMALE]: 'Mulher trans',
-    [GenderIdentityEnum.AGENDER]: 'Agênero',
-    [GenderIdentityEnum.GENDERFLUID]: 'Gênero fluido',
-    [GenderIdentityEnum.GENDERQUEER]: 'Genderqueer',
-    [GenderIdentityEnum.INTERSEX]: 'Intersexo',
-    [GenderIdentityEnum.OTHER]: 'Outro',
-    [GenderIdentityEnum.PREFER_NOT_TO_SAY]: 'Prefiro não informar',
+    [GenderIdentityEnum.MALE]: t('genderMale'),
+    [GenderIdentityEnum.FEMALE]: t('genderFemale'),
+    [GenderIdentityEnum.NON_BINARY]: t('genderNonBinary'),
+    [GenderIdentityEnum.TRANS_MALE]: t('genderTransMale'),
+    [GenderIdentityEnum.TRANS_FEMALE]: t('genderTransFemale'),
+    [GenderIdentityEnum.AGENDER]: t('genderAgender'),
+    [GenderIdentityEnum.GENDERFLUID]: t('genderFluid'),
+    [GenderIdentityEnum.GENDERQUEER]: t('genderQueer'),
+    [GenderIdentityEnum.INTERSEX]: t('genderIntersex'),
+    [GenderIdentityEnum.OTHER]: t('other'),
+    [GenderIdentityEnum.PREFER_NOT_TO_SAY]: t('preferNotToSay'),
   }[value];
 }
 
-function getSexualOrientationLabel(value: SexualOrientationEnum) {
+function getSexualOrientationLabel(value: SexualOrientationEnum, t: ProfileTranslator) {
   return {
-    [SexualOrientationEnum.HETEROSEXUAL]: 'Heterossexual',
-    [SexualOrientationEnum.HOMOSEXUAL]: 'Homossexual',
-    [SexualOrientationEnum.LESBIAN]: 'Lésbica',
-    [SexualOrientationEnum.GAY]: 'Gay',
-    [SexualOrientationEnum.BISEXUAL]: 'Bissexual',
-    [SexualOrientationEnum.PANSEXUAL]: 'Pansexual',
-    [SexualOrientationEnum.ASEXUAL]: 'Assexual',
-    [SexualOrientationEnum.DEMISEXUAL]: 'Demissexual',
-    [SexualOrientationEnum.QUEER]: 'Queer',
-    [SexualOrientationEnum.QUESTIONING]: 'Questionando',
-    [SexualOrientationEnum.OTHER]: 'Outra',
-    [SexualOrientationEnum.PREFER_NOT_TO_SAY]: 'Prefiro não informar',
+    [SexualOrientationEnum.HETEROSEXUAL]: t('orientationHeterosexual'),
+    [SexualOrientationEnum.HOMOSEXUAL]: t('orientationHomosexual'),
+    [SexualOrientationEnum.LESBIAN]: t('orientationLesbian'),
+    [SexualOrientationEnum.GAY]: t('orientationGay'),
+    [SexualOrientationEnum.BISEXUAL]: t('orientationBisexual'),
+    [SexualOrientationEnum.PANSEXUAL]: t('orientationPansexual'),
+    [SexualOrientationEnum.ASEXUAL]: t('orientationAsexual'),
+    [SexualOrientationEnum.DEMISEXUAL]: t('orientationDemisexual'),
+    [SexualOrientationEnum.QUEER]: t('orientationQueer'),
+    [SexualOrientationEnum.QUESTIONING]: t('orientationQuestioning'),
+    [SexualOrientationEnum.OTHER]: t('other'),
+    [SexualOrientationEnum.PREFER_NOT_TO_SAY]: t('preferNotToSay'),
   }[value];
 }
 
-function getAvailabilityShiftLabel(value: AvailabilityShiftEnum) {
+function getAvailabilityShiftLabel(value: AvailabilityShiftEnum, t: ProfileTranslator) {
   return {
-    [AvailabilityShiftEnum.EARLY_MORNING]: 'Madrugada',
-    [AvailabilityShiftEnum.MORNING]: 'Manhã',
-    [AvailabilityShiftEnum.AFTERNOON]: 'Tarde',
-    [AvailabilityShiftEnum.EVENING]: 'Noite',
-    [AvailabilityShiftEnum.NIGHT]: 'Madrugada (tarde)',
-    [AvailabilityShiftEnum.FULL_DAY]: 'Dia inteiro',
-    [AvailabilityShiftEnum.FLEXIBLE]: 'Flexível',
+    [AvailabilityShiftEnum.EARLY_MORNING]: t('earlyMorning'),
+    [AvailabilityShiftEnum.MORNING]: t('morning'),
+    [AvailabilityShiftEnum.AFTERNOON]: t('afternoon'),
+    [AvailabilityShiftEnum.EVENING]: t('evening'),
+    [AvailabilityShiftEnum.NIGHT]: t('night'),
+    [AvailabilityShiftEnum.FULL_DAY]: t('fullDay'),
+    [AvailabilityShiftEnum.FLEXIBLE]: t('flexible'),
   }[value];
 }
 
@@ -137,21 +140,21 @@ function hasValue(value: unknown) {
 
 const candidateProfileSections: Array<{
   id: string;
-  title: string;
+  titleKey: string;
   icon: ComponentType<{ className?: string }>;
 }> = [
-  { id: 'dados-basicos', title: 'Dados Básicos', icon: GrDocumentText },
-  { id: 'telefone', title: 'Telefone', icon: FaPhoneSquare },
-  { id: 'endereco', title: 'Endereço', icon: MdOutlinePlace },
-  { id: 'documentos', title: 'Documentos', icon: FaPassport },
-  { id: 'midia', title: 'Mídia', icon: BsFiles },
-  { id: 'etnia', title: 'Etnia', icon: FaGlobeAmericas },
-  { id: 'diversidade', title: 'Diversidade', icon: MdDiversity2 },
-  { id: 'atributos-fisicos', title: 'Atributos Físicos', icon: GiBodyHeight },
-  { id: 'uniforme', title: 'Uniforme', icon: GiBodySwapping },
-  { id: 'formacao', title: 'Formação', icon: GiGraduateCap },
-  { id: 'experiencias-profissionais', title: 'Experiências Profissionais', icon: GrCertificate },
-  { id: 'disponibilidade', title: 'Disponibilidade', icon: MdEventAvailable },
+  { id: 'dados-basicos', titleKey: 'basicData', icon: GrDocumentText },
+  { id: 'telefone', titleKey: 'phone', icon: FaPhoneSquare },
+  { id: 'endereco', titleKey: 'address', icon: MdOutlinePlace },
+  { id: 'documentos', titleKey: 'documents', icon: FaPassport },
+  { id: 'midia', titleKey: 'media', icon: BsFiles },
+  { id: 'etnia', titleKey: 'ethnicity', icon: FaGlobeAmericas },
+  { id: 'diversidade', titleKey: 'diversity', icon: MdDiversity2 },
+  { id: 'atributos-fisicos', titleKey: 'physicalAttributes', icon: GiBodyHeight },
+  { id: 'uniforme', titleKey: 'uniform', icon: GiBodySwapping },
+  { id: 'formacao', titleKey: 'education', icon: GiGraduateCap },
+  { id: 'experiencias-profissionais', titleKey: 'professionalExperiences', icon: GrCertificate },
+  { id: 'disponibilidade', titleKey: 'availability', icon: MdEventAvailable },
 ];
 
 type CandidateProfileSectionId =
@@ -249,6 +252,8 @@ export function ProfileForm() {
 }
 
 export function CandidateProfileForm() {
+  const t = useTranslations('Profile');
+  const locale = useLocale();
   const { user, updateMe } = useAuth();
   const { showSuccess, showError } = useFlashMessage();
   const {
@@ -261,15 +266,15 @@ export function CandidateProfileForm() {
   const courseTypeOptions = Object.values(CourseTypeEnum).map((value) => ({
     value,
     label: {
-      [CourseTypeEnum.HIGH_SCHOOL]: 'Ensino Médio',
-      [CourseTypeEnum.TECHNICAL]: 'Técnico',
-      [CourseTypeEnum.TECHNOLOGIST]: 'Tecnólogo',
-      [CourseTypeEnum.BACHELOR]: 'Bacharelado',
-      [CourseTypeEnum.LICENTIATE]: 'Licenciatura',
-      [CourseTypeEnum.POSTGRADUATE]: 'Pós-graduação',
-      [CourseTypeEnum.MASTER]: 'Mestrado',
-      [CourseTypeEnum.DOCTORATE]: 'Doutorado',
-      [CourseTypeEnum.OTHER]: 'Outro',
+      [CourseTypeEnum.HIGH_SCHOOL]: t('courseHighSchool'),
+      [CourseTypeEnum.TECHNICAL]: t('courseTechnical'),
+      [CourseTypeEnum.TECHNOLOGIST]: t('courseTechnologist'),
+      [CourseTypeEnum.BACHELOR]: t('courseBachelor'),
+      [CourseTypeEnum.LICENTIATE]: t('courseLicentiate'),
+      [CourseTypeEnum.POSTGRADUATE]: t('coursePostgraduate'),
+      [CourseTypeEnum.MASTER]: t('courseMaster'),
+      [CourseTypeEnum.DOCTORATE]: t('courseDoctorate'),
+      [CourseTypeEnum.OTHER]: t('other'),
     }[value],
   }));
   const savedProfileCompletionBySection = useMemo(
@@ -546,12 +551,12 @@ export function CandidateProfileForm() {
 
   function handleSaveEducation() {
     if (!educationDraft.courseName.trim() || !educationDraft.institution.trim()) {
-      showError('Preencha curso e instituição para salvar a formação.');
+      showError(t('educationRequired'));
       return;
     }
 
     if (!educationDraft.courseType) {
-      showError('Selecione o tipo de curso para salvar a formação.');
+      showError(t('courseTypeRequired'));
       return;
     }
 
@@ -573,8 +578,8 @@ export function CandidateProfileForm() {
           educations: nextEducations,
         },
       },
-      'Formação salva com sucesso.',
-      'Não foi possível salvar a formação.',
+      t('educationSaveSuccess'),
+      t('educationSaveError'),
     ).then((saved) => {
       if (!saved) {
         return;
@@ -590,7 +595,7 @@ export function CandidateProfileForm() {
 
   function handleSaveExperience() {
     if (!experienceDraft.companyName.trim() || !experienceDraft.role.trim()) {
-      showError('Preencha empresa e cargo para salvar a experiência profissional.');
+      showError(t('experienceRequired'));
       return;
     }
 
@@ -614,8 +619,8 @@ export function CandidateProfileForm() {
           professionalExperiences: nextExperiences,
         },
       },
-      'Experiência profissional salva com sucesso.',
-      'Não foi possível salvar a experiência profissional.',
+      t('experienceSaveSuccess'),
+      t('experienceSaveError'),
     ).then((saved) => {
       if (!saved) {
         return;
@@ -632,8 +637,8 @@ export function CandidateProfileForm() {
   function handleSaveBasic() {
     void submitCandidateUpdate(
       { name: getValues('name') },
-      'Dados básicos atualizados com sucesso.',
-      'Não foi possível atualizar os dados básicos.',
+      t('basicDataSuccess'),
+      t('basicDataError'),
     ).then((saved) => {
       if (saved && [getValues('name'), user?.email, user?.birthday].every(hasValue)) {
         markSectionComplete('dados-basicos');
@@ -658,8 +663,8 @@ export function CandidateProfileForm() {
           },
         },
       },
-      'Telefone atualizado com sucesso.',
-      'Não foi possível atualizar o telefone.',
+      t('phoneSuccess'),
+      t('phoneError'),
     ).then((saved) => {
       if (saved && [phone?.country, phone?.number].every(hasValue)) {
         markSectionComplete('telefone');
@@ -725,8 +730,8 @@ export function CandidateProfileForm() {
           documents: nextDocuments,
         },
       },
-      'Documentos atualizados com sucesso.',
-      'Não foi possível atualizar os documentos.',
+      t('documentsSuccess'),
+      t('documentsError'),
     ).then((saved) => {
       if (saved && hasValue(cpf?.number)) {
         markSectionComplete('documentos');
@@ -758,8 +763,8 @@ export function CandidateProfileForm() {
           },
         },
       },
-      'Endereço atualizado com sucesso.',
-      'Não foi possível atualizar o endereço.',
+      t('addressSuccess'),
+      t('addressError'),
     ).then((saved) => {
       if (
         saved &&
@@ -791,8 +796,8 @@ export function CandidateProfileForm() {
           },
         },
       },
-      'Currículo atualizado com sucesso.',
-      'Não foi possível atualizar o currículo.',
+      t('resumeSuccess'),
+      t('resumeError'),
     ).then((saved) => {
       if (saved && hasValue(resumeUrl)) {
         markSectionComplete('midia');
@@ -811,8 +816,8 @@ export function CandidateProfileForm() {
           ethnicity,
         },
       },
-      'Etnia atualizada com sucesso.',
-      'Não foi possível atualizar a etnia.',
+      t('ethnicitySuccess'),
+      t('ethnicityError'),
     ).then((saved) => {
       if (saved && hasValue(ethnicity)) {
         markSectionComplete('etnia');
@@ -837,8 +842,8 @@ export function CandidateProfileForm() {
           ...(Object.keys(nextDiversity).length > 0 ? { diversity: nextDiversity } : {}),
         },
       },
-      'Diversidade atualizada com sucesso.',
-      'Não foi possível atualizar a diversidade.',
+      t('diversitySuccess'),
+      t('diversityError'),
     ).then((saved) => {
       if (saved && [diversity?.genderIdentity, diversity?.sexualOrientation].every(hasValue)) {
         markSectionComplete('diversidade');
@@ -867,8 +872,8 @@ export function CandidateProfileForm() {
             : {}),
         },
       },
-      'Atributos físicos atualizados com sucesso.',
-      'Não foi possível atualizar os atributos físicos.',
+      t('physicalAttributesSuccess'),
+      t('physicalAttributesError'),
     ).then((saved) => {
       if (saved && [physicalAttributes?.height, physicalAttributes?.weight].every(hasValue)) {
         markSectionComplete('atributos-fisicos');
@@ -883,7 +888,7 @@ export function CandidateProfileForm() {
     const hasShoeSize = uniform?.shoeSize || uniform?.shoeSize === 0;
 
     if (hasShoeUnit !== Boolean(hasShoeSize)) {
-      showError('Unidade do calçado e tamanho do calçado devem ser informados juntos.');
+      showError(t('shoeSizePairError'));
       return;
     }
 
@@ -903,8 +908,8 @@ export function CandidateProfileForm() {
           ...(Object.keys(nextUniform).length > 0 ? { uniform: nextUniform } : {}),
         },
       },
-      'Uniforme atualizado com sucesso.',
-      'Não foi possível atualizar o uniforme.',
+      t('uniformSuccess'),
+      t('uniformError'),
     ).then((saved) => {
       if (
         saved &&
@@ -933,8 +938,8 @@ export function CandidateProfileForm() {
           availability,
         },
       },
-      'Disponibilidade atualizada com sucesso.',
-      'Não foi possível atualizar a disponibilidade.',
+      t('availabilitySuccess'),
+      t('availabilityError'),
     ).then((saved) => {
       if (saved && availability.length > 0) {
         markSectionComplete('disponibilidade');
@@ -964,8 +969,8 @@ export function CandidateProfileForm() {
           educations: nextEducations,
         },
       },
-      'Formação apagada com sucesso.',
-      'Não foi possível apagar a formação.',
+      t('educationDeleteSuccess'),
+      t('educationDeleteError'),
     ).then((saved) => {
       if (!saved) {
         return;
@@ -1001,8 +1006,8 @@ export function CandidateProfileForm() {
           professionalExperiences: nextExperiences,
         },
       },
-      'Experiência profissional apagada com sucesso.',
-      'Não foi possível apagar a experiência profissional.',
+      t('experienceDeleteSuccess'),
+      t('experienceDeleteError'),
     ).then((saved) => {
       if (!saved) {
         return;
@@ -1028,7 +1033,7 @@ export function CandidateProfileForm() {
 
             return (
               <a
-                key={section.title}
+                key={section.titleKey}
                 href={`#${section.id}`}
                 className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-300 hover:bg-white/[0.03] ${
                   isComplete
@@ -1037,7 +1042,7 @@ export function CandidateProfileForm() {
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                <span>{section.title}</span>
+                <span>{t(section.titleKey)}</span>
               </a>
             );
           })}
@@ -1046,7 +1051,7 @@ export function CandidateProfileForm() {
 
       <div id="dados-basicos" className={getSectionBoxClassName('dados-basicos')}>
         <ProfileSectionTitle
-          title="Dados Básicos"
+          title={t('basicData')}
           icon={GrDocumentText}
           onIconClick={() => setShowBasic((v) => !v)}
           iconClickable
@@ -1058,27 +1063,27 @@ export function CandidateProfileForm() {
         {showBasic && (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Input
-              label="Nome"
+              label={t('name')}
               labelClassName={labelClassName}
               className={fieldClassName}
-              placeholder="Nome"
+              placeholder={t('name')}
               {...register('name')}
             />
             <div className="hidden md:block" />
             <Input
-              label="E-mail"
+              label={t('email')}
               labelClassName={labelClassName}
               className={fieldClassName}
-              placeholder="E-mail"
+              placeholder={t('email')}
               value={user?.email || ''}
               disabled
             />
             <Input
-              label="Data de nascimento"
+              label={t('birthday')}
               labelClassName={labelClassName}
               className={fieldClassName}
-              placeholder="Data de nascimento"
-              value={formatBirthday(user?.birthday)}
+              placeholder={t('birthday')}
+              value={formatBirthday(user?.birthday, locale)}
               disabled
             />
             <div className="flex justify-end md:col-span-2">
@@ -1090,7 +1095,7 @@ export function CandidateProfileForm() {
                 onClick={handleSaveBasic}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -1098,7 +1103,7 @@ export function CandidateProfileForm() {
       </div>
       <div id="telefone" className={getSectionBoxClassName('telefone')}>
         <ProfileSectionTitle
-          title="Telefone"
+          title={t('phone')}
           icon={FaPhoneSquare}
           onIconClick={() => setShowPhone((v) => !v)}
           iconClickable
@@ -1111,7 +1116,7 @@ export function CandidateProfileForm() {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div>
               <PhoneInput
-                label="Telefone"
+                label={t('phone')}
                 labelClassName={labelClassName}
                 countryValue={phoneCountryValue || '+55'}
                 numberValue={phoneNumberValue || ''}
@@ -1160,7 +1165,7 @@ export function CandidateProfileForm() {
                 onClick={handleSavePhone}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -1169,7 +1174,7 @@ export function CandidateProfileForm() {
 
       <div id="endereco" className={getSectionBoxClassName('endereco')}>
         <ProfileSectionTitle
-          title="Endereço"
+          title={t('address')}
           icon={MdOutlinePlace}
           onIconClick={() => setShowAddress((v) => !v)}
           iconClickable
@@ -1182,7 +1187,7 @@ export function CandidateProfileForm() {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="grid gap-4 md:grid-cols-2">
               <Input
-                label="CEP"
+                label={t('zipCode')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
                 placeholder="01310-100"
@@ -1201,7 +1206,7 @@ export function CandidateProfileForm() {
             <div className="hidden md:block" />
             {isZipCodeLoading && (
               <div className="md:col-span-2">
-                <p className="text-sm text-zinc-400">Consultando CEP...</p>
+                <p className="text-sm text-zinc-400">{t('checkingZipCode')}</p>
               </div>
             )}
             {zipCodeError && (
@@ -1211,7 +1216,7 @@ export function CandidateProfileForm() {
             )}
 
             <Input
-              label="Rua"
+              label={t('street')}
               labelClassName={labelClassName}
               className={fieldClassName}
               placeholder="Avenida Paulista"
@@ -1219,14 +1224,14 @@ export function CandidateProfileForm() {
             />
             <div className="grid gap-4 md:grid-cols-2">
               <Input
-                label="Número"
+                label={t('number')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
                 placeholder="1578"
                 {...register('candidateProfile.contacts.address.number')}
               />
               <Input
-                label="Complemento"
+                label={t('complement')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
                 placeholder="Conjunto 201"
@@ -1236,45 +1241,45 @@ export function CandidateProfileForm() {
 
             <div className="contents md:hidden">
               <Input
-                label="Bairro"
+                label={t('neighborhood')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
-                placeholder="Bairro"
+                placeholder={t('neighborhood')}
                 {...register('candidateProfile.contacts.address.neighborhood')}
               />
               <Input
-                label="Cidade"
+                label={t('city')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
-                placeholder="Cidade"
+                placeholder={t('city')}
                 {...register('candidateProfile.contacts.address.city')}
               />
               <Input
-                label="Estado"
+                label={t('state')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
-                placeholder="Estado"
+                placeholder={t('state')}
                 {...register('candidateProfile.contacts.address.state')}
               />
               <Input
-                label="País"
+                label={t('country')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
-                placeholder="País"
+                placeholder={t('country')}
                 {...register('candidateProfile.contacts.address.country')}
               />
             </div>
             <div className="hidden gap-4 md:grid md:grid-cols-2 md:col-span-2">
               <div className="grid gap-4 grid-cols-2">
                 <Input
-                  label="Bairro"
+                  label={t('neighborhood')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="Bela Vista"
                   {...register('candidateProfile.contacts.address.neighborhood')}
                 />
                 <Input
-                  label="Cidade"
+                  label={t('city')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="São Paulo"
@@ -1283,14 +1288,14 @@ export function CandidateProfileForm() {
               </div>
               <div className="grid gap-4 grid-cols-2">
                 <Input
-                  label="Estado"
+                  label={t('state')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="SP"
                   {...register('candidateProfile.contacts.address.state')}
                 />
                 <Input
-                  label="País"
+                  label={t('country')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="Brasil"
@@ -1308,7 +1313,7 @@ export function CandidateProfileForm() {
                 onClick={handleSaveAddress}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -1317,7 +1322,7 @@ export function CandidateProfileForm() {
 
       <div id="documentos" className={getSectionBoxClassName('documentos')}>
         <ProfileSectionTitle
-          title="Documentos"
+          title={t('documents')}
           icon={FaPassport}
           onIconClick={() => setShowContacts((v) => !v)}
           iconClickable
@@ -1332,7 +1337,7 @@ export function CandidateProfileForm() {
               <h3 className={nestedSectionTitleClassName}>RG</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
-                  label="Número"
+                  label={t('number')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="45.678.901-2"
@@ -1340,14 +1345,14 @@ export function CandidateProfileForm() {
                 />
                 <div className="hidden md:block" />
                 <Input
-                  label="Órgão Emissor"
+                  label={t('issuingAgency')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="SSP-SP"
                   {...register('candidateProfile.documents.rg.issuer')}
                 />
                 <Input
-                  label="Estado Emissor"
+                  label={t('issuingState')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="SP"
@@ -1360,7 +1365,7 @@ export function CandidateProfileForm() {
               <h3 className={nestedSectionTitleClassName}>CPF</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
-                  label="Número"
+                  label={t('number')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="123.456.789-00"
@@ -1379,7 +1384,7 @@ export function CandidateProfileForm() {
                     className="h-4 w-4 accent-lime-400"
                     {...register('candidateProfile.documents.cref.isActive')}
                   />
-                  <span>Ativo</span>
+                  <span>{t('active')}</span>
                 </label>
                 <div className="hidden md:block" />
                 <Input
@@ -1390,7 +1395,7 @@ export function CandidateProfileForm() {
                   {...register('candidateProfile.documents.cref.number')}
                 />
                 <Input
-                  label="Categoria CREF"
+                  label={t('crefCategory')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="Provisório"
@@ -1400,10 +1405,10 @@ export function CandidateProfileForm() {
             </div>
 
             <div className={nestedCardClassName}>
-              <h3 className={nestedSectionTitleClassName}>Passaporte</h3>
+              <h3 className={nestedSectionTitleClassName}>{t('passport')}</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
-                  label="Código"
+                  label={t('code')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="AB123456"
@@ -1411,14 +1416,14 @@ export function CandidateProfileForm() {
                 />
                 <div className="hidden md:block" />
                 <Input
-                  label="País"
+                  label={t('country')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="Brasil"
                   {...register('candidateProfile.documents.passport.country')}
                 />
                 <Input
-                  label="Validade"
+                  label={t('expiration')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   placeholder="10/12/2030"
@@ -1435,7 +1440,7 @@ export function CandidateProfileForm() {
                 onClick={handleSaveDocuments}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -1444,7 +1449,7 @@ export function CandidateProfileForm() {
 
       <div id="midia" className={getSectionBoxClassName('midia')}>
         <ProfileSectionTitle
-          title="Mídia"
+          title={t('media')}
           icon={BsFiles}
           onIconClick={() => setShowMedia((v) => !v)}
           iconClickable
@@ -1457,7 +1462,7 @@ export function CandidateProfileForm() {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
               <FileUpload
-                label="Currículo em PDF"
+                label={t('resumePdf')}
                 accept=".pdf,application/pdf"
                 value={resumeUrlValue}
                 onUpload={async (file) => {
@@ -1483,7 +1488,7 @@ export function CandidateProfileForm() {
                 onClick={handleSaveMedia}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -1492,7 +1497,7 @@ export function CandidateProfileForm() {
 
       <div id="etnia" className={getSectionBoxClassName('etnia')}>
         <ProfileSectionTitle
-          title="Etnia"
+          title={t('ethnicity')}
           icon={FaGlobeAmericas}
           onIconClick={() => setShowEthnicity((v) => !v)}
           iconClickable
@@ -1504,12 +1509,12 @@ export function CandidateProfileForm() {
         {showEthnicity && (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Select
-              label="Etnia"
+              label={t('ethnicity')}
               labelClassName={labelClassName}
               className={fieldClassName}
               options={Object.values(EthnicityTypeEnum).map((value) => ({
                 value,
-                label: getEthnicityLabel(value),
+                label: getEthnicityLabel(value, t),
               }))}
               {...register('candidateProfile.ethnicity')}
             />
@@ -1523,7 +1528,7 @@ export function CandidateProfileForm() {
                 onClick={handleSaveEthnicity}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -1532,7 +1537,7 @@ export function CandidateProfileForm() {
 
       <div id="diversidade" className={getSectionBoxClassName('diversidade')}>
         <ProfileSectionTitle
-          title="Diversidade"
+          title={t('diversity')}
           icon={MdDiversity2}
           onIconClick={() => setShowDiversity((v) => !v)}
           iconClickable
@@ -1544,22 +1549,22 @@ export function CandidateProfileForm() {
         {showDiversity && (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Select
-              label="Identidade de Gênero"
+              label={t('genderIdentity')}
               labelClassName={labelClassName}
               className={fieldClassName}
               options={Object.values(GenderIdentityEnum).map((value) => ({
                 value,
-                label: getGenderIdentityLabel(value),
+                label: getGenderIdentityLabel(value, t),
               }))}
               {...register('candidateProfile.diversity.genderIdentity')}
             />
             <Select
-              label="Orientação Sexual"
+              label={t('sexualOrientation')}
               labelClassName={labelClassName}
               className={fieldClassName}
               options={Object.values(SexualOrientationEnum).map((value) => ({
                 value,
-                label: getSexualOrientationLabel(value),
+                label: getSexualOrientationLabel(value, t),
               }))}
               {...register('candidateProfile.diversity.sexualOrientation')}
             />
@@ -1572,7 +1577,7 @@ export function CandidateProfileForm() {
                 onClick={handleSaveDiversity}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -1581,7 +1586,7 @@ export function CandidateProfileForm() {
 
       <div id="atributos-fisicos" className={getSectionBoxClassName('atributos-fisicos')}>
         <ProfileSectionTitle
-          title="Atributos Físicos"
+          title={t('physicalAttributes')}
           icon={GiBodyHeight}
           onIconClick={() => setShowPhysicalAttributes((v) => !v)}
           iconClickable
@@ -1594,7 +1599,7 @@ export function CandidateProfileForm() {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div>
               <label className={`mb-1 block text-sm font-medium ${labelClassName}`}>
-                Altura (cm)
+                {t('heightCm')}
               </label>
               <div className="flex items-center gap-3">
                 <button
@@ -1609,7 +1614,7 @@ export function CandidateProfileForm() {
                     )
                   }
                   className={stepperButtonClassName}
-                  aria-label="Diminuir altura"
+                  aria-label={t('decreaseHeight')}
                 >
                   <FiMinusCircle className="h-6 w-6" />
                 </button>
@@ -1640,7 +1645,7 @@ export function CandidateProfileForm() {
                     )
                   }
                   className={stepperButtonClassName}
-                  aria-label="Aumentar altura"
+                  aria-label={t('increaseHeight')}
                 >
                   <FiPlusCircle className="h-6 w-6" />
                 </button>
@@ -1648,7 +1653,7 @@ export function CandidateProfileForm() {
             </div>
             <div>
               <label className={`mb-1 block text-sm font-medium ${labelClassName}`}>
-                Peso (kg)
+                {t('weightKg')}
               </label>
               <div className="flex items-center gap-3">
                 <button
@@ -1663,7 +1668,7 @@ export function CandidateProfileForm() {
                     )
                   }
                   className={stepperButtonClassName}
-                  aria-label="Diminuir peso"
+                  aria-label={t('decreaseWeight')}
                 >
                   <FiMinusCircle className="h-6 w-6" />
                 </button>
@@ -1694,7 +1699,7 @@ export function CandidateProfileForm() {
                     )
                   }
                   className={stepperButtonClassName}
-                  aria-label="Aumentar peso"
+                  aria-label={t('increaseWeight')}
                 >
                   <FiPlusCircle className="h-6 w-6" />
                 </button>
@@ -1709,7 +1714,7 @@ export function CandidateProfileForm() {
                 onClick={handleSavePhysicalAttributes}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -1718,7 +1723,7 @@ export function CandidateProfileForm() {
 
       <div id="uniforme" className={getSectionBoxClassName('uniforme')}>
         <ProfileSectionTitle
-          title="Uniforme"
+          title={t('uniform')}
           icon={GiBodySwapping}
           onIconClick={() => setShowUniform((v) => !v)}
           iconClickable
@@ -1730,7 +1735,7 @@ export function CandidateProfileForm() {
         {showUniform && (
           <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Select
-              label="Tamanho Camiseta"
+              label={t('tShirtSize')}
               labelClassName={labelClassName}
               className={fieldClassName}
               leftIcon={FaTshirt}
@@ -1741,7 +1746,7 @@ export function CandidateProfileForm() {
               {...register('candidateProfile.uniform.tShirtSize')}
             />
             <Select
-              label="Tamanho Jaqueta"
+              label={t('jacketSize')}
               labelClassName={labelClassName}
               className={fieldClassName}
               leftIcon={GiMonclerJacket}
@@ -1752,7 +1757,7 @@ export function CandidateProfileForm() {
               {...register('candidateProfile.uniform.jacketSize')}
             />
             <Select
-              label="Tamanho Shorts"
+              label={t('shortsSize')}
               labelClassName={labelClassName}
               className={fieldClassName}
               leftIcon={GiUnderwearShorts}
@@ -1763,7 +1768,7 @@ export function CandidateProfileForm() {
               {...register('candidateProfile.uniform.shortSize')}
             />
             <Select
-              label="Tamanho Calça"
+              label={t('pantsSize')}
               labelClassName={labelClassName}
               className={fieldClassName}
               leftIcon={PiPantsFill}
@@ -1774,7 +1779,7 @@ export function CandidateProfileForm() {
               {...register('candidateProfile.uniform.pantsSize')}
             />
             <Select
-              label="Unidade do Calçado"
+              label={t('shoeSizeUnit')}
               labelClassName={labelClassName}
               className={fieldClassName}
               leftIcon={GiConverseShoe}
@@ -1786,7 +1791,7 @@ export function CandidateProfileForm() {
             />
             <div>
               <label className={`mb-1 block text-sm font-medium ${labelClassName}`}>
-                Tamanho do Calçado
+                {t('shoeSize')}
               </label>
               <div className="flex items-center gap-3">
                 <button
@@ -1796,7 +1801,7 @@ export function CandidateProfileForm() {
                     updateNumericField('candidateProfile.uniform.shoeSize', shoeSizeValue, -1, 0, 0)
                   }
                   className={stepperButtonClassName}
-                  aria-label="Diminuir calçado"
+                  aria-label={t('decreaseShoeSize')}
                 >
                   <FiMinusCircle className="h-6 w-6" />
                 </button>
@@ -1814,7 +1819,7 @@ export function CandidateProfileForm() {
                       valueAsNumber: true,
                       validate: (value) => {
                         if ((value || value === 0) && !shoeSizeUnitValue) {
-                          return 'E necessario escolher uma unidade de calcado antes.';
+                          return t('shoeUnitRequired');
                         }
 
                         return true;
@@ -1834,7 +1839,7 @@ export function CandidateProfileForm() {
                     updateNumericField('candidateProfile.uniform.shoeSize', shoeSizeValue, 1, 0, 0)
                   }
                   className={stepperButtonClassName}
-                  aria-label="Aumentar calçado"
+                  aria-label={t('increaseShoeSize')}
                 >
                   <FiPlusCircle className="h-6 w-6" />
                 </button>
@@ -1854,7 +1859,7 @@ export function CandidateProfileForm() {
                 onClick={handleSaveUniform}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -1863,7 +1868,7 @@ export function CandidateProfileForm() {
 
       <div id="formacao" className={getSectionBoxClassName('formacao')}>
         <ProfileSectionTitle
-          title="Formação"
+          title={t('education')}
           icon={GiGraduateCap}
           onIconClick={() => setShowEducation((v) => !v)}
           iconClickable
@@ -1881,7 +1886,7 @@ export function CandidateProfileForm() {
                 icon={<FiPlusCircle />}
                 onClick={handleOpenEducationModal}
               >
-                Adicionar Formação
+                {t('addEducation')}
               </Button>
             </div>
             {educationFields.map((education, index) => (
@@ -1891,43 +1896,43 @@ export function CandidateProfileForm() {
               >
                 <div className="md:col-span-2">
                   <h3 className={nestedSectionTitleClassName}>
-                    {`Formação ${String(index + 1).padStart(2, '0')}`}
+                    {t('educationNumber', { number: String(index + 1).padStart(2, '0') })}
                   </h3>
                 </div>
                 <Input
-                  label="Cursando"
+                  label={t('ongoing')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
-                  value={education.isOngoing ? 'Sim' : 'Não'}
+                  value={education.isOngoing ? t('yes') : t('no')}
                   disabled
                 />
                 <div className="hidden md:block" />
                 <Input
-                  label="Curso"
+                  label={t('course')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={education.courseName}
                   disabled
                 />
                 <Input
-                  label="Instituição"
+                  label={t('institution')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={education.institution}
                   disabled
                 />
                 <Input
-                  label="Ano de início"
+                  label={t('startYear')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={String(education.startYear)}
                   disabled
                 />
                 <Input
-                  label="Ano de término"
+                  label={t('endYear')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
-                  value={education.isOngoing ? 'Cursando' : String(education.endYear || '')}
+                  value={education.isOngoing ? t('ongoing') : String(education.endYear || '')}
                   disabled
                 />
                 <div className="flex justify-end md:col-span-2">
@@ -1938,7 +1943,7 @@ export function CandidateProfileForm() {
                     disabled={isSubmitting}
                     onClick={() => handleDeleteEducation(index)}
                   >
-                    {`Apagar Formação ${String(index + 1).padStart(2, '0')}`}
+                    {t('deleteEducationNumber', { number: String(index + 1).padStart(2, '0') })}
                   </Button>
                 </div>
               </div>
@@ -1952,7 +1957,7 @@ export function CandidateProfileForm() {
         className={getSectionBoxClassName('experiencias-profissionais')}
       >
         <ProfileSectionTitle
-          title="Experiências Profissionais"
+          title={t('professionalExperiences')}
           icon={GrCertificate}
           onIconClick={() => setShowExperiences((v) => !v)}
           iconClickable
@@ -1970,7 +1975,7 @@ export function CandidateProfileForm() {
                 icon={<FiPlusCircle />}
                 onClick={handleOpenExperienceModal}
               >
-                Adicionar Experiência Profissional
+                {t('addProfessionalExperience')}
               </Button>
             </div>
             {experienceFields.map((experience, index) => (
@@ -1980,43 +1985,45 @@ export function CandidateProfileForm() {
               >
                 <div className="md:col-span-2">
                   <h3 className={nestedSectionTitleClassName}>
-                    {`Experiência Profissional ${String(index + 1).padStart(2, '0')}`}
+                    {t('professionalExperienceNumber', {
+                      number: String(index + 1).padStart(2, '0'),
+                    })}
                   </h3>
                 </div>
                 <Input
-                  label="Atual"
+                  label={t('current')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
-                  value={experience.isCurrent ? 'Sim' : 'Não'}
+                  value={experience.isCurrent ? t('yes') : t('no')}
                   disabled
                 />
                 <div className="hidden md:block" />
                 <Input
-                  label="Empresa"
+                  label={t('company')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={experience.companyName}
                   disabled
                 />
                 <Input
-                  label="Cargo"
+                  label={t('position')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={experience.role}
                   disabled
                 />
                 <Input
-                  label="Ano de início"
+                  label={t('startYear')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={String(experience.startYear)}
                   disabled
                 />
                 <Input
-                  label="Ano de término"
+                  label={t('endYear')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
-                  value={experience.isCurrent ? 'Atual' : String(experience.endYear || '')}
+                  value={experience.isCurrent ? t('current') : String(experience.endYear || '')}
                   disabled
                 />
                 <div className="flex justify-end md:col-span-2">
@@ -2027,7 +2034,9 @@ export function CandidateProfileForm() {
                     disabled={isSubmitting}
                     onClick={() => handleDeleteExperience(index)}
                   >
-                    {`Apagar Experiência Profissional ${String(index + 1).padStart(2, '0')}`}
+                    {t('deleteProfessionalExperienceNumber', {
+                      number: String(index + 1).padStart(2, '0'),
+                    })}
                   </Button>
                 </div>
               </div>
@@ -2038,7 +2047,7 @@ export function CandidateProfileForm() {
 
       <div id="disponibilidade" className={getSectionBoxClassName('disponibilidade')}>
         <ProfileSectionTitle
-          title="Disponibilidade"
+          title={t('availability')}
           icon={MdEventAvailable}
           onIconClick={() => setShowAvailability((v) => !v)}
           iconClickable
@@ -2056,7 +2065,7 @@ export function CandidateProfileForm() {
                   value={value}
                   {...register('candidateProfile.availability')}
                 />
-                {getAvailabilityShiftLabel(value)}
+                {getAvailabilityShiftLabel(value, t)}
               </label>
             ))}
             <div className="flex justify-end md:col-span-2">
@@ -2068,7 +2077,7 @@ export function CandidateProfileForm() {
                 onClick={handleSaveAvailability}
                 className={saveButtonClassName}
               >
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -2081,13 +2090,13 @@ export function CandidateProfileForm() {
             <div className="mb-6 flex items-start justify-between gap-4">
               <div className={modalHeadingClassName}>
                 <GiGraduateCap className="h-5 w-5 shrink-0 text-lime-400" />
-                <h2>{`CADASTRAR FORMAÇÃO ${nextEducationNumber}`}</h2>
+                <h2>{t('registerEducationNumber', { number: nextEducationNumber })}</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setIsEducationModalOpen(false)}
                 className={modalCloseButtonClassName}
-                aria-label="Fechar modal"
+                aria-label={t('closeModal')}
               >
                 ×
               </button>
@@ -2106,10 +2115,10 @@ export function CandidateProfileForm() {
                     }))
                   }
                 />
-                <span>Cursando</span>
+                <span>{t('ongoing')}</span>
               </label>
               <Select
-                label="Tipo de curso"
+                label={t('courseType')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
                 options={courseTypeOptions}
@@ -2123,10 +2132,10 @@ export function CandidateProfileForm() {
               />
 
               <Input
-                label="Curso"
+                label={t('course')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
-                placeholder="Curso"
+                placeholder={t('course')}
                 value={educationDraft.courseName}
                 onChange={(event) =>
                   setEducationDraft((current) => ({
@@ -2136,10 +2145,10 @@ export function CandidateProfileForm() {
                 }
               />
               <Input
-                label="Instituição"
+                label={t('institution')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
-                placeholder="Instituição"
+                placeholder={t('institution')}
                 value={educationDraft.institution}
                 onChange={(event) =>
                   setEducationDraft((current) => ({
@@ -2151,14 +2160,14 @@ export function CandidateProfileForm() {
 
               <div>
                 <label className={`mb-1 block text-sm font-medium ${labelClassName}`}>
-                  Ano de início
+                  {t('startYear')}
                 </label>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => updateEducationDraftYear('startYear', -1)}
                     className={stepperButtonClassName}
-                    aria-label="Diminuir ano de início"
+                    aria-label={t('decreaseStartYear')}
                   >
                     <FiMinusCircle className="h-6 w-6" />
                   </button>
@@ -2177,7 +2186,7 @@ export function CandidateProfileForm() {
                     type="button"
                     onClick={() => updateEducationDraftYear('startYear', 1)}
                     className={stepperButtonClassName}
-                    aria-label="Aumentar ano de início"
+                    aria-label={t('increaseStartYear')}
                   >
                     <FiPlusCircle className="h-6 w-6" />
                   </button>
@@ -2186,14 +2195,14 @@ export function CandidateProfileForm() {
 
               <div>
                 <label className={`mb-1 block text-sm font-medium ${labelClassName}`}>
-                  {educationDraft.isOngoing ? 'Previsão de término' : 'Ano de término'}
+                  {educationDraft.isOngoing ? t('expectedEndYear') : t('endYear')}
                 </label>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => updateEducationDraftYear('endYear', -1)}
                     className={stepperButtonClassName}
-                    aria-label="Diminuir ano de término"
+                    aria-label={t('decreaseEndYear')}
                   >
                     <FiMinusCircle className="h-6 w-6" />
                   </button>
@@ -2212,7 +2221,7 @@ export function CandidateProfileForm() {
                     type="button"
                     onClick={() => updateEducationDraftYear('endYear', 1)}
                     className={stepperButtonClassName}
-                    aria-label="Aumentar ano de término"
+                    aria-label={t('increaseEndYear')}
                   >
                     <FiPlusCircle className="h-6 w-6" />
                   </button>
@@ -2227,7 +2236,7 @@ export function CandidateProfileForm() {
                   onClick={handleSaveEducation}
                   className={saveButtonClassName}
                 >
-                  Salvar
+                  {t('save')}
                 </Button>
               </div>
             </div>
@@ -2241,13 +2250,15 @@ export function CandidateProfileForm() {
             <div className="mb-6 flex items-start justify-between gap-4">
               <div className={modalHeadingClassName}>
                 <Save className="h-5 w-5 shrink-0 text-lime-400" />
-                <h2>{`CADASTRAR EXPERIÊNCIA PROFISSIONAL ${nextExperienceNumber}`}</h2>
+                <h2>
+                  {t('registerProfessionalExperienceNumber', { number: nextExperienceNumber })}
+                </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setIsExperienceModalOpen(false)}
                 className={modalCloseButtonClassName}
-                aria-label="Fechar modal"
+                aria-label={t('closeModal')}
               >
                 ×
               </button>
@@ -2266,15 +2277,15 @@ export function CandidateProfileForm() {
                     }))
                   }
                 />
-                <span>Atual</span>
+                <span>{t('current')}</span>
               </label>
               <div className="hidden md:block" />
 
               <Input
-                label="Empresa"
+                label={t('company')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
-                placeholder="Empresa"
+                placeholder={t('company')}
                 value={experienceDraft.companyName}
                 onChange={(event) =>
                   setExperienceDraft((current) => ({
@@ -2284,10 +2295,10 @@ export function CandidateProfileForm() {
                 }
               />
               <Input
-                label="Cargo"
+                label={t('position')}
                 labelClassName={labelClassName}
                 className={fieldClassName}
-                placeholder="Cargo"
+                placeholder={t('position')}
                 value={experienceDraft.role}
                 onChange={(event) =>
                   setExperienceDraft((current) => ({
@@ -2299,14 +2310,14 @@ export function CandidateProfileForm() {
 
               <div>
                 <label className={`mb-1 block text-sm font-medium ${labelClassName}`}>
-                  Ano de início
+                  {t('startYear')}
                 </label>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => updateExperienceDraftYear('startYear', -1)}
                     className={stepperButtonClassName}
-                    aria-label="Diminuir ano de início da experiência"
+                    aria-label={t('decreaseExperienceStartYear')}
                   >
                     <FiMinusCircle className="h-6 w-6" />
                   </button>
@@ -2325,7 +2336,7 @@ export function CandidateProfileForm() {
                     type="button"
                     onClick={() => updateExperienceDraftYear('startYear', 1)}
                     className={stepperButtonClassName}
-                    aria-label="Aumentar ano de início da experiência"
+                    aria-label={t('increaseExperienceStartYear')}
                   >
                     <FiPlusCircle className="h-6 w-6" />
                   </button>
@@ -2334,7 +2345,7 @@ export function CandidateProfileForm() {
 
               <div>
                 <label className={`mb-1 block text-sm font-medium ${labelClassName}`}>
-                  Ano de término
+                  {t('endYear')}
                 </label>
                 <div className="flex items-center gap-3">
                   <button
@@ -2342,7 +2353,7 @@ export function CandidateProfileForm() {
                     onClick={() => updateExperienceDraftYear('endYear', -1)}
                     disabled={experienceDraft.isCurrent}
                     className={stepperButtonClassName}
-                    aria-label="Diminuir ano de término da experiência"
+                    aria-label={t('decreaseExperienceEndYear')}
                   >
                     <FiMinusCircle className="h-6 w-6" />
                   </button>
@@ -2363,7 +2374,7 @@ export function CandidateProfileForm() {
                     onClick={() => updateExperienceDraftYear('endYear', 1)}
                     disabled={experienceDraft.isCurrent}
                     className={stepperButtonClassName}
-                    aria-label="Aumentar ano de término da experiência"
+                    aria-label={t('increaseExperienceEndYear')}
                   >
                     <FiPlusCircle className="h-6 w-6" />
                   </button>
@@ -2378,7 +2389,7 @@ export function CandidateProfileForm() {
                   onClick={handleSaveExperience}
                   className={saveButtonClassName}
                 >
-                  Salvar
+                  {t('save')}
                 </Button>
               </div>
             </div>
@@ -2392,58 +2403,62 @@ export function CandidateProfileForm() {
             <div className="mb-6 flex items-start justify-between gap-4">
               <div className={modalHeadingClassName}>
                 <FaRegTrashAlt className="h-5 w-5 shrink-0 text-lime-400" />
-                <h2>{`APAGAR FORMAÇÃO ${String(educationIndexToDelete + 1).padStart(2, '0')}`}</h2>
+                <h2>
+                  {t('deleteEducationNumber', {
+                    number: String(educationIndexToDelete + 1).padStart(2, '0'),
+                  })}
+                </h2>
               </div>
               <button
                 type="button"
                 onClick={cancelDeleteEducation}
                 className={modalCloseButtonClassName}
-                aria-label="Fechar modal"
+                aria-label={t('closeModal')}
               >
                 ×
               </button>
             </div>
 
             <div className="space-y-4">
-              <p className={modalDescriptionClassName}>Confirme a exclusão da formação abaixo.</p>
+              <p className={modalDescriptionClassName}>{t('confirmEducationDelete')}</p>
 
               <div className={`grid gap-4 md:grid-cols-2 ${nestedCardClassName}`}>
                 <Input
-                  label="Cursando"
+                  label={t('ongoing')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
-                  value={educationFields[educationIndexToDelete].isOngoing ? 'Sim' : 'Não'}
+                  value={educationFields[educationIndexToDelete].isOngoing ? t('yes') : t('no')}
                   disabled
                 />
                 <div className="hidden md:block" />
                 <Input
-                  label="Curso"
+                  label={t('course')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={educationFields[educationIndexToDelete].courseName}
                   disabled
                 />
                 <Input
-                  label="Instituição"
+                  label={t('institution')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={educationFields[educationIndexToDelete].institution}
                   disabled
                 />
                 <Input
-                  label="Ano de início"
+                  label={t('startYear')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={String(educationFields[educationIndexToDelete].startYear)}
                   disabled
                 />
                 <Input
-                  label="Ano de término"
+                  label={t('endYear')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={
                     educationFields[educationIndexToDelete].isOngoing
-                      ? 'Cursando'
+                      ? t('ongoing')
                       : String(educationFields[educationIndexToDelete].endYear || '')
                   }
                   disabled
@@ -2452,7 +2467,7 @@ export function CandidateProfileForm() {
 
               <div className="flex justify-end gap-3">
                 <Button type="button" variant="profile" onClick={cancelDeleteEducation}>
-                  Cancelar
+                  {t('cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -2461,7 +2476,9 @@ export function CandidateProfileForm() {
                   disabled={isSubmitting}
                   onClick={confirmDeleteEducation}
                 >
-                  {`Apagar Formação ${String(educationIndexToDelete + 1).padStart(2, '0')}`}
+                  {t('deleteEducationNumber', {
+                    number: String(educationIndexToDelete + 1).padStart(2, '0'),
+                  })}
                 </Button>
               </div>
             </div>
@@ -2476,17 +2493,16 @@ export function CandidateProfileForm() {
               <div className={modalHeadingClassName}>
                 <FaRegTrashAlt className="h-5 w-5 shrink-0 text-lime-400" />
                 <h2>
-                  {`APAGAR EXPERIÊNCIA PROFISSIONAL ${String(experienceIndexToDelete + 1).padStart(
-                    2,
-                    '0',
-                  )}`}
+                  {t('deleteProfessionalExperienceNumber', {
+                    number: String(experienceIndexToDelete + 1).padStart(2, '0'),
+                  })}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={cancelDeleteExperience}
                 className={modalCloseButtonClassName}
-                aria-label="Fechar modal"
+                aria-label={t('closeModal')}
               >
                 ×
               </button>
@@ -2494,46 +2510,46 @@ export function CandidateProfileForm() {
 
             <div className="space-y-4">
               <p className={modalDescriptionClassName}>
-                Confirme a exclusão da experiência profissional abaixo.
+                {t('confirmProfessionalExperienceDelete')}
               </p>
 
               <div className={`grid gap-4 md:grid-cols-2 ${nestedCardClassName}`}>
                 <Input
-                  label="Atual"
+                  label={t('current')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
-                  value={experienceFields[experienceIndexToDelete].isCurrent ? 'Sim' : 'Não'}
+                  value={experienceFields[experienceIndexToDelete].isCurrent ? t('yes') : t('no')}
                   disabled
                 />
                 <div className="hidden md:block" />
                 <Input
-                  label="Empresa"
+                  label={t('company')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={experienceFields[experienceIndexToDelete].companyName}
                   disabled
                 />
                 <Input
-                  label="Cargo"
+                  label={t('position')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={experienceFields[experienceIndexToDelete].role}
                   disabled
                 />
                 <Input
-                  label="Ano de início"
+                  label={t('startYear')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={String(experienceFields[experienceIndexToDelete].startYear)}
                   disabled
                 />
                 <Input
-                  label="Ano de término"
+                  label={t('endYear')}
                   labelClassName={labelClassName}
                   className={fieldClassName}
                   value={
                     experienceFields[experienceIndexToDelete].isCurrent
-                      ? 'Atual'
+                      ? t('current')
                       : String(experienceFields[experienceIndexToDelete].endYear || '')
                   }
                   disabled
@@ -2542,7 +2558,7 @@ export function CandidateProfileForm() {
 
               <div className="flex justify-end gap-3">
                 <Button type="button" variant="profile" onClick={cancelDeleteExperience}>
-                  Cancelar
+                  {t('cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -2551,10 +2567,9 @@ export function CandidateProfileForm() {
                   disabled={isSubmitting}
                   onClick={confirmDeleteExperience}
                 >
-                  {`Apagar Experiência Profissional ${String(experienceIndexToDelete + 1).padStart(
-                    2,
-                    '0',
-                  )}`}
+                  {t('deleteProfessionalExperienceNumber', {
+                    number: String(experienceIndexToDelete + 1).padStart(2, '0'),
+                  })}
                 </Button>
               </div>
             </div>

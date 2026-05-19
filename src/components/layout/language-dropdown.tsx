@@ -3,17 +3,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-
-const LANGUAGES = [
-  { code: 'pt-BR', label: 'Português', flag: '🇧🇷' },
-  { code: 'es', label: 'Espanhol', flag: '🇪🇸' },
-  { code: 'en', label: 'Inglês', flag: '🇺🇸' },
-];
+import { useLocale, useTranslations } from 'next-intl';
+import { usePathname, useRouter } from '@/i18n/navigation';
+import { localeLabels, locales, type Locale } from '@/i18n/config';
 
 export function LanguageDropdown({ isFullWidth = false }: { isFullWidth?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0]);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const locale = useLocale() as Locale;
+  const pathname = usePathname();
+  const router = useRouter();
+  const t = useTranslations('Language');
+  const selectedLanguage = localeLabels[locale];
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -61,7 +62,7 @@ export function LanguageDropdown({ isFullWidth = false }: { isFullWidth?: boolea
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.16, ease: 'easeOut' }}
             role="listbox"
-            aria-label="Selecionar idioma"
+            aria-label={t('select')}
             className={`absolute z-50 mt-3 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/95 p-2 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur ${
               isFullWidth ? 'left-0 right-0' : 'right-0 w-72'
             }`}
@@ -71,22 +72,23 @@ export function LanguageDropdown({ isFullWidth = false }: { isFullWidth?: boolea
                 <span>{selectedLanguage.flag}</span>
                 <span>{selectedLanguage.label}</span>
               </p>
-              <p className="mt-1 text-xs text-zinc-500">Escolha seu idioma</p>
+              <p className="mt-1 text-xs text-zinc-500">{t('choose')}</p>
             </div>
 
             <div className="py-2">
-              {LANGUAGES.map((language) => {
-                const isSelected = language.code === selectedLanguage.code;
+              {locales.map((language) => {
+                const languageDetails = localeLabels[language];
+                const isSelected = language === locale;
 
                 return (
                   <button
-                    key={language.code}
+                    key={language}
                     type="button"
                     role="option"
                     aria-selected={isSelected}
                     onClick={() => {
-                      setSelectedLanguage(language);
                       setIsOpen(false);
+                      router.replace(pathname, { locale: language });
                     }}
                     className={`flex w-full items-center justify-between rounded-xl px-3 py-3 text-sm transition-colors ${
                       isSelected
@@ -95,8 +97,8 @@ export function LanguageDropdown({ isFullWidth = false }: { isFullWidth?: boolea
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      <span>{language.flag}</span>
-                      <span>{language.label}</span>
+                      <span>{languageDetails.flag}</span>
+                      <span>{t(language)}</span>
                     </span>
                     {isSelected && <Check className="h-4 w-4" />}
                   </button>

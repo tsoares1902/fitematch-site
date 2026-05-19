@@ -68,7 +68,7 @@ describe('JobCard', () => {
   it('badges', () => {
     render(<JobCard job={job as never} company={company as never} />);
 
-    expect(screen.getByText('clt')).toBeInTheDocument();
+    expect(screen.getByText('CLT')).toBeInTheDocument();
     expect(screen.getByText('2 vagas')).toBeInTheDocument();
     expect(screen.getByText(/R\$?\s?3.500,00/)).toBeInTheDocument();
   });

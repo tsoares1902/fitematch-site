@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, BriefcaseBusiness, Building2, MapPin, Users, Wallet } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { ROUTES } from '@/constants/routes';
 import { useJobs } from '@/hooks/use-jobs';
+import { Link } from '@/i18n/navigation';
 import { resolveFileUrl } from '@/utils/file-url';
+import { getJobContractTypeLabel } from '@/utils/job-contract-label';
 
 const VISIBLE_JOBS = 3;
 const ROTATION_INTERVAL_MS = 20000;
@@ -15,6 +17,9 @@ const TRANSITION_LOADING_MS = 500;
 
 export function FeaturedJobs() {
   const { jobs, isLoading, error } = useJobs();
+  const locale = useLocale();
+  const t = useTranslations('Home');
+  const jobsT = useTranslations('Jobs');
   const [startIndex, setStartIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const effectiveStartIndex = jobs.length > VISIBLE_JOBS ? startIndex % jobs.length : 0;
@@ -50,22 +55,22 @@ export function FeaturedJobs() {
 
   const formatSalary = (salary?: number | string) => {
     if (typeof salary === 'number') {
-      return new Intl.NumberFormat('pt-BR', {
+      return new Intl.NumberFormat(locale === 'pt' ? 'pt-BR' : locale, {
         style: 'currency',
         currency: 'BRL',
         maximumFractionDigits: 0,
       }).format(salary);
     }
 
-    return salary || 'Salário a combinar';
+    return salary || t('salaryToAgree');
   };
 
   const formatSlots = (slots?: number) => {
     if (!slots || slots <= 1) {
-      return '1 vaga';
+      return t('oneSlot');
     }
 
-    return `${slots} vagas`;
+    return t('slots', { count: slots });
   };
 
   return (
@@ -74,7 +79,7 @@ export function FeaturedJobs() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-medium uppercase tracking-[0.26em] text-lime-400">
-              Vagas em destaque
+              {t('featuredJobs')}
             </p>
           </div>
 
@@ -82,7 +87,7 @@ export function FeaturedJobs() {
             href={ROUTES.JOBS}
             className="inline-flex items-center gap-2 rounded-xl border border-lime-500/20 bg-lime-500/10 px-4 py-2.5 text-sm font-medium text-lime-300 transition-all hover:-translate-y-0.5 hover:border-lime-500/35 hover:bg-lime-500/15 hover:text-lime-200"
           >
-            Ver todas as vagas
+            {t('viewAllJobs')}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -131,10 +136,10 @@ export function FeaturedJobs() {
                         {formatSalary(job.benefits?.salary)}
                       </div>
 
-                      {job.contractType && (
+                      {getJobContractTypeLabel(job.contractType, jobsT) && (
                         <div className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-black/70 px-3 py-1.5 text-[11px] uppercase tracking-[0.18em] text-zinc-200 backdrop-blur">
                           <BriefcaseBusiness className="h-3.5 w-3.5 text-lime-400" />
-                          {job.contractType}
+                          {getJobContractTypeLabel(job.contractType, jobsT)}
                         </div>
                       )}
 
@@ -147,7 +152,7 @@ export function FeaturedJobs() {
                           </span>
                           <span className="inline-flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-lime-400" />
-                            {job.company.contacts?.address?.city || 'Brasil'}
+                            {job.company.contacts?.address?.city || t('fallbackCountry')}
                           </span>
                           <span className="inline-flex items-center gap-2">
                             <Users className="h-4 w-4 text-lime-400" />

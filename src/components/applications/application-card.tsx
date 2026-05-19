@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BriefcaseBusiness, Building2, Clock3, ShieldCheck, Trash2, XCircle } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ApplyService } from '@/services/apply/apply.service';
 import ApplyEntity, { ApplicationStatusEnum } from '@/types/entities/apply.entity';
@@ -16,21 +17,26 @@ interface Props {
   onDeleted?: () => void;
 }
 
-function getApplicationStatusLabel(status: ApplicationStatusEnum) {
+function getApplicationStatusLabel(
+  status: ApplicationStatusEnum,
+  t: ReturnType<typeof useTranslations>,
+) {
   return {
-    [ApplicationStatusEnum.APPLIED]: 'APLICADO',
-    [ApplicationStatusEnum.SHORTLISTED]: 'PRÉ-SELECIONADO',
-    [ApplicationStatusEnum.REJECTED]: 'REJEITADO',
-    [ApplicationStatusEnum.HIRED]: 'CONTRATADO',
+    [ApplicationStatusEnum.APPLIED]: t('statusApplied'),
+    [ApplicationStatusEnum.SHORTLISTED]: t('statusShortlisted'),
+    [ApplicationStatusEnum.REJECTED]: t('statusRejected'),
+    [ApplicationStatusEnum.HIRED]: t('statusHired'),
   }[status];
 }
 
 export function ApplicationCard({ application, index = 0, onDeleted }: Props) {
+  const t = useTranslations('Applications');
+  const locale = useLocale();
   const { showSuccess, showError } = useFlashMessage();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
-  const statusLabel = getApplicationStatusLabel(application.status);
+  const statusLabel = getApplicationStatusLabel(application.status, t);
   const details = (
     application as ApplyEntity & {
       details?: {
@@ -40,23 +46,23 @@ export function ApplicationCard({ application, index = 0, onDeleted }: Props) {
       };
     }
   ).details;
-  const jobTitle = details?.jobTitle || 'Vaga sem título';
-  const companyName = details?.tradeName || 'Empresa';
+  const jobTitle = details?.jobTitle || t('untitledJob');
+  const companyName = details?.tradeName || t('companyFallback');
   const logoUrl = details?.logoUrl;
   const companyInitials = companyName.slice(0, 2).toUpperCase();
   const applyId = application._id || application.id || '';
   const headingTitle = jobTitle;
   const detailedJobTitle = `${companyName} - ${jobTitle}`;
-  const appliedAt = application.createdAt ? formatAppliedAt(application.createdAt) : null;
+  const appliedAt = application.createdAt ? formatAppliedAt(application.createdAt, locale) : null;
 
   async function handleDelete() {
     try {
       setIsDeleting(true);
       await ApplyService.delete(applyId);
-      showSuccess('Candidatura cancelada com sucesso.');
+      showSuccess(t('cancelSuccess'));
       onDeleted?.();
     } catch {
-      showError('Erro ao cancelar candidatura.');
+      showError(t('cancelError'));
     } finally {
       setIsDeleting(false);
     }
@@ -102,7 +108,7 @@ export function ApplicationCard({ application, index = 0, onDeleted }: Props) {
             <div className="rounded-xl border border-zinc-800 bg-black/35 p-4">
               <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zinc-500">
                 <BriefcaseBusiness className="h-3.5 w-3.5" />
-                Vaga
+                {t('job')}
               </div>
               <p className="mt-2 text-sm text-zinc-200">{detailedJobTitle}</p>
             </div>
@@ -118,9 +124,9 @@ export function ApplicationCard({ application, index = 0, onDeleted }: Props) {
             <div className="rounded-xl border border-zinc-800 bg-black/35 p-4">
               <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zinc-500">
                 <Clock3 className="h-3.5 w-3.5" />
-                Aplicado em
+                {t('appliedAt')}
               </div>
-              <p className="mt-2 text-sm text-zinc-200">{appliedAt || 'Sem registro'}</p>
+              <p className="mt-2 text-sm text-zinc-200">{appliedAt || t('noRecord')}</p>
             </div>
           </div>
 
@@ -132,7 +138,7 @@ export function ApplicationCard({ application, index = 0, onDeleted }: Props) {
               disabled={isDeleting}
               className="rounded-xl border-red-500/20 bg-red-500/10 text-red-200 hover:bg-red-500/15"
             >
-              Cancelar candidatura
+              {t('cancelApplication')}
             </Button>
           </div>
         </div>
@@ -144,20 +150,20 @@ export function ApplicationCard({ application, index = 0, onDeleted }: Props) {
             <div className="mb-6 flex items-start justify-between gap-4">
               <div className="flex items-center gap-3 text-xl font-semibold uppercase text-zinc-100">
                 <XCircle className="h-5 w-5 shrink-0 text-red-300" />
-                <h2>Cancelar aplicação</h2>
+                <h2>{t('cancelApplicationTitle')}</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setIsConfirmModalOpen(false)}
                 className="text-2xl leading-none text-zinc-400 transition-colors hover:text-zinc-100"
-                aria-label="Fechar modal"
+                aria-label={t('closeModal')}
               >
                 ×
               </button>
             </div>
             <div className="space-y-4">
               <p className="text-zinc-300">
-                Você realmente deseja cancelar sua candidatura para {jobTitle} em {companyName}?
+                {t('cancelApplicationDescription', { job: jobTitle, company: companyName })}
               </p>
               <div className="rounded-2xl border border-zinc-800 bg-black/50 p-5">
                 <div className="flex items-center gap-4">
@@ -192,7 +198,7 @@ export function ApplicationCard({ application, index = 0, onDeleted }: Props) {
                   onClick={() => setIsConfirmModalOpen(false)}
                   className="rounded-xl border-zinc-800 bg-black/40 text-zinc-200 hover:bg-white/[0.03]"
                 >
-                  Voltar
+                  {t('back')}
                 </Button>
                 <Button
                   type="button"
@@ -205,7 +211,7 @@ export function ApplicationCard({ application, index = 0, onDeleted }: Props) {
                   disabled={isDeleting}
                   className="rounded-xl border-red-500/20 bg-red-500/10 text-red-200 hover:bg-red-500/15"
                 >
-                  Confirmar cancelamento
+                  {t('confirmCancellation')}
                 </Button>
               </div>
             </div>
@@ -216,19 +222,19 @@ export function ApplicationCard({ application, index = 0, onDeleted }: Props) {
   );
 }
 
-function formatAppliedAt(value: string | Date) {
+function formatAppliedAt(value: string | Date, locale: string) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return null;
   }
 
-  const datePart = date.toLocaleDateString('pt-BR', {
+  const datePart = date.toLocaleDateString(locale === 'pt' ? 'pt-BR' : locale, {
     day: '2-digit',
     month: '2-digit',
     year: '2-digit',
   });
-  const timePart = date.toLocaleTimeString('pt-BR', {
+  const timePart = date.toLocaleTimeString(locale === 'pt' ? 'pt-BR' : locale, {
     hour: '2-digit',
     minute: '2-digit',
   });

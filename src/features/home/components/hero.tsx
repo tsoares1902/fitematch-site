@@ -1,15 +1,17 @@
 'use client';
 
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, BriefcaseBusiness, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/hooks/use-auth';
 import { useHomeHeroStats } from '@/hooks/use-home-hero-stats';
+import { Link } from '@/i18n/navigation';
 
 export function HomeHero() {
   const { isAuthenticated } = useAuth();
   const { stats } = useHomeHeroStats();
+  const t = useTranslations('Home');
 
   return (
     <section className="relative flex min-h-[calc(100vh-81px)] items-center overflow-hidden bg-black">
@@ -24,8 +26,9 @@ export function HomeHero() {
             transition={{ duration: 0.55, delay: 0.05, ease: 'easeOut' }}
             className="max-w-4xl text-5xl font-semibold tracking-[-0.06em] text-zinc-50 sm:text-6xl lg:text-7xl"
           >
-            Onde o <span className="text-zinc-50">fitness</span> encontra{' '}
-            <span className="text-lime-400">performance</span>.
+            {t('heroTitleBefore')} <span className="text-zinc-50">{t('heroTitleFitness')}</span>{' '}
+            {t('heroTitleMiddle')}{' '}
+            <span className="text-lime-400">{t('heroTitlePerformance')}</span>.
           </motion.h1>
 
           <motion.p
@@ -34,10 +37,10 @@ export function HomeHero() {
             transition={{ duration: 0.55, delay: 0.15, ease: 'easeOut' }}
             className="mt-6 text-xs font-semibold uppercase tracking-[0.34em] text-zinc-500 sm:text-sm"
           >
-            <span className="text-lime-400">Fit</span>
-            <span className="text-zinc-300"> de profissionais. </span>
-            <span className="text-lime-400">Match</span>
-            <span className="text-zinc-300"> de resultados.</span>
+            <span className="text-lime-400">{t('heroKickerFit')}</span>
+            <span className="text-zinc-300">{t('heroKickerProfessionals')}</span>
+            <span className="text-lime-400">{t('heroKickerMatch')}</span>
+            <span className="text-zinc-300">{t('heroKickerResults')}</span>
           </motion.p>
 
           <motion.div
@@ -51,14 +54,14 @@ export function HomeHero() {
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-lime-500 px-6 py-3 text-sm font-medium text-black transition-all hover:-translate-y-0.5 hover:bg-lime-400"
             >
               <CheckCircle2 className="h-4 w-4" />
-              {isAuthenticated ? 'Ver candidaturas' : 'Começar agora'}
+              {isAuthenticated ? t('viewApplications') : t('startNow')}
             </Link>
             <Link
               href={ROUTES.JOBS}
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-950 px-6 py-3 text-sm font-medium text-zinc-100 transition-all hover:-translate-y-0.5 hover:border-zinc-700 hover:bg-zinc-900"
             >
               <BriefcaseBusiness className="h-4 w-4" />
-              Explorar vagas
+              {t('exploreJobs')}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -77,7 +80,7 @@ export function HomeHero() {
             <div className="flex items-center justify-end pb-5">
               <span className="inline-flex items-center gap-2 rounded-full border border-lime-500/20 bg-lime-500/10 px-3 py-1 text-xs text-lime-300">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                Live
+                {t('live')}
               </span>
             </div>
             <div className="mt-6 grid gap-4">

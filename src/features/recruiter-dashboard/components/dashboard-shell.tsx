@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   BriefcaseBusiness,
@@ -17,21 +15,15 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/constants/routes';
+import { Link, usePathname } from '@/i18n/navigation';
 
 interface DashboardNavItem {
   href: string;
   label: string;
   icon: LucideIcon;
 }
-
-const DEFAULT_NAV_ITEMS: DashboardNavItem[] = [
-  { href: ROUTES.RECRUITER_DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
-  { href: ROUTES.RECRUITER_PROFILE, label: 'Perfil', icon: UserRound },
-  { href: ROUTES.RECRUITER_COMPANY, label: 'Empresa', icon: Building2 },
-  { href: ROUTES.RECRUITER_JOBS, label: 'Vagas', icon: BriefcaseBusiness },
-  { href: ROUTES.RECRUITER_SESSIONS, label: 'Sessões', icon: MonitorSmartphone },
-];
 
 function SidebarContent({
   collapsed,
@@ -47,6 +39,7 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const t = useTranslations('Dashboard');
   const dashboardHref = navItems[0]?.href || homeHref;
 
   return (
@@ -90,28 +83,30 @@ function SidebarContent({
 
         {!collapsed && !sidebarExtra && (
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-4 backdrop-blur">
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">Status</p>
+            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">
+              {t('status')}
+            </p>
             <div className="mt-4 space-y-3 text-sm text-zinc-400">
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-2">
                   <Server className="h-4 w-4 text-lime-400" />
-                  API
+                  {t('api')}
                 </span>
-                <span className="text-lime-400">Online</span>
+                <span className="text-lime-400">{t('online')}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-2">
                   <Globe2 className="h-4 w-4 text-lime-400" />
-                  Site
+                  {t('site')}
                 </span>
-                <span className="text-lime-400">Online</span>
+                <span className="text-lime-400">{t('online')}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-2">
                   <UserRound className="h-4 w-4 text-lime-400" />
-                  Perfil
+                  {t('profile')}
                 </span>
-                <span className="text-zinc-200">Recrutador</span>
+                <span className="text-zinc-200">{t('recruiter')}</span>
               </div>
             </div>
           </div>
@@ -125,7 +120,7 @@ export function DashboardShell({
   title,
   subtitle,
   homeHref = ROUTES.RECRUITER_DASHBOARD,
-  navItems = DEFAULT_NAV_ITEMS,
+  navItems,
   sidebarExtra,
   children,
 }: {
@@ -138,6 +133,14 @@ export function DashboardShell({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const t = useTranslations('Dashboard');
+  const resolvedNavItems = navItems ?? [
+    { href: ROUTES.RECRUITER_DASHBOARD, label: t('dashboard'), icon: LayoutDashboard },
+    { href: ROUTES.RECRUITER_PROFILE, label: t('profile'), icon: UserRound },
+    { href: ROUTES.RECRUITER_COMPANY, label: t('company'), icon: Building2 },
+    { href: ROUTES.RECRUITER_JOBS, label: t('jobs'), icon: BriefcaseBusiness },
+    { href: ROUTES.RECRUITER_SESSIONS, label: t('sessions'), icon: MonitorSmartphone },
+  ];
 
   return (
     <div className="min-h-screen bg-black text-zinc-50">
@@ -150,7 +153,7 @@ export function DashboardShell({
           <SidebarContent
             collapsed={collapsed}
             homeHref={homeHref}
-            navItems={navItems}
+            navItems={resolvedNavItems}
             sidebarExtra={sidebarExtra}
           />
         </aside>
@@ -184,7 +187,7 @@ export function DashboardShell({
                 <SidebarContent
                   collapsed={false}
                   homeHref={homeHref}
-                  navItems={navItems}
+                  navItems={resolvedNavItems}
                   sidebarExtra={sidebarExtra}
                   onNavigate={() => setMobileOpen(false)}
                 />

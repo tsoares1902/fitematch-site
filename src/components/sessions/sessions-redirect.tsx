@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { PageLoading } from '@/components/ui/page-loading';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/hooks/use-auth';
 import { ProductRoleEnum } from '@/types/entities/user.entity';
+import { useRouter } from '@/i18n/navigation';
 
 export function SessionsRedirect() {
   const router = useRouter();

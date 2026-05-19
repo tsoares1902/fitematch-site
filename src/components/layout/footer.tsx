@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   FaDiscord,
   FaFacebookF,
@@ -9,13 +9,7 @@ import {
   FaYoutube,
 } from 'react-icons/fa6';
 import { ROUTES } from '@/constants/routes';
-
-const FOOTER_LINKS = [
-  { href: ROUTES.JOBS, label: 'Vagas' },
-  { href: ROUTES.FAQ, label: 'FAQ' },
-  { href: ROUTES.PRIVACY_POLICY, label: 'Privacidade' },
-  { href: ROUTES.TERMS_OF_USE, label: 'Termos' },
-];
+import { Link } from '@/i18n/navigation';
 
 const SOCIAL_LINKS = [
   {
@@ -57,9 +51,16 @@ const SOCIAL_LINKS = [
 ];
 
 export function Footer() {
+  const t = useTranslations('Footer');
   const baseYear = 2026;
   const currentYear = new Date().getFullYear();
   const copyrightYears = currentYear > baseYear ? `${baseYear} - ${currentYear}` : `${baseYear}`;
+  const footerLinks = [
+    { href: ROUTES.JOBS, label: t('jobs') },
+    { href: ROUTES.FAQ, label: 'FAQ' },
+    { href: ROUTES.PRIVACY_POLICY, label: t('privacy') },
+    { href: ROUTES.TERMS_OF_USE, label: t('terms') },
+  ];
 
   return (
     <footer className="border-t border-zinc-800 bg-black">
@@ -72,19 +73,21 @@ export function Footer() {
                 <span className="text-lime-400">match</span>
               </span>
             </div>
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-zinc-500">Canais</p>
+            <p className="text-sm font-medium uppercase tracking-[0.24em] text-zinc-500">
+              {t('channels')}
+            </p>
             <div className="flex flex-wrap gap-3">
               {SOCIAL_LINKS.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <Link
+                  <a
                     key={item.label}
                     href={item.href}
                     className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950 text-zinc-400 transition-all hover:-translate-y-0.5 ${item.hoverClassName}`}
                     aria-label={item.label}
                   >
                     <Icon className="h-4 w-4" />
-                  </Link>
+                  </a>
                 );
               })}
             </div>
@@ -93,10 +96,10 @@ export function Footer() {
           <div className="grid gap-10 sm:grid-cols-2">
             <div className="space-y-4 sm:col-start-2 sm:text-right">
               <p className="text-sm font-medium uppercase tracking-[0.24em] text-zinc-500">
-                Navegação
+                {t('navigation')}
               </p>
               <div className="flex flex-col gap-3 sm:items-end">
-                {FOOTER_LINKS.map((link) => (
+                {footerLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
@@ -114,9 +117,11 @@ export function Footer() {
         </div>
 
         <div className="mt-16 flex flex-col gap-3 border-t border-zinc-800 pt-6 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {copyrightYears} fitematch. Todos os direitos reservados.</p>
           <p>
-            Developed by{' '}
+            © {copyrightYears} fitematch. {t('rights')}
+          </p>
+          <p>
+            {t('developedBy')}{' '}
             <a
               href="https://drowper.com"
               target="_blank"
